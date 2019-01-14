@@ -3,8 +3,8 @@ object settingsForm: TsettingsForm
   Top = 0
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 143
-  ClientWidth = 368
+  ClientHeight = 110
+  ClientWidth = 408
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,11 +13,26 @@ object settingsForm: TsettingsForm
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
+  object labSaveInfo: TLabel
+    Left = 145
+    Top = 86
+    Width = 126
+    Height = 13
+    Caption = 'Settings saved succesfully'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clGreen
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    Visible = False
+  end
   object btnSave: TButton
     Left = 8
-    Top = 110
+    Top = 79
     Width = 75
     Height = 25
     Caption = 'Save'
@@ -25,8 +40,8 @@ object settingsForm: TsettingsForm
     OnClick = btnSaveClick
   end
   object btnClose: TButton
-    Left = 286
-    Top = 110
+    Left = 325
+    Top = 79
     Width = 75
     Height = 25
     Caption = 'Close'
@@ -36,8 +51,8 @@ object settingsForm: TsettingsForm
   object GroupBox1: TGroupBox
     Left = 8
     Top = 8
-    Width = 353
-    Height = 89
+    Width = 393
+    Height = 65
     Caption = 'DX Cluster '
     TabOrder = 2
     object txtDXCUsername: TLabeledEdit
@@ -79,8 +94,8 @@ object settingsForm: TsettingsForm
       OnKeyPress = txtDXCPortKeyPress
     end
     object chkDXCAutoConnect: TCheckBox
-      Left = 11
-      Top = 59
+      Left = 303
+      Top = 32
       Width = 82
       Height = 17
       Caption = 'Auto connect'

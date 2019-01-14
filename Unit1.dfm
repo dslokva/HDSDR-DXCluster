@@ -2,11 +2,11 @@ object FrequencyVisualForm: TFrequencyVisualForm
   Left = 0
   Top = 0
   Caption = 'HDSDR-DXCluster-Helper'
-  ClientHeight = 317
-  ClientWidth = 968
+  ClientHeight = 311
+  ClientWidth = 729
   Color = clBtnFace
-  Constraints.MinHeight = 180
-  Constraints.MinWidth = 500
+  Constraints.MinHeight = 300
+  Constraints.MinWidth = 745
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -14,16 +14,16 @@ object FrequencyVisualForm: TFrequencyVisualForm
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
-  Position = poScreenCenter
-  OnCloseQuery = FormCloseQuery
+  Position = poDefault
+  OnClose = FormClose
   OnCreate = FormCreate
   OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 209
-    Width = 968
+    Top = 203
+    Width = 729
     Height = 108
     Align = alBottom
     BevelEdges = []
@@ -47,7 +47,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       ParentFont = False
     end
     object Panel2: TPanel
-      Left = 790
+      Left = 551
       Top = 0
       Width = 178
       Height = 108
@@ -58,7 +58,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       ExplicitLeft = 776
       object Button1: TButton
         Left = 104
-        Top = 72
+        Top = 71
         Width = 65
         Height = 25
         Caption = 'Exit'
@@ -89,7 +89,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       end
       object Button2: TButton
         Left = 10
-        Top = 72
+        Top = 71
         Width = 88
         Height = 25
         Caption = 'Settings'
@@ -158,8 +158,8 @@ object FrequencyVisualForm: TFrequencyVisualForm
   object Panel5: TPanel
     Left = 0
     Top = 0
-    Width = 968
-    Height = 209
+    Width = 729
+    Height = 203
     Align = alClient
     BevelEdges = []
     BevelOuter = bvNone
@@ -169,8 +169,8 @@ object FrequencyVisualForm: TFrequencyVisualForm
     object PaintBox1: TPaintBox
       Left = 0
       Top = 0
-      Width = 968
-      Height = 188
+      Width = 729
+      Height = 182
       Align = alClient
       Color = clSkyBlue
       ParentColor = False
@@ -185,8 +185,8 @@ object FrequencyVisualForm: TFrequencyVisualForm
     end
     object Panel3: TPanel
       Left = 0
-      Top = 188
-      Width = 968
+      Top = 182
+      Width = 729
       Height = 21
       Align = alBottom
       BevelEdges = [beTop, beBottom]
@@ -233,7 +233,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       object spacerScroll: TScrollBar
         Left = 137
         Top = 0
-        Width = 679
+        Width = 440
         Height = 17
         Align = alClient
         Max = 2500
@@ -245,7 +245,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
         ExplicitWidth = 669
       end
       object Panel6: TPanel
-        Left = 816
+        Left = 577
         Top = 0
         Width = 152
         Height = 17
@@ -254,6 +254,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
         BevelKind = bkFlat
         BevelOuter = bvNone
         TabOrder = 2
+        ExplicitLeft = 816
         object lbSpotTotal: TLabel
           Left = 98
           Top = 2

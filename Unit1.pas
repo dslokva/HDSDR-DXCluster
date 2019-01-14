@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.ButtonGroup, Vcl.WinXCtrls, IdBaseComponent, IdComponent, IdTCPConnection,
   IdTCPClient, IdTelnet, RegExpr, IdGlobal, System.Generics.Collections,
-  Vcl.Buttons;
+  Vcl.Buttons, inifiles;
 
 type
   TSpot = class
@@ -72,7 +72,6 @@ type
     procedure IdTelnet1Connected(Sender: TObject);
     procedure IdTelnet1Disconnected(Sender: TObject);
     procedure IdTelnet1DataAvailable(Sender: TIdTelnet; const Buffer: TIdBytes);
-    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure Panel2MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure Label2DblClick(Sender: TObject);
@@ -82,6 +81,7 @@ type
     procedure btnSpotClearBandClick(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     procedure CreateParams(var Params: TCreateParams); override;
     procedure RepaintFrequencySpan();
@@ -254,13 +254,35 @@ lineSpacer := spacerScroll.Position div spaceAdjustValue;
 lbScaleFactor.Caption := IntToStr(lineSpacer);
 End;
 
-procedure TFrequencyVisualForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+procedure TFrequencyVisualForm.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+var
+iniFile : TIniFile;
 begin
-IdTelnet1.Disconnect;
-IdTelnet1.Free;
+iniFile := TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
+try
+  with iniFile, FrequencyVisualForm do begin
+     WriteInteger('MainSettings', 'ScrollPosition', spacerScroll.Position);
+     WriteInteger('MainSettings', 'SelectedBand', bandSwitcher.ItemIndex);
+     WriteInteger('Placement', 'MainFormTop', Top);
+     WriteInteger('Placement', 'MainFormLeft', Left);
+     WriteInteger('Placement', 'MainFormWidth', Width);
+     WriteInteger('Placement', 'MainFormHeight', Height);
+  end;
+finally
+  iniFile.Free;
+end;
+
+try
+  IdTelnet1.Disconnect;
+finally
+  IdTelnet1.Free;
+end;
 end;
 
 procedure TFrequencyVisualForm.FormCreate(Sender: TObject);
+var
+iniFile : TIniFile;
 begin
 // Initialize all nesessary things
 boxWidth := PaintBox1.ClientWidth-40;
@@ -280,6 +302,19 @@ regex1 := 'DX de\s([a-zA-Z0-9\\\/]+)\:?\s+([0-9.,]+)\s+([a-zA-Z0-9\\\/]+)\s(.*)?
 regex2 := '([0-9.,]+)\s+([a-zA-Z0-9\\\/]+)\s.*([0-9]{4})Z\s(.*)\s<([a-zA-Z0-9\\\/]+)\>';
 spotList := TDictionary<variant, TArray<TSpot>>.Create();
 
+iniFile := TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
+try
+  with iniFile, FrequencyVisualForm do begin
+    spacerScroll.Position := ReadInteger('MainSettings', 'ScrollPosition', 1070);
+    bandSwitcher.ItemIndex := ReadInteger('MainSettings', 'SelectedBand', 0);
+    Top := iniFile.ReadInteger('Placement','MainFormTop', 0) ;
+    Left := iniFile.ReadInteger('Placement','MainFormLeft', 0);
+    Width := iniFile.ReadInteger('Placement','MainFormWidth', 745);
+    Height := iniFile.ReadInteger('Placement','MainFormHeight', 355);
+  end;
+finally
+  iniFile.Free;
+end;
 End;
 
 procedure TFrequencyVisualForm.FormResize(Sender: TObject);
@@ -362,7 +397,7 @@ End;
 
 procedure TFrequencyVisualForm.Button1Click(Sender: TObject);
 begin
-Application.Terminate;
+FrequencyVisualForm.Close;
 End;
 
 procedure TFrequencyVisualForm.Button2Click(Sender: TObject);
@@ -726,7 +761,6 @@ procedure TFrequencyVisualForm.RepaintFrequencySpan();
 var
 textShift, lineHeigth, lineStart, i : integer;
 freqValueStr : String;
-localSpotArray : TArray<TSpot>;
 
 begin
 lineStart := 1;
