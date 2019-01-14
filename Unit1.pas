@@ -286,13 +286,13 @@ var
 iniFile : TIniFile;
 begin
 // Initialize all nesessary things
-boxWidth := PaintBox1.ClientWidth-40;
   spaceAdjustValue := 50;
   longLine := 39;
   shortLine := 26;
   freqMarkerFontSize := 9;
   textShiftValueHB := 27;
   textShiftValueLB := 19;
+boxWidth := PaintBox1.ClientWidth-40;
 RefreshLineSpacer();
 freqAddKhz := 0.5;
 freqStart := 3600.0;
@@ -416,11 +416,20 @@ End;
 procedure TFrequencyVisualForm.btnDXCConnectClick(Sender: TObject);
 var
 result : boolean;
+dxcAddress : string;
+dxcPort : integer;
 
 begin
 try
-IdTelnet1.Host := trim(settingsForm.txtDXCHost.Text);
-IdTelnet1.Port := StrToInt(trim(settingsForm.txtDXCPort.Text));
+dxcAddress := trim(settingsForm.txtDXCHost.Text);
+dxcPort :=  StrToInt(trim(settingsForm.txtDXCPort.Text));
+if (Length(dxcAddress) < 7)  or (dxcPort < 10) or (dxcPort < 10) then begin
+  ShowMessage('Please check telnet DXCluster settings!');
+  exit;
+end;
+
+IdTelnet1.Host := dxcAddress;
+IdTelnet1.Port := dxcPort;
 
   if IdTelnet1.Connected then
     IdTelnet1.Disconnect

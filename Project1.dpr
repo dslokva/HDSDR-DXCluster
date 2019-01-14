@@ -12,6 +12,7 @@ uses
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
+  Application.Title := 'HDSDR-DXCluster ';
   Application.CreateForm(TFrequencyVisualForm, FrequencyVisualForm);
   Application.CreateForm(TsettingsForm, settingsForm);
   Application.CreateForm(TdxcViewForm, dxcViewForm);
