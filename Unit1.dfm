@@ -124,6 +124,8 @@ object FrequencyVisualForm: TFrequencyVisualForm
       Width = 123
       Height = 25
       Caption = 'Connect to DXCluster'
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 2
       OnClick = btnDXCConnectClick
     end

@@ -2,10 +2,10 @@ object dxcViewForm: TdxcViewForm
   Left = 0
   Top = 0
   Caption = 'DX Cluster view'
-  ClientHeight = 388
+  ClientHeight = 391
   ClientWidth = 714
   Color = clBtnFace
-  Constraints.MinHeight = 320
+  Constraints.MinHeight = 400
   Constraints.MinWidth = 730
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,13 +13,14 @@ object dxcViewForm: TdxcViewForm
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
-  Position = poMainFormCenter
+  Position = poDefault
+  OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 328
+    Top = 331
     Width = 714
     Height = 60
     Align = alBottom
@@ -170,7 +171,7 @@ object dxcViewForm: TdxcViewForm
     Left = 0
     Top = 0
     Width = 714
-    Height = 328
+    Height = 331
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
@@ -182,7 +183,7 @@ object dxcViewForm: TdxcViewForm
       Left = 0
       Top = 25
       Width = 714
-      Height = 262
+      Height = 265
       Align = alClient
       Color = clCream
       DefaultRowHeight = 20
@@ -201,7 +202,7 @@ object dxcViewForm: TdxcViewForm
     end
     object Panel4: TPanel
       Left = 0
-      Top = 287
+      Top = 290
       Width = 714
       Height = 41
       Align = alBottom

@@ -195,7 +195,8 @@ if Button = mbLeft then begin
 end;
 
 if Button = mbRight then
-  TLabel(Sender).Tag := TLabel(Sender).Tag - 1;
+  if TLabel(Sender).Top >= longLine+28+25 then
+    TLabel(Sender).Tag := TLabel(Sender).Tag - 1;
 
 HideAllLabels(true);
 RepaintFrequencySpan();
@@ -357,6 +358,7 @@ begin
 if FrequencyVisualForm.Visible then begin
   dxcStatusLabel.Caption := 'DXCluster disconnected';
   dxcStatusLabel.Font.Color := clRed;
+  btnDXCConnect.Caption := 'Connect DXCluster';
 end;
 
 End;

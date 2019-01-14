@@ -55,6 +55,7 @@ try
     WriteBool('DXCluster', 'DXCAutoConnect', chkDXCAutoConnect.Checked);
   end;
   labSaveInfo.Visible := true;
+  FrequencyVisualForm.btnDXCConnect.Hint := txtDXCHost.Text;
   Application.ProcessMessages;
   sleep(250);
 finally
@@ -77,7 +78,7 @@ try
     txtDXCUsername.Text := ReadString('DXCluster', 'DXCUsername', '');
     chkDXCAutoConnect.Checked := ReadBool('DXCluster', 'DXCAutoConnect', false);
   end;
-
+  FrequencyVisualForm.btnDXCConnect.Hint := txtDXCHost.Text;
   if chkDXCAutoConnect.Checked then
     FrequencyVisualForm.btnDXCConnect.OnClick(self);
 

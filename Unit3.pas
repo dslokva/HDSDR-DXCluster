@@ -4,7 +4,8 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Grids, IdGlobal, System.Generics.Collections;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Grids, IdGlobal,
+  System.Generics.Collections, inifiles;
 
 type
   TdxcViewForm = class(TForm)
@@ -39,6 +40,7 @@ type
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure btnRefreshClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     procedure ClearDXCMainTable;
     { Private declarations }
@@ -219,8 +221,39 @@ if FrequencyVisualForm.IdTelnet1.Connected then
   FrequencyVisualForm.IdTelnet1.SendString('SH/DX 50'+CR)
 End;
 
-procedure TdxcViewForm.FormCreate(Sender: TObject);
+procedure TdxcViewForm.FormClose(Sender: TObject; var Action: TCloseAction);
+var
+iniFile : TIniFile;
 begin
+iniFile := TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
+try
+  with iniFile, dxcViewForm do begin
+     WriteInteger('Placement', 'dxcViewFormTop', Top);
+     WriteInteger('Placement', 'dxcViewFormLeft', Left);
+     WriteInteger('Placement', 'dxcViewFormWidth', Width);
+     WriteInteger('Placement', 'dxcViewFormHeight', Height);
+  end;
+finally
+  iniFile.Free;
+end;
+end;
+
+procedure TdxcViewForm.FormCreate(Sender: TObject);
+var
+iniFile : TIniFile;
+begin
+iniFile := TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
+try
+  with iniFile, dxcViewForm do begin
+    Top := iniFile.ReadInteger('Placement','dxcViewFormTop', 0) ;
+    Left := iniFile.ReadInteger('Placement','dxcViewFormLeft', 0);
+    Width := iniFile.ReadInteger('Placement','dxcViewFormWidth', 730);
+    Height := iniFile.ReadInteger('Placement','dxcViewFormHeight', 400);
+  end;
+finally
+  iniFile.Free;
+end;
+
 dxcMainTable.Cells[0,0] := 'DX de (spotter)';
 dxcMainTable.Cells[1,0] := 'Freq';
 dxcMainTable.Cells[2,0] := 'DX';
