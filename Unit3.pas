@@ -35,12 +35,16 @@ type
     Panel6: TPanel;
     Label1: TLabel;
     lbSpotCount: TLabel;
+    cb60m: TCheckBox;
+    cb4m: TCheckBox;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure btnRefreshClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure dxcMainTableDrawCell(Sender: TObject; ACol, ARow: Integer;
+      Rect: TRect; State: TGridDrawState);
   private
     procedure ClearDXCMainTable;
     { Private declarations }
@@ -155,6 +159,25 @@ dxcMainTable.RowCount := 2;
 dxcMainTable.FixedRows := 1;
 End;
 
+procedure TdxcViewForm.dxcMainTableDrawCell(Sender: TObject; ACol,
+  ARow: Integer; Rect: TRect; State: TGridDrawState);
+var
+  AGrid : TStringGrid;
+begin
+   AGrid := TStringGrid(Sender);
+
+   if gdFixed in State then
+      AGrid.Canvas.Brush.Color := clBtnFace
+   else
+   if gdSelected in State then
+      AGrid.Canvas.Brush.Color := clMoneyGreen
+   else
+      AGrid.Canvas.Brush.Color := clWindow;
+
+   AGrid.Canvas.FillRect(Rect);
+   AGrid.Canvas.TextOut(Rect.Left + 2, Rect.Top + 2, AGrid.Cells[ACol, ARow]);
+end;
+
 procedure TdxcViewForm.btnRefreshClick(Sender: TObject);
 var
 spotList : TDictionary<variant, TArray<TSpot>>;
@@ -173,6 +196,7 @@ for spotArray in spotList.Values do begin
     spotFreq := spotArray[i].Freq;
     if ((spotFreq >= 1810.00) and (spotFreq <= 2000.00) and not cb160m.Checked) then break else
     if ((spotFreq >= 3500.00) and (spotFreq <= 3800.00) and not cb80m.Checked) then break else
+    if ((spotFreq >= 5250.00) and (spotFreq <= 5450.00) and not cb60m.Checked) then break else
     if ((spotFreq >= 7000.00) and (spotFreq <= 7300.00) and not cb40m.Checked) then break else
     if ((spotFreq >= 10100.00) and (spotFreq <= 10500.00) and not cb30m.Checked) then break else
     if ((spotFreq >= 14000.00) and (spotFreq <= 14350.00) and not cb20m.Checked) then break else
@@ -181,6 +205,7 @@ for spotArray in spotList.Values do begin
     if ((spotFreq >= 24890.00) and (spotFreq <= 24990.00) and not cb12m.Checked) then break else
     if ((spotFreq >= 28000.00) and (spotFreq <= 29700.00) and not cb10m.Checked) then break else
     if ((spotFreq >= 50000.00) and (spotFreq <= 54000.00) and not cb6m.Checked) then break else
+    if ((spotFreq >= 70000.00) and (spotFreq <= 70500.00) and not cb4m.Checked) then break else
     if ((spotFreq >= 140000.00) and (spotFreq <= 148000.00) and not cb2m.Checked) then break else begin
 
       dxcMainTable.Cells[0,row] := spotArray[i].DE;
@@ -212,13 +237,13 @@ End;
 procedure TdxcViewForm.Button2Click(Sender: TObject);
 begin
 if FrequencyVisualForm.IdTelnet1.Connected then
-  FrequencyVisualForm.IdTelnet1.SendString('SH/DX 100'+CR)
+  FrequencyVisualForm.IdTelnet1.SendString('SH/DX 100'+CR);
 End;
 
 procedure TdxcViewForm.Button3Click(Sender: TObject);
 begin
 if FrequencyVisualForm.IdTelnet1.Connected then
-  FrequencyVisualForm.IdTelnet1.SendString('SH/DX 50'+CR)
+  FrequencyVisualForm.IdTelnet1.SendString('SH/DX 50'+CR);
 End;
 
 procedure TdxcViewForm.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -235,6 +260,7 @@ try
      WriteInteger('ClusterFilter', 'sortBy', rgSortOpts.ItemIndex);
      WriteBool('ClusterFilter', 'b160', cb160m.Checked);
      WriteBool('ClusterFilter', 'b80', cb80m.Checked);
+     WriteBool('ClusterFilter', 'b60', cb60m.Checked);
      WriteBool('ClusterFilter', 'b40', cb40m.Checked);
      WriteBool('ClusterFilter', 'b30', cb30m.Checked);
      WriteBool('ClusterFilter', 'b20', cb20m.Checked);
@@ -242,6 +268,9 @@ try
      WriteBool('ClusterFilter', 'b15', cb15m.Checked);
      WriteBool('ClusterFilter', 'b12', cb12m.Checked);
      WriteBool('ClusterFilter', 'b10', cb10m.Checked);
+     WriteBool('ClusterFilter', 'b6', cb6m.Checked);
+     WriteBool('ClusterFilter', 'b4', cb4m.Checked);
+     WriteBool('ClusterFilter', 'b2', cb2m.Checked);
   end;
 finally
   iniFile.Free;
@@ -262,7 +291,7 @@ try
     rgSortOpts.ItemIndex := iniFile.ReadInteger('ClusterFilter','sortBy', 0);
     cb160m.Checked := iniFile.ReadBool('ClusterFilter', 'b160', false);
     cb80m.Checked := iniFile.ReadBool('ClusterFilter', 'b80', false);
-    cb80m.Checked := iniFile.ReadBool('ClusterFilter', 'b80', true);
+    cb60m.Checked := iniFile.ReadBool('ClusterFilter', 'b60', false);
     cb40m.Checked := iniFile.ReadBool('ClusterFilter', 'b40', true);
     cb30m.Checked := iniFile.ReadBool('ClusterFilter', 'b30', false);
     cb20m.Checked := iniFile.ReadBool('ClusterFilter', 'b20', true);
@@ -270,6 +299,9 @@ try
     cb15m.Checked := iniFile.ReadBool('ClusterFilter', 'b15', true);
     cb12m.Checked := iniFile.ReadBool('ClusterFilter', 'b12', false);
     cb10m.Checked := iniFile.ReadBool('ClusterFilter', 'b10', false);
+    cb6m.Checked := iniFile.ReadBool('ClusterFilter', 'b6', false);
+    cb4m.Checked := iniFile.ReadBool('ClusterFilter', 'b4', false);
+    cb2m.Checked := iniFile.ReadBool('ClusterFilter', 'b2', false);
   end;
 finally
   iniFile.Free;

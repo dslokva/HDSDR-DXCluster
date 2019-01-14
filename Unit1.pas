@@ -109,7 +109,7 @@ var
   Xold : Integer;
   regExp : TRegExpr;
   spotList : TDictionary<variant, TArray<TSpot>>;
-  spotTotalCount, spotBandCount : integer;
+  spotBandCount : integer;
   regex1, regex2 : string;
   longLine, shortLine, freqMarkerFontSize, textShiftValueLB, textShiftValueHB : integer;
   textXPosDPICorr, StartYPosDPICorr, EndYPosDPICorr, UnderFreqDPICorr, PenWidthDPICorr : integer;
@@ -123,7 +123,7 @@ uses Unit2, Unit3;
 
 function TFrequencyVisualForm.getSpotTotalCount() : Integer;
 begin
-result := spotTotalCount;
+result := spotList.Count;
 end;
 
 function TFrequencyVisualForm.getSpotList() : TDictionary<variant, TArray<TSpot>>;
@@ -319,7 +319,6 @@ RefreshLineSpacer();
 freqAddKhz := 0.5;
 freqStart := 3600.0;
 Xold := 0;
-spotTotalCount := 0;
 spotBandCount := 0;
 regex1 := 'DX de\s([a-zA-Z0-9\\\/]+)\:?\s+([0-9.,]+)\s+([a-zA-Z0-9\\\/]+)\s(.*)?\s([0-9]{4})Z.*';
 regex2 := '([0-9.,]+)\s+([a-zA-Z0-9\\\/]+)\s.*([0-9]{4})Z\s(.*)\s<([a-zA-Z0-9\\\/]+)\>';
@@ -471,11 +470,8 @@ End;
 procedure TFrequencyVisualForm.btnSpotClearAllClick(Sender: TObject);
 begin
 DestroyAllLabels();
-
 spotList.Clear;
-spotTotalCount := 0;
 spotBandCount := 0;
-
 
 RepaintFrequencySpan();
 End;
@@ -762,8 +758,7 @@ while Start <= Length(incomeStr) do begin
         spotLabel.Tag := 0;
         spot.spotLabel := spotLabel;
 
-        inc(spotTotalCount);
-        lbSpotTotal.Caption := IntToStr(spotTotalCount) + ' / ' + IntToStr(spotBandCount);
+        lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
 
         if spotList.ContainsKey(spot.Freq) then begin
           if spotList.TryGetValue(spot.Freq, localSpotArray) then
@@ -809,8 +804,7 @@ while Start <= Length(incomeStr) do begin
         spotLabel.Tag := 0;
         spot.spotLabel := spotLabel;
 
-        inc(spotTotalCount);
-        lbSpotTotal.Caption := IntToStr(spotTotalCount) + ' / ' + IntToStr(spotBandCount);
+        lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
 
         if spotList.ContainsKey(spot.Freq) then begin
           if spotList.TryGetValue(spot.Freq, localSpotArray) then
@@ -830,7 +824,6 @@ while Start <= Length(incomeStr) do begin
     HideAllLabels(true);
     RepaintFrequencySpan();
   end;
-
  end;
 
 if Pos('login:',fromDXCstr) > 0 then begin
@@ -953,7 +946,7 @@ with PaintBox1.Canvas do begin
      end;
 end;
 
-lbSpotTotal.Caption := IntToStr(spotTotalCount) + ' / ' + IntToStr(spotBandCount);
+lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
 End;
 
 procedure TFrequencyVisualForm.PaintBox1Paint(Sender: TObject);

@@ -128,7 +128,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
     end
     object btnSpotClearAll: TButton
       Left = 311
-      Top = 71
+      Top = 70
       Width = 56
       Height = 26
       Caption = 'Clear all'
@@ -137,7 +137,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
     end
     object btnSpotClearBand: TButton
       Left = 367
-      Top = 71
+      Top = 70
       Width = 67
       Height = 26
       Caption = 'Clear band'
@@ -168,9 +168,12 @@ object FrequencyVisualForm: TFrequencyVisualForm
       Top = 0
       Width = 729
       Height = 182
+      Hint = 'Left click - spot down, right - up. Alt+Click - delete spot.'
       Align = alClient
       Color = clSkyBlue
       ParentColor = False
+      ParentShowHint = False
+      ShowHint = True
       OnDblClick = PaintBox1DblClick
       OnMouseLeave = PaintBox1MouseLeave
       OnMouseMove = PaintBox1MouseMove
