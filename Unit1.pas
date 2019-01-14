@@ -91,6 +91,8 @@ type
     procedure SpotLabelMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure SpotLabelMouseEnter(Sender: TObject);
     procedure SpotLabelMouseLeve(Sender: TObject);
+    procedure refreshSelectedBandEdges();
+    procedure RemoveOneSpot(dx : string);
     { Private declarations }
 
   public
@@ -103,6 +105,7 @@ var
   FrequencyVisualForm : TFrequencyVisualForm;
   spaceAdjustValue, lineSpacer, boxWidth : integer;
   freqShifter, freqStart, freqAddKhz : real;
+  freqBandStart, freqBandEnd : variant;
   Xold : Integer;
   regExp : TRegExpr;
   spotList : TDictionary<variant, TArray<TSpot>>;
@@ -191,7 +194,9 @@ procedure TFrequencyVisualForm.SpotLabelMouseDown(Sender: TObject; Button: TMous
 begin
 //Tag value is used for vertical alignment of spotLabels
 if Button = mbLeft then begin
-  TLabel(Sender).Tag := TLabel(Sender).Tag + 1;
+  if ssAlt in Shift then begin
+    RemoveOneSpot(TLabel(Sender).Caption);
+  end else TLabel(Sender).Tag := TLabel(Sender).Tag + 1;
 end;
 
 if Button = mbRight then
@@ -475,12 +480,7 @@ spotBandCount := 0;
 RepaintFrequencySpan();
 End;
 
-procedure TFrequencyVisualForm.btnSpotClearBandClick(Sender: TObject);
-var
-i : integer;
-key, freqBandStart, freqBandEnd : variant;
-spotArray : TArray<TSpot>;
-
+procedure TFrequencyVisualForm.refreshSelectedBandEdges();
 begin
 case bandSwitcher.ItemIndex of
  0: begin
@@ -520,7 +520,17 @@ case bandSwitcher.ItemIndex of
       freqBandEnd := 29700.00;
     end;
 end;
+End;
 
+procedure TFrequencyVisualForm.btnSpotClearBandClick(Sender: TObject);
+var
+i : integer;
+key : variant;
+spotArray : TArray<TSpot>;
+
+begin
+refreshSelectedBandEdges();
+//will remove all labels for selected band
 for key in spotList.Keys do begin
   if (key >= freqBandStart) and (key <= freqBandEnd) then begin
     spotArray := spotList.Items[key];
@@ -531,6 +541,76 @@ for key in spotList.Keys do begin
 end;
 
 spotBandCount := 0;
+
+HideAllLabels(true);
+RepaintFrequencySpan();
+End;
+
+procedure DeleteElement(var anArray:TArray<TSpot>; const aPosition:integer);
+var
+   lg, j : integer;
+begin
+   lg := length(anArray);
+   if aPosition > lg-1 then
+     exit
+   else if aPosition = lg-1 then begin //if is the last element
+           //if TSomeType is a TObject descendant don't forget to free it
+           //for example anArray[aPosition].free;
+           Setlength(anArray, lg -1);
+           exit;
+        end;
+   for j := aPosition to lg-2 do//we move all elements from aPosition+1 left...
+     anArray[j] := anArray[j+1];//...with a position
+   SetLength(anArray, lg-1);//now we have one element less
+   //that's all...
+end;
+
+procedure DeleteArrayIndex(var X: TArray<TSpot>; Index: Integer);
+begin
+  if Index > High(X) then Exit;
+  if Index < Low(X) then Exit;
+  if Index = High(X) then
+  begin
+    SetLength(X, Length(X) - 1);
+    Exit;
+  end;
+  Finalize(X[Index]);
+  System.Move(X[Index +1], X[Index],
+  (Length(X) - Index -1) * SizeOf(TSpot) + 1);
+  SetLength(X, Length(X) - 1);
+end;
+
+procedure TFrequencyVisualForm.RemoveOneSpot(dx : string);
+var
+i : integer;
+key : variant;
+spotArray : TArray<TSpot>;
+removed : boolean;
+
+begin
+refreshSelectedBandEdges();
+removed := false;
+//will remove only one spot on band with caption = dx
+for key in spotList.Keys do begin
+  if (key >= freqBandStart) and (key <= freqBandEnd) then begin
+    spotArray := spotList.Items[key];
+    for i := low(spotArray) to high(spotArray) do
+      if spotArray[i].spotLabel.Caption = dx then begin
+        spotArray[i].spotLabel.Destroy;
+        if Length(spotArray) > 1 then begin
+          DeleteElement(spotArray, i);
+          spotList.Items[key] := spotArray;
+        end else
+          spotList.Remove(key);
+        removed := true;
+        break;
+      end;
+  end;
+  if removed then
+    break;
+end;
+
+spotBandCount := spotBandCount-1;
 
 HideAllLabels(true);
 RepaintFrequencySpan();
