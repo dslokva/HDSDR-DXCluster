@@ -105,10 +105,11 @@ var
   freqShifter, freqStart, freqAddKhz : real;
   Xold : Integer;
   regExp : TRegExpr;
-  longLine, shortLine, freqMarkerFontSize, textShiftValueLB, textShiftValueHB : integer;
   spotList : TDictionary<variant, TArray<TSpot>>;
   spotTotalCount, spotBandCount : integer;
   regex1, regex2 : string;
+  longLine, shortLine, freqMarkerFontSize, textShiftValueLB, textShiftValueHB : integer;
+  textXPosDPICorr, StartYPosDPICorr, EndYPosDPICorr, UnderFreqDPICorr : integer;
 
 implementation
 
@@ -195,7 +196,7 @@ if Button = mbLeft then begin
 end;
 
 if Button = mbRight then
-  if TLabel(Sender).Top >= longLine+28+25 then
+  if TLabel(Sender).Top >= longLine+UnderFreqDPICorr+EndYPosDPICorr then
     TLabel(Sender).Tag := TLabel(Sender).Tag - 1;
 
 HideAllLabels(true);
@@ -222,6 +223,10 @@ if cbHiRes.Checked then begin
   freqMarkerFontSize := 9;
   textShiftValueHB := 27;
   textShiftValueLB := 19;
+  textXPosDPICorr := 5;
+  StartYPosDPICorr := 4;
+  EndYPosDPICorr := 25;
+  UnderFreqDPICorr := 28;
 end else begin
   spaceAdjustValue := 75;
   longLine := 24;
@@ -229,6 +234,10 @@ end else begin
   freqMarkerFontSize := 8;
   textShiftValueHB := 13;
   textShiftValueLB := 8;
+  textXPosDPICorr := 2;
+  StartYPosDPICorr := 2;
+  EndYPosDPICorr := 13;
+  UnderFreqDPICorr := 14;
 end;
 
 spacerScrollChange(FrequencyVisualForm);
@@ -292,6 +301,10 @@ begin
   freqMarkerFontSize := 9;
   textShiftValueHB := 27;
   textShiftValueLB := 19;
+  textXPosDPICorr := 5;
+  StartYPosDPICorr := 4;
+  EndYPosDPICorr := 25;
+  UnderFreqDPICorr := 28;
 boxWidth := PaintBox1.ClientWidth-40;
 RefreshLineSpacer();
 freqAddKhz := 0.5;
@@ -538,26 +551,26 @@ if spotList.ContainsKey(freqValue) then begin
       Font.Size := freqMarkerFontSize;
       Font.Color := clWhite;
       spotCount := 0;
-      Pen.Width := 2;
+      Pen.Width := 1;
       //don't touch digits below! :)
       for spot in spotArray do begin
         spotLabel := spot.spotLabel;
-        YPos := longLine+28+(25*(spotCount+spotLabel.Tag));
+        YPos := longLine+UnderFreqDPICorr+(EndYPosDPICorr*(spotCount+spotLabel.Tag));
 
         if bandSwitcher.ItemIndex < 4 then begin
         //LSB items
-          MoveTo(textXPos, YPos+4);
-          LineTo(textXPos, YPos+25);
+          MoveTo(textXPos, YPos+StartYPosDPICorr);
+          LineTo(textXPos, YPos+EndYPosDPICorr);
           spotLabel.Top := YPos;
-          spotLabel.Left := textXPos-TextWidth(spot.DX)-5;
+          spotLabel.Left := textXPos-spotLabel.Width-textXPosDPICorr;
           spotLabel.Visible := true;
 //          TextOut(textXPos-TextWidth(spot.DX)-6, YPos, spot.DX);
         end else begin
         //USB items
-          MoveTo(textXPos, YPos+4);
-          LineTo(textXPos, YPos+25);
+          MoveTo(textXPos, YPos+StartYPosDPICorr);
+          LineTo(textXPos, YPos+EndYPosDPICorr);
           spotLabel.Top := YPos;
-          spotLabel.Left := textXPos+5;
+          spotLabel.Left := textXPos+textXPosDPICorr;
           spotLabel.Visible := true;
 //          TextOut(textXPos+6, YPos, spot.DX);
         end;

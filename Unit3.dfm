@@ -26,8 +26,6 @@ object dxcViewForm: TdxcViewForm
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 376
-    ExplicitWidth = 736
     object Panel2: TPanel
       Left = 608
       Top = 0
@@ -36,7 +34,6 @@ object dxcViewForm: TdxcViewForm
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 598
       object Button1: TButton
         Left = 8
         Top = 25
@@ -175,10 +172,6 @@ object dxcViewForm: TdxcViewForm
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitLeft = 160
-    ExplicitTop = 312
-    ExplicitWidth = 185
-    ExplicitHeight = 41
     object dxcMainTable: TStringGrid
       Left = 0
       Top = 25
@@ -190,9 +183,6 @@ object dxcViewForm: TdxcViewForm
       FixedCols = 0
       RowCount = 2
       TabOrder = 0
-      ExplicitTop = 0
-      ExplicitWidth = 584
-      ExplicitHeight = 288
       ColWidths = (
         96
         97
@@ -207,8 +197,6 @@ object dxcViewForm: TdxcViewForm
       Height = 41
       Align = alBottom
       TabOrder = 1
-      ExplicitTop = 352
-      ExplicitWidth = 736
       object Button3: TButton
         Left = 89
         Top = 6
@@ -235,9 +223,6 @@ object dxcViewForm: TdxcViewForm
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 2
-        ExplicitLeft = 448
-        ExplicitTop = 0
-        ExplicitHeight = 41
         object btnRefresh: TButton
           Left = 9
           Top = 5

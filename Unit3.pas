@@ -232,6 +232,16 @@ try
      WriteInteger('Placement', 'dxcViewFormLeft', Left);
      WriteInteger('Placement', 'dxcViewFormWidth', Width);
      WriteInteger('Placement', 'dxcViewFormHeight', Height);
+     WriteInteger('ClusterFilter', 'sortBy', rgSortOpts.ItemIndex);
+     WriteBool('ClusterFilter', 'b160', cb160m.Checked);
+     WriteBool('ClusterFilter', 'b80', cb80m.Checked);
+     WriteBool('ClusterFilter', 'b40', cb40m.Checked);
+     WriteBool('ClusterFilter', 'b30', cb30m.Checked);
+     WriteBool('ClusterFilter', 'b20', cb20m.Checked);
+     WriteBool('ClusterFilter', 'b17', cb17m.Checked);
+     WriteBool('ClusterFilter', 'b15', cb15m.Checked);
+     WriteBool('ClusterFilter', 'b12', cb12m.Checked);
+     WriteBool('ClusterFilter', 'b10', cb10m.Checked);
   end;
 finally
   iniFile.Free;
@@ -249,6 +259,17 @@ try
     Left := iniFile.ReadInteger('Placement','dxcViewFormLeft', 0);
     Width := iniFile.ReadInteger('Placement','dxcViewFormWidth', 730);
     Height := iniFile.ReadInteger('Placement','dxcViewFormHeight', 400);
+    rgSortOpts.ItemIndex := iniFile.ReadInteger('ClusterFilter','sortBy', 0);
+    cb160m.Checked := iniFile.ReadBool('ClusterFilter', 'b160', false);
+    cb80m.Checked := iniFile.ReadBool('ClusterFilter', 'b80', false);
+    cb80m.Checked := iniFile.ReadBool('ClusterFilter', 'b80', true);
+    cb40m.Checked := iniFile.ReadBool('ClusterFilter', 'b40', true);
+    cb30m.Checked := iniFile.ReadBool('ClusterFilter', 'b30', false);
+    cb20m.Checked := iniFile.ReadBool('ClusterFilter', 'b20', true);
+    cb17m.Checked := iniFile.ReadBool('ClusterFilter', 'b17', false);
+    cb15m.Checked := iniFile.ReadBool('ClusterFilter', 'b15', true);
+    cb12m.Checked := iniFile.ReadBool('ClusterFilter', 'b12', false);
+    cb10m.Checked := iniFile.ReadBool('ClusterFilter', 'b10', false);
   end;
 finally
   iniFile.Free;
