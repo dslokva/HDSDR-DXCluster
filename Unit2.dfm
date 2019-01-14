@@ -22,6 +22,7 @@ object settingsForm: TsettingsForm
     Height = 25
     Caption = 'Save'
     TabOrder = 0
+    OnClick = btnSaveClick
   end
   object btnClose: TButton
     Left = 286

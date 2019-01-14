@@ -17,6 +17,7 @@ type
     chkDXCAutoConnect: TCheckBox;
     procedure btnCloseClick(Sender: TObject);
     procedure txtDXCPortKeyPress(Sender: TObject; var Key: Char);
+    procedure btnSaveClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -31,6 +32,11 @@ implementation
 {$R *.dfm}
 
 procedure TsettingsForm.btnCloseClick(Sender: TObject);
+begin
+settingsForm.Close;
+End;
+
+procedure TsettingsForm.btnSaveClick(Sender: TObject);
 begin
 settingsForm.Close;
 End;
