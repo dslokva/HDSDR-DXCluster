@@ -109,7 +109,7 @@ var
   spotTotalCount, spotBandCount : integer;
   regex1, regex2 : string;
   longLine, shortLine, freqMarkerFontSize, textShiftValueLB, textShiftValueHB : integer;
-  textXPosDPICorr, StartYPosDPICorr, EndYPosDPICorr, UnderFreqDPICorr : integer;
+  textXPosDPICorr, StartYPosDPICorr, EndYPosDPICorr, UnderFreqDPICorr, PenWidthDPICorr : integer;
 
 implementation
 
@@ -167,11 +167,10 @@ var
 begin
     Color := CheckHexForHash(Color);
 
-    if (length(color) = 6) then
-    begin
-        {remember that TColor is bgr not rgb: so you need to switch then around}
-        color := '$00' + copy(color,5,2) + copy(color,3,2) + copy(color,1,2);
-        rColor := StrToInt(color);
+    if (length(color) = 6) then begin
+      {remember that TColor is bgr not rgb: so you need to switch then around}
+      color := '$00' + copy(color,5,2) + copy(color,3,2) + copy(color,1,2);
+      rColor := StrToInt(color);
     end;
 
     result := rColor;
@@ -227,6 +226,7 @@ if cbHiRes.Checked then begin
   StartYPosDPICorr := 4;
   EndYPosDPICorr := 25;
   UnderFreqDPICorr := 28;
+  PenWidthDPICorr := 2;
 end else begin
   spaceAdjustValue := 75;
   longLine := 24;
@@ -238,6 +238,7 @@ end else begin
   StartYPosDPICorr := 2;
   EndYPosDPICorr := 13;
   UnderFreqDPICorr := 14;
+  PenWidthDPICorr := 1;
 end;
 
 spacerScrollChange(FrequencyVisualForm);
@@ -274,10 +275,12 @@ try
   with iniFile, FrequencyVisualForm do begin
      WriteInteger('MainSettings', 'ScrollPosition', spacerScroll.Position);
      WriteInteger('MainSettings', 'SelectedBand', bandSwitcher.ItemIndex);
+     WriteBool('MainSettings', 'HighResScreen', cbHiRes.Checked);
      WriteInteger('Placement', 'MainFormTop', Top);
      WriteInteger('Placement', 'MainFormLeft', Left);
      WriteInteger('Placement', 'MainFormWidth', Width);
      WriteInteger('Placement', 'MainFormHeight', Height);
+
   end;
 finally
   iniFile.Free;
@@ -305,6 +308,7 @@ begin
   StartYPosDPICorr := 4;
   EndYPosDPICorr := 25;
   UnderFreqDPICorr := 28;
+  PenWidthDPICorr := 2;
 boxWidth := PaintBox1.ClientWidth-40;
 RefreshLineSpacer();
 freqAddKhz := 0.5;
@@ -321,6 +325,7 @@ try
   with iniFile, FrequencyVisualForm do begin
     spacerScroll.Position := ReadInteger('MainSettings', 'ScrollPosition', 1070);
     bandSwitcher.ItemIndex := ReadInteger('MainSettings', 'SelectedBand', 0);
+    cbHiRes.Checked := ReadBool('MainSettings', 'HighResScreen', true);
     Top := iniFile.ReadInteger('Placement','MainFormTop', 0) ;
     Left := iniFile.ReadInteger('Placement','MainFormLeft', 0);
     Width := iniFile.ReadInteger('Placement','MainFormWidth', 745);
