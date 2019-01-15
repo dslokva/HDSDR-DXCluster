@@ -632,8 +632,10 @@ if spotList.ContainsKey(freqValue) then begin
       Font.Size := freqMarkerFontSize;
       Font.Color := clWhite;
       spotCount := 0;
-      Pen.Width := 1;
-      //don't touch digits below! :)
+      if cbHiRes.Checked then Pen.Width := 2
+      else Pen.Width := 1;
+
+      //don't touch digits formulas below! :)
       for spot in spotArray do begin
         spotLabel := spot.spotLabel;
         YPos := longLine+UnderFreqDPICorr+(EndYPosDPICorr*(spotCount+spotLabel.Tag));

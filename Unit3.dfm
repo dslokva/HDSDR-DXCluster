@@ -3,10 +3,10 @@ object dxcViewForm: TdxcViewForm
   Top = 0
   Caption = 'DX Cluster view'
   ClientHeight = 391
-  ClientWidth = 768
+  ClientWidth = 764
   Color = clBtnFace
   Constraints.MinHeight = 400
-  Constraints.MinWidth = 730
+  Constraints.MinWidth = 780
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -21,21 +21,21 @@ object dxcViewForm: TdxcViewForm
   object Panel1: TPanel
     Left = 0
     Top = 331
-    Width = 768
+    Width = 764
     Height = 60
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 714
+    ExplicitWidth = 768
     object Panel2: TPanel
-      Left = 662
+      Left = 658
       Top = 0
       Width = 106
       Height = 60
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 608
+      ExplicitLeft = 662
       object Button1: TButton
         Left = 8
         Top = 24
@@ -201,16 +201,16 @@ object dxcViewForm: TdxcViewForm
   object Panel3: TPanel
     Left = 0
     Top = 0
-    Width = 768
+    Width = 764
     Height = 331
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 714
+    ExplicitWidth = 768
     object dxcMainTable: TStringGrid
       Left = 0
       Top = 25
-      Width = 768
+      Width = 764
       Height = 265
       Align = alClient
       DefaultRowHeight = 18
@@ -220,7 +220,7 @@ object dxcViewForm: TdxcViewForm
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goDrawFocusSelected, goColSizing, goRowSelect, goFixedColClick]
       TabOrder = 0
       OnDrawCell = dxcMainTableDrawCell
-      ExplicitWidth = 714
+      ExplicitWidth = 768
       ColWidths = (
         96
         97
@@ -231,11 +231,11 @@ object dxcViewForm: TdxcViewForm
     object Panel4: TPanel
       Left = 0
       Top = 290
-      Width = 768
+      Width = 764
       Height = 41
       Align = alBottom
       TabOrder = 1
-      ExplicitWidth = 714
+      ExplicitWidth = 768
       object Button3: TButton
         Left = 89
         Top = 6
@@ -255,14 +255,14 @@ object dxcViewForm: TdxcViewForm
         OnClick = Button2Click
       end
       object Panel5: TPanel
-        Left = 662
+        Left = 658
         Top = 1
         Width = 105
         Height = 39
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 2
-        ExplicitLeft = 608
+        ExplicitLeft = 662
         object btnRefresh: TButton
           Left = 9
           Top = 5
@@ -277,12 +277,12 @@ object dxcViewForm: TdxcViewForm
     object Panel6: TPanel
       Left = 0
       Top = 0
-      Width = 768
+      Width = 764
       Height = 25
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 2
-      ExplicitWidth = 714
+      ExplicitWidth = 768
       object Label1: TLabel
         Left = 8
         Top = 6
