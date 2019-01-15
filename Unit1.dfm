@@ -31,6 +31,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
     BevelOuter = bvNone
     TabOrder = 0
     OnMouseDown = Panel1MouseDown
+    ExplicitTop = 205
     object dxcStatusLabel: TLabel
       Left = 312
       Top = 21
@@ -290,7 +291,18 @@ object FrequencyVisualForm: TFrequencyVisualForm
     Port = 8000
     OnDataAvailable = IdTelnet1DataAvailable
     Terminal = 'dumb'
-    Left = 856
+    Left = 16
     Top = 13
+  end
+  object IdUDPServer1: TIdUDPServer
+    Bindings = <
+      item
+        IP = '127.0.0.1'
+        Port = 3541
+      end>
+    DefaultPort = 0
+    ThreadedEvent = True
+    Left = 23
+    Top = 67
   end
 end

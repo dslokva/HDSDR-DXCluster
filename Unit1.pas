@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.ButtonGroup, Vcl.WinXCtrls, IdBaseComponent, IdComponent, IdTCPConnection,
   IdTCPClient, IdTelnet, RegExpr, IdGlobal, System.Generics.Collections,
-  Vcl.Buttons, inifiles;
+  Vcl.Buttons, inifiles, Vcl.Menus, IdUDPBase, IdUDPServer, IdSocketHandle, UDPServerImplUnit;
 
 type
   TSpot = class
@@ -50,6 +50,7 @@ type
     btnSpotClearBand: TButton;
     Button2: TButton;
     Button3: TButton;
+    IdUDPServer1: TIdUDPServer;
     procedure Button1Click(Sender: TObject);
     procedure PaintBox1DblClick(Sender: TObject);
     procedure PaintBox1Paint(Sender: TObject);
@@ -113,6 +114,7 @@ var
   regex1, regex2 : string;
   longLine, shortLine, freqMarkerFontSize, textShiftValueLB, textShiftValueHB : integer;
   textXPosDPICorr, StartYPosDPICorr, EndYPosDPICorr, UnderFreqDPICorr, PenWidthDPICorr : integer;
+  udpserver : UDPServerImpl;
 
 implementation
 
@@ -122,9 +124,19 @@ uses Unit2, Unit3;
 
 
 function TFrequencyVisualForm.getSpotTotalCount() : Integer;
+var
+count : integer;
+spotArray : TArray<TSpot>;
+
 begin
-result := spotList.Count;
-end;
+count := 0;
+
+for spotArray in spotList.Values do
+  count := count + high(spotArray) + 1;
+
+result := count;
+
+End;
 
 function TFrequencyVisualForm.getSpotList() : TDictionary<variant, TArray<TSpot>>;
 begin
@@ -296,11 +308,14 @@ try
 finally
   IdTelnet1.Free;
 end;
+
+udpserver.StopSever;
 end;
 
 procedure TFrequencyVisualForm.FormCreate(Sender: TObject);
 var
 iniFile : TIniFile;
+
 begin
 // Initialize all nesessary things
   spaceAdjustValue := 50;
@@ -334,6 +349,10 @@ try
     Left := iniFile.ReadInteger('Placement','MainFormLeft', 0);
     Width := iniFile.ReadInteger('Placement','MainFormWidth', 745);
     Height := iniFile.ReadInteger('Placement','MainFormHeight', 355);
+
+    udpserver := UDPServerImpl.Create;
+    udpserver.InitialiseAndRun('127.0.0.1', 3541);
+
   end;
 finally
   iniFile.Free;
@@ -350,6 +369,7 @@ begin
 dxcStatusLabel.Caption := 'DXCluster connected';
 dxcStatusLabel.Font.Color := clGreen;
 btnDXCConnect.Caption := 'Disconnect DXCluster';
+Beep;
 End;
 
 function LocalDateTimeFromUTCDateTime(const UTCDateTime: TDateTime): TDateTime;
@@ -385,7 +405,7 @@ end;
 
 End;
 
-procedure TFrequencyVisualForm.Label1MouseDown(Sender: TObject; Button: TMouseButton;
+   procedure TFrequencyVisualForm.Label1MouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   AllowDrag;
@@ -438,14 +458,16 @@ End;
 procedure TFrequencyVisualForm.btnDXCConnectClick(Sender: TObject);
 var
 result : boolean;
-dxcAddress : string;
+dxcAddress, dxcUsername : string;
 dxcPort : integer;
 
 begin
 try
 dxcAddress := trim(settingsForm.txtDXCHost.Text);
 dxcPort :=  StrToInt(trim(settingsForm.txtDXCPort.Text));
-if (Length(dxcAddress) < 7)  or (dxcPort < 10) or (dxcPort < 10) then begin
+dxcUsername := trim(settingsForm.txtDXCUsername.Text);
+
+if (Length(dxcAddress) < 7) or (Length(dxcUsername) < 4)  or (dxcPort < 10) or (dxcPort < 10) then begin
   ShowMessage('Please check telnet DXCluster settings!');
   exit;
 end;
@@ -626,7 +648,9 @@ spotLabel : TLabel;
 
 begin
 if spotList.ContainsKey(freqValue) then begin
-//todo: replace simple canvas callsigns text with TLabel objects
+//this is a main procedure that draw spots on frequency pane
+//still very fragile for DPI and Scale options (((
+
   if spotList.TryGetValue(freqValue, spotArray) then
     with PaintBox1.Canvas do begin
       Font.Size := freqMarkerFontSize;

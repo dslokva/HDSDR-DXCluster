@@ -3,7 +3,7 @@ object settingsForm: TsettingsForm
   Top = 0
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 110
+  ClientHeight = 136
   ClientWidth = 408
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,7 +18,7 @@ object settingsForm: TsettingsForm
   TextHeight = 13
   object labSaveInfo: TLabel
     Left = 145
-    Top = 86
+    Top = 110
     Width = 126
     Height = 13
     Caption = 'Settings saved succesfully'
@@ -32,7 +32,7 @@ object settingsForm: TsettingsForm
   end
   object btnSave: TButton
     Left = 8
-    Top = 79
+    Top = 103
     Width = 75
     Height = 25
     Caption = 'Save'
@@ -41,7 +41,7 @@ object settingsForm: TsettingsForm
   end
   object btnClose: TButton
     Left = 325
-    Top = 79
+    Top = 103
     Width = 75
     Height = 25
     Caption = 'Close'
@@ -52,7 +52,7 @@ object settingsForm: TsettingsForm
     Left = 8
     Top = 8
     Width = 393
-    Height = 65
+    Height = 89
     Caption = 'DX Cluster '
     TabOrder = 2
     object txtDXCUsername: TLabeledEdit
