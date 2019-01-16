@@ -351,7 +351,7 @@ try
     Height := iniFile.ReadInteger('Placement','MainFormHeight', 355);
 
     udpserver := UDPServerImpl.Create;
-    udpserver.InitialiseAndRun('127.0.0.1', 3541);
+    udpserver.InitialiseAndRunServer('127.0.0.1', 3541);
 
   end;
 finally
