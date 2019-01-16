@@ -5,6 +5,15 @@ interface
 uses
   IdUDPServer, IdBaseComponent, IdComponent, IdUDPBase, IdSocketHandle, IdGlobal, Windows, System.SysUtils, JSons;
 
+type TSimpleCallsignAnswer = class(TObject)
+  callsign : string;
+  presentOnBand : char;
+  presentInLog : char;
+
+  public
+    constructor Create(callsignStr : string; presentOnBandChar, presentInLogChar : char);
+end;
+
 type
  UDPServerImpl = class(TObject)
 
@@ -18,10 +27,21 @@ type
      procedure ProcessSimpleCallsignRequest(request : TJson; ABinding: TIdSocketHandle);
  end;
 
+const
+  IS_IN_LOG = '1';
+
 implementation
 
 var
   UDPServer: TIdUDPServer;
+
+constructor TSimpleCallsignAnswer.Create(callsignStr : string; presentOnBandChar, presentInLogChar : char);
+begin
+  callsign := callsignStr;
+  presentOnBand := presentOnBandChar;
+  presentInLog := presentInLogChar;
+  inherited Create();
+end;
 
 procedure DebugMsg(const Msg: String);
 begin
@@ -34,9 +54,6 @@ UDPServer.Active := false;
 End;
 
 procedure UDPServerImpl.InitialiseAndRunServer(bindAddress : string; port : UInt16);
-var
-  Binding: TIdSocketHandle;
-
 begin
 UDPServer := TIdUDPServer.Create(nil) ;
 
@@ -56,7 +73,6 @@ End;
 
 procedure UDPServerImpl.IdUDPServerUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle);
 var
-  i : integer;
   s : string;
 begin
   s := '';
@@ -65,8 +81,8 @@ begin
     if Length(s) > 0 then begin
       ProcessIncomingData(s, ABinding);
     end;
-  except
-    //DebugMsg('Incoming packet: '+ s);
+  finally
+    DebugMsg('From ' + ABinding.IP + ' Incoming packet: '+ s);
   end;
 
 End;
@@ -83,38 +99,58 @@ try
   JsonRequest.Parse(incomingString);
   requestType := JSonRequest.Values['requestType'].AsString;
 
-  if requestType = '1' then ProcessSimpleCallsignRequest(JsonRequest, ABinding) else
-  if requestType = '2' then ProcessSimpleCallsignRequest(JsonRequest, ABinding) else
-  DebugMsg('Unknown request type: ' + incomingString);
-  ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, 'Unknown requestType', ABinding.IPVersion);
-
+  if requestType = IS_IN_LOG then ProcessSimpleCallsignRequest(JsonRequest, ABinding) else
+  if requestType = '2' then ProcessSimpleCallsignRequest(JsonRequest, ABinding) else begin
+    DebugMsg('Unknown request type: ' + incomingString);
+    ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, 'Unknown requestType', ABinding.IPVersion);
+  end;
 except
   DebugMsg('Error processing incoming packet: ' + incomingString);
 end;
 
 End;
 
-procedure UDPServerImpl.ProcessSimpleCallsignRequest(request : TJson; ABinding: TIdSocketHandle);
+function CreateSimpleCallsignAnswer(answer : TSimpleCallsignAnswer) : string;
 var
-  JsonAnswer  : TJson;
-  requestData : TJsonArray;
-  requestItem : TJsonObject;
-  callsign, band : string;
-  i : integer;
+  JsonAnswer : TJson;
 
 begin
-  JsonAnswer  := TJson.Create();
-  requestData := request.Values['requestData'].AsArray;
+try
+//answer #1 - check callsign existence in log.
+JsonAnswer := TJson.Create();
+JsonAnswer.Put('answerType', IS_IN_LOG);
 
-  for i := 0 to requestData.Count-1 do begin
-    requestItem := requestData.Items[i].AsObject;
-    callsign := requestItem.Values['callsign'].AsString;
-    band := requestItem.Values['band'].AsString;
-  end;
+with JsonAnswer['answerData'].AsObject do begin
+  Put('callsign', answer.callsign);
+  Put('presentOnBand', answer.presentOnBand);
+  Put('presentInLog', answer.presentInLog);
+end;
 
-  JsonAnswer.Put('answerType', 1);
+result := JsonAnswer.Stringify;
 
-  ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, JsonAnswer.Stringify, ABinding.IPVersion);
+finally
+//
+end;
+
+End;
+
+procedure UDPServerImpl.ProcessSimpleCallsignRequest(request : TJson; ABinding: TIdSocketHandle);
+var
+  requestData : TJsonObject;
+  callsign, band, answerStr : string;
+  answer : TSimpleCallsignAnswer;
+
+begin
+  requestData := request.Values['requestData'].AsObject;
+  callsign := requestData.Values['callsign'].AsString;
+  band := requestData.Values['band'].AsString;
+
+  //here you should prepare information for callsign
+  answer := TSimpleCallsignAnswer.Create(callsign, '1', '1');
+  //make string from created json object
+  answerStr := CreateSimpleCallsignAnswer(answer);
+  //send answer to client
+  ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, answerStr, ABinding.IPVersion);
 End;
 
 

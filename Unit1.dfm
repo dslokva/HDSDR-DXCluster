@@ -31,7 +31,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
     BevelOuter = bvNone
     TabOrder = 0
     OnMouseDown = Panel1MouseDown
-    ExplicitTop = 205
     object dxcStatusLabel: TLabel
       Left = 312
       Top = 21
@@ -291,7 +290,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
     Port = 8000
     OnDataAvailable = IdTelnet1DataAvailable
     Terminal = 'dumb'
-    Left = 16
+    Left = 24
     Top = 13
   end
   object IdUDPServer1: TIdUDPServer
