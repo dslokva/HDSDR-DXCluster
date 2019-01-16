@@ -138,18 +138,25 @@ procedure UDPServerImpl.ProcessSimpleCallsignRequest(request : TJson; ABinding: 
 var
   requestData : TJsonObject;
   callsign, band, answerStr : string;
+  onBand, inLog : char;
   answer : TSimpleCallsignAnswer;
 
 begin
   requestData := request.Values['requestData'].AsObject;
+  //this variables should be used for your search
+  //band field variants: '160m', '80m', '40m', '20m', '17m', '15m', '12m', '10m', '6m', '4m', '2m', '70cm'
+
   callsign := requestData.Values['callsign'].AsString;
   band := requestData.Values['band'].AsString;
+  {
+    ....AALog code goes here....
+  }
+  onBand := '1';
+  inLog := '1';
 
-  //here you should prepare information for callsign
-  answer := TSimpleCallsignAnswer.Create(callsign, '1', '1');
-  //make string from created json object
+  //make string from created json object and send answer to client
+  answer := TSimpleCallsignAnswer.Create(callsign, onBand, inLog);
   answerStr := CreateSimpleCallsignAnswer(answer);
-  //send answer to client
   ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, answerStr, ABinding.IPVersion);
 End;
 
