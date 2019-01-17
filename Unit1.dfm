@@ -293,15 +293,4 @@ object FrequencyVisualForm: TFrequencyVisualForm
     Left = 24
     Top = 13
   end
-  object IdUDPServer1: TIdUDPServer
-    Bindings = <
-      item
-        IP = '127.0.0.1'
-        Port = 3541
-      end>
-    DefaultPort = 0
-    ThreadedEvent = True
-    Left = 23
-    Top = 67
-  end
 end

@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.ButtonGroup, Vcl.WinXCtrls, IdBaseComponent, IdComponent, IdTCPConnection,
   IdTCPClient, IdTelnet, RegExpr, IdGlobal, System.Generics.Collections,
-  Vcl.Buttons, inifiles, Vcl.Menus, IdUDPBase, IdUDPServer, IdSocketHandle, UDPServerImplUnit;
+  Vcl.Buttons, inifiles, Vcl.Menus, IdUDPBase, IdUDPServer, IdSocketHandle;
 
 type
   TSpot = class
@@ -50,7 +50,6 @@ type
     btnSpotClearBand: TButton;
     Button2: TButton;
     Button3: TButton;
-    IdUDPServer1: TIdUDPServer;
     procedure Button1Click(Sender: TObject);
     procedure PaintBox1DblClick(Sender: TObject);
     procedure PaintBox1Paint(Sender: TObject);
@@ -114,7 +113,6 @@ var
   regex1, regex2 : string;
   longLine, shortLine, freqMarkerFontSize, textShiftValueLB, textShiftValueHB : integer;
   textXPosDPICorr, StartYPosDPICorr, EndYPosDPICorr, UnderFreqDPICorr, PenWidthDPICorr : integer;
-  udpserver : UDPServerImpl;
 
 implementation
 
@@ -309,7 +307,6 @@ finally
   IdTelnet1.Free;
 end;
 
-udpserver.StopSever;
 end;
 
 procedure TFrequencyVisualForm.FormCreate(Sender: TObject);
@@ -349,9 +346,6 @@ try
     Left := iniFile.ReadInteger('Placement','MainFormLeft', 0);
     Width := iniFile.ReadInteger('Placement','MainFormWidth', 745);
     Height := iniFile.ReadInteger('Placement','MainFormHeight', 355);
-
-    udpserver := UDPServerImpl.Create;
-    udpserver.InitialiseAndRunServer('127.0.0.1', 3541);
 
   end;
 finally

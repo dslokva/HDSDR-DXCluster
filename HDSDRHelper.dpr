@@ -5,8 +5,7 @@ uses
   Unit1 in 'Unit1.pas' {FrequencyVisualForm},
   RegExpr in 'RegExpr.pas',
   Unit2 in 'Unit2.pas' {settingsForm},
-  Unit3 in 'Unit3.pas' {dxcViewForm},
-  UDPServerImplUnit in 'UDPServerImplUnit.pas';
+  Unit3 in 'Unit3.pas' {dxcViewForm};
 
 {$R *.res}
 
