@@ -50,6 +50,8 @@ type
     btnSpotClearBand: TButton;
     Button2: TButton;
     Button3: TButton;
+    freqPanelMenu: TPopupMenu;
+    isPanelHoldActive: TMenuItem;
     procedure Button1Click(Sender: TObject);
     procedure PaintBox1DblClick(Sender: TObject);
     procedure PaintBox1Paint(Sender: TObject);
@@ -82,6 +84,8 @@ type
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure isPanelHoldActiveClick(Sender: TObject);
+    procedure PaintBox1ContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
   private
     procedure CreateParams(var Params: TCreateParams); override;
     procedure RepaintFrequencySpan();
@@ -113,6 +117,7 @@ var
   regex1, regex2 : string;
   longLine, shortLine, freqMarkerFontSize, textShiftValueLB, textShiftValueHB : integer;
   textXPosDPICorr, StartYPosDPICorr, EndYPosDPICorr, UnderFreqDPICorr, PenWidthDPICorr : integer;
+  notNeedToShowPopup : boolean;
 
 implementation
 
@@ -134,6 +139,11 @@ for spotArray in spotList.Values do
 
 result := count;
 
+End;
+
+procedure TFrequencyVisualForm.isPanelHoldActiveClick(Sender: TObject);
+begin
+//
 End;
 
 function TFrequencyVisualForm.getSpotList() : TDictionary<variant, TArray<TSpot>>;
@@ -335,6 +345,8 @@ spotBandCount := 0;
 regex1 := 'DX de\s([a-zA-Z0-9\\\/]+)\:?\s+([0-9.,]+)\s+([a-zA-Z0-9\\\/]+)\s(.*)?\s([0-9]{4})Z.*';
 regex2 := '([0-9.,]+)\s+([a-zA-Z0-9\\\/]+)\s.*([0-9]{4})Z\s(.*)\s<([a-zA-Z0-9\\\/]+)\>';
 spotList := TDictionary<variant, TArray<TSpot>>.Create();
+
+notNeedToShowPopup := false;
 
 iniFile := TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
 try
@@ -628,6 +640,12 @@ HideAllLabels(true);
 RepaintFrequencySpan();
 End;
 
+procedure TFrequencyVisualForm.PaintBox1ContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
+begin
+if notNeedToShowPopup then
+   Handled := True;
+end;
+
 procedure TFrequencyVisualForm.PaintBox1DblClick(Sender: TObject);
 begin
 Panel1.Visible := not Panel1.Visible;
@@ -862,7 +880,7 @@ procedure TFrequencyVisualForm.PaintBox1MouseMove(Sender: TObject; Shift: TShift
 var
   horz : Integer;
 begin
-if ssRight in Shift then begin
+if (ssRight in Shift) and (not isPanelHoldActive.Checked) then begin
   if Xold > 0 then horz := X - Xold else horz := 0;
   Xold := X;
   sleep(10);
@@ -876,7 +894,11 @@ if ssRight in Shift then begin
 
     HideAllLabels(true);
     RepaintFrequencySpan();
+
+    notNeedToShowPopup := true;
+    exit;
   end;
+  notNeedToShowPopup := false;
 End;
 
 procedure TFrequencyVisualForm.RepaintFrequencySpan();

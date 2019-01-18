@@ -5,7 +5,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
   ClientHeight = 311
   ClientWidth = 729
   Color = clBtnFace
-  Constraints.MinHeight = 300
+  Constraints.MinHeight = 220
   Constraints.MinWidth = 745
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -173,15 +173,14 @@ object FrequencyVisualForm: TFrequencyVisualForm
       Color = clSkyBlue
       ParentColor = False
       ParentShowHint = False
+      PopupMenu = freqPanelMenu
       ShowHint = True
+      OnContextPopup = PaintBox1ContextPopup
       OnDblClick = PaintBox1DblClick
       OnMouseLeave = PaintBox1MouseLeave
       OnMouseMove = PaintBox1MouseMove
       OnPaint = PaintBox1Paint
-      ExplicitLeft = 81
-      ExplicitTop = 15
-      ExplicitWidth = 900
-      ExplicitHeight = 171
+      ExplicitTop = -6
     end
     object Panel3: TPanel
       Left = 0
@@ -292,5 +291,14 @@ object FrequencyVisualForm: TFrequencyVisualForm
     Terminal = 'dumb'
     Left = 24
     Top = 13
+  end
+  object freqPanelMenu: TPopupMenu
+    Left = 24
+    Top = 80
+    object isPanelHoldActive: TMenuItem
+      AutoCheck = True
+      Caption = 'Hold frequency panel'
+      OnClick = isPanelHoldActiveClick
+    end
   end
 end
