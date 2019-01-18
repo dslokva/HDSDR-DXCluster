@@ -6,7 +6,7 @@ object dxcViewForm: TdxcViewForm
   ClientWidth = 764
   Color = clBtnFace
   Constraints.MinHeight = 400
-  Constraints.MinWidth = 780
+  Constraints.MinWidth = 760
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -26,7 +26,6 @@ object dxcViewForm: TdxcViewForm
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 768
     object Panel2: TPanel
       Left = 658
       Top = 0
@@ -35,7 +34,6 @@ object dxcViewForm: TdxcViewForm
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 662
       object Button1: TButton
         Left = 8
         Top = 24
@@ -206,7 +204,6 @@ object dxcViewForm: TdxcViewForm
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 768
     object dxcMainTable: TStringGrid
       Left = 0
       Top = 25
@@ -220,7 +217,6 @@ object dxcViewForm: TdxcViewForm
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goDrawFocusSelected, goColSizing, goRowSelect, goFixedColClick]
       TabOrder = 0
       OnDrawCell = dxcMainTableDrawCell
-      ExplicitWidth = 768
       ColWidths = (
         96
         97
@@ -235,7 +231,6 @@ object dxcViewForm: TdxcViewForm
       Height = 41
       Align = alBottom
       TabOrder = 1
-      ExplicitWidth = 768
       object Button3: TButton
         Left = 89
         Top = 6
@@ -262,7 +257,6 @@ object dxcViewForm: TdxcViewForm
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 2
-        ExplicitLeft = 662
         object btnRefresh: TButton
           Left = 9
           Top = 5
@@ -282,7 +276,6 @@ object dxcViewForm: TdxcViewForm
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 2
-      ExplicitWidth = 768
       object Label1: TLabel
         Left = 8
         Top = 6

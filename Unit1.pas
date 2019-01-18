@@ -52,6 +52,8 @@ type
     Button3: TButton;
     freqPanelMenu: TPopupMenu;
     isPanelHoldActive: TMenuItem;
+    Panel7: TPanel;
+    labPanelMode: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure PaintBox1DblClick(Sender: TObject);
     procedure PaintBox1Paint(Sender: TObject);
@@ -143,7 +145,15 @@ End;
 
 procedure TFrequencyVisualForm.isPanelHoldActiveClick(Sender: TObject);
 begin
-//
+if isPanelHoldActive.Checked then begin
+  labPanelMode.Caption := 'Hold active';
+  labPanelMode.Font.Style := [fsBold];
+end else begin
+  labPanelMode.Caption := 'Normal';
+  labPanelMode.Font.Style := [];
+end;
+
+
 End;
 
 function TFrequencyVisualForm.getSpotList() : TDictionary<variant, TArray<TSpot>>;
@@ -219,9 +229,11 @@ if Button = mbLeft then begin
   end else TLabel(Sender).Tag := TLabel(Sender).Tag + 1;
 end;
 
-if Button = mbRight then
+if Button = mbRight then begin
   if TLabel(Sender).Top >= longLine+UnderFreqDPICorr+EndYPosDPICorr then
     TLabel(Sender).Tag := TLabel(Sender).Tag - 1;
+  notNeedToShowPopup := true;
+end;
 
 HideAllLabels(true);
 RepaintFrequencySpan();

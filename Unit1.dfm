@@ -180,7 +180,8 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnMouseLeave = PaintBox1MouseLeave
       OnMouseMove = PaintBox1MouseMove
       OnPaint = PaintBox1Paint
-      ExplicitTop = -6
+      ExplicitLeft = 164
+      ExplicitTop = -70
     end
     object Panel3: TPanel
       Left = 0
@@ -228,9 +229,9 @@ object FrequencyVisualForm: TFrequencyVisualForm
         end
       end
       object spacerScroll: TScrollBar
-        Left = 137
+        Left = 209
         Top = 0
-        Width = 440
+        Width = 368
         Height = 17
         Align = alClient
         Max = 2500
@@ -239,6 +240,8 @@ object FrequencyVisualForm: TFrequencyVisualForm
         Position = 1070
         TabOrder = 1
         OnChange = spacerScrollChange
+        ExplicitLeft = 225
+        ExplicitWidth = 440
       end
       object Panel6: TPanel
         Left = 577
@@ -278,6 +281,31 @@ object FrequencyVisualForm: TFrequencyVisualForm
           ShowHint = True
           OnDblClick = Label2DblClick
           OnMouseDown = Label2MouseDown
+        end
+      end
+      object Panel7: TPanel
+        Left = 137
+        Top = 0
+        Width = 72
+        Height = 17
+        Align = alLeft
+        BevelEdges = [beLeft, beRight]
+        BevelKind = bkFlat
+        BevelOuter = bvNone
+        TabOrder = 3
+        object labPanelMode: TLabel
+          Left = 3
+          Top = 2
+          Width = 33
+          Height = 13
+          Alignment = taCenter
+          Caption = 'Normal'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
         end
       end
     end
