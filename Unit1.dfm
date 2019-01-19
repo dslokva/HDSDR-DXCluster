@@ -240,8 +240,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
         Position = 1070
         TabOrder = 1
         OnChange = spacerScrollChange
-        ExplicitLeft = 225
-        ExplicitWidth = 440
       end
       object Panel6: TPanel
         Left = 577
@@ -306,6 +304,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
+          OnDblClick = labPanelModeDblClick
         end
       end
     end

@@ -10,7 +10,15 @@ uses
   Vcl.Buttons, inifiles, Vcl.Menus, IdUDPBase, IdUDPServer, IdSocketHandle;
 
 type
-  TSpot = class
+  TSpotLabel = class(TLabel)
+    public
+      spotDE : string;
+
+      constructor Create(AOwner: TComponent; spotDEStr : string);
+  end;
+
+type
+  TSpot = class(TObject)
     DX: String;
     DE: String;
     Comment: String;
@@ -88,6 +96,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure isPanelHoldActiveClick(Sender: TObject);
     procedure PaintBox1ContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
+    procedure labPanelModeDblClick(Sender: TObject);
   private
     procedure CreateParams(var Params: TCreateParams); override;
     procedure RepaintFrequencySpan();
@@ -102,6 +111,8 @@ type
     { Private declarations }
 
   public
+    stationCallsign : string;
+    maxSpotsNumber : integer;
     function getSpotList() : TDictionary<variant, TArray<TSpot>>;
     function getSpotTotalCount() : Integer;
     { Public declarations }
@@ -121,12 +132,19 @@ var
   textXPosDPICorr, StartYPosDPICorr, EndYPosDPICorr, UnderFreqDPICorr, PenWidthDPICorr : integer;
   notNeedToShowPopup : boolean;
 
+
 implementation
 
 {$R *.dfm}
 
 uses Unit2, Unit3;
 
+constructor TSpotLabel.Create(AOwner: TComponent; spotDEStr : string);
+begin
+  spotDE := spotDEStr;
+
+  inherited Create(AOwner);
+End;
 
 function TFrequencyVisualForm.getSpotTotalCount() : Integer;
 var
@@ -241,12 +259,19 @@ End;
 
 procedure TFrequencyVisualForm.SpotLabelMouseEnter(Sender: TObject);
 begin
-TLabel(Sender).Font.Color := clLime;
+TSpotLabel(Sender).Font.Color := clLime;
 End;
 
 procedure TFrequencyVisualForm.SpotLabelMouseLeve(Sender: TObject);
+var
+spotLabel : TSpotLabel;
+
 begin
-TLabel(Sender).Font.Color := clWhite;
+spotLabel := TSpotLabel(Sender);
+if spotLabel.spotDE = stationCallsign then
+  spotLabel.Font.Color := clYellow
+else spotLabel.Font.Color := clWhite;
+
 End;
 
 
@@ -370,7 +395,6 @@ try
     Left := iniFile.ReadInteger('Placement','MainFormLeft', 0);
     Width := iniFile.ReadInteger('Placement','MainFormWidth', 745);
     Height := iniFile.ReadInteger('Placement','MainFormHeight', 355);
-
   end;
 finally
   iniFile.Free;
@@ -743,7 +767,7 @@ spotFreqStr, incomeStr, hh, mm : string;
 spot : TSpot;
 localSpotArray : TArray<TSpot>;
 fromDXCstr : string;
-spotLabel : TLabel;
+spotLabel : TSpotLabel;
 
 begin
 incomeStr := BytesToString(Buffer);
@@ -792,13 +816,17 @@ while Start <= Length(incomeStr) do begin
         spot.UTCTime := date+EncodeTime(StrToInt(hh),StrToInt(mm),00,000);
         spot.LocalTime := LocalDateTimeFromUTCDateTime(spot.UTCTime);
 
-        spotLabel := TLabel.Create(Panel5);
+        spotLabel := TSpotLabel.Create(Panel5, spot.DE);
         spotLabel.Parent := Panel5;
         spotLabel.Left := 0;
         spotLabel.Top := 0;
         spotLabel.Caption := spot.DX;
+
         spotLabel.Font.Size := 9;
-        spotLabel.Font.Color := clWhite;
+        if spot.DE = stationCallsign then
+          spotLabel.Font.Color := clYellow
+        else spotLabel.Font.Color := clWhite;
+
         spotLabel.Hint := spotFreqStr + ' de '+spot.DE+' @'+DateTimeToStr(spot.LocalTime)+' '+spot.Comment;
         spotLabel.ShowHint := true;
         spotLabel.Visible := false;
@@ -820,6 +848,11 @@ while Start <= Length(incomeStr) do begin
         end else begin
           spotList.Add(spot.Freq, TArray<TSpot>.Create(spot));
         end;
+
+        if maxSpotsNumber < getSpotTotalCount then begin
+
+        end;
+
     end;
 
     //sh/dx spot processing
@@ -838,13 +871,17 @@ while Start <= Length(incomeStr) do begin
         spot.UTCTime := date+EncodeTime(StrToInt(hh),StrToInt(mm),00,000);
         spot.LocalTime := LocalDateTimeFromUTCDateTime(spot.UTCTime);
 
-        spotLabel := TLabel.Create(Panel5);
+        spotLabel := TSpotLabel.Create(Panel5, spot.DE);
         spotLabel.Parent := Panel5;
         spotLabel.Left := 0;
         spotLabel.Top := 0;
         spotLabel.Caption := spot.DX;
         spotLabel.Font.Size := 9;
-        spotLabel.Font.Color := clWhite;
+
+        if spot.DE = stationCallsign then
+          spotLabel.Font.Color := clYellow
+        else spotLabel.Font.Color := clWhite;
+
         spotLabel.Hint := spotFreqStr + ' de '+spot.DE+' @'+DateTimeToStr(spot.LocalTime)+' '+spot.Comment;
         spotLabel.ShowHint := true;
         spotLabel.Visible := false;
@@ -1031,6 +1068,12 @@ procedure TFrequencyVisualForm.Label2MouseDown(Sender: TObject;
 begin
 AllowDrag;
 End;
+
+procedure TFrequencyVisualForm.labPanelModeDblClick(Sender: TObject);
+begin
+isPanelHoldActive.Checked := not isPanelHoldActive.Checked;
+isPanelHoldActiveClick(FrequencyVisualForm);
+end;
 
 procedure TFrequencyVisualForm.spacerScrollChange(Sender: TObject);
 begin

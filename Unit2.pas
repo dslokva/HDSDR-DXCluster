@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, inifiles;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, inifiles, Vcl.Samples.Spin;
 
 type
   TsettingsForm = class(TForm)
@@ -16,6 +16,10 @@ type
     txtDXCPort: TLabeledEdit;
     chkDXCAutoConnect: TCheckBox;
     labSaveInfo: TLabel;
+    txtStationCallsign: TLabeledEdit;
+    Label1: TLabel;
+    Label2: TLabel;
+    spSpotMaxNumber: TSpinEdit;
     procedure btnCloseClick(Sender: TObject);
     procedure txtDXCPortKeyPress(Sender: TObject; var Key: Char);
     procedure btnSaveClick(Sender: TObject);
@@ -27,7 +31,7 @@ type
   end;
 
 var
-  settingsForm: TsettingsForm;
+  settingsForm : TsettingsForm;
 
 
 implementation
@@ -50,8 +54,10 @@ iniFile := TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini')) ;
 try
   with iniFile, settingsForm do begin
     WriteInteger('DXCluster', 'DXCPort', StrToInt(txtDXCPort.Text));
+    WriteInteger('DXCluster', 'MaxSpots', spSpotMaxNumber.Value);
     WriteString('DXCluster', 'DXCHost', txtDXCHost.Text);
     WriteString('DXCluster', 'DXCUsername', txtDXCUsername.Text);
+    WriteString('DXCluster', 'StationCallsign', txtStationCallsign.Text);
     WriteBool('DXCluster', 'DXCAutoConnect', chkDXCAutoConnect.Checked);
   end;
   labSaveInfo.Visible := true;
@@ -62,6 +68,7 @@ finally
   iniFile.Free;
   labSaveInfo.Visible := false;
   settingsForm.Close;
+  FrequencyVisualForm.stationCallsign := trim(txtStationCallsign.Text);
 end;
 
 End;
@@ -74,11 +81,15 @@ iniFile := TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
 try
   with iniFile, settingsForm do begin
     txtDXCPort.Text := IntToStr(ReadInteger('DXCluster', 'DXCPort', 8000));
+    spSpotMaxNumber.Value := ReadInteger('DXCluster', 'MaxSpots', 250);
     txtDXCHost.Text := ReadString('DXCluster', 'DXCHost', 'dxc.kfrr.kz');
     txtDXCUsername.Text := ReadString('DXCluster', 'DXCUsername', '');
+    txtStationCallsign.Text := ReadString('DXCluster', 'StationCallsign', '');
     chkDXCAutoConnect.Checked := ReadBool('DXCluster', 'DXCAutoConnect', false);
   end;
   FrequencyVisualForm.btnDXCConnect.Hint := txtDXCHost.Text;
+  FrequencyVisualForm.stationCallsign := trim(txtStationCallsign.Text);
+  FrequencyVisualForm.maxSpotsNumber := spSpotMaxNumber.Value;
   if chkDXCAutoConnect.Checked then
     FrequencyVisualForm.btnDXCConnect.OnClick(self);
 

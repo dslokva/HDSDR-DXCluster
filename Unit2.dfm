@@ -3,7 +3,7 @@ object settingsForm: TsettingsForm
   Top = 0
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 136
+  ClientHeight = 191
   ClientWidth = 408
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,7 +18,7 @@ object settingsForm: TsettingsForm
   TextHeight = 13
   object labSaveInfo: TLabel
     Left = 145
-    Top = 110
+    Top = 166
     Width = 126
     Height = 13
     Caption = 'Settings saved succesfully'
@@ -32,7 +32,7 @@ object settingsForm: TsettingsForm
   end
   object btnSave: TButton
     Left = 8
-    Top = 103
+    Top = 159
     Width = 75
     Height = 25
     Caption = 'Save'
@@ -41,7 +41,7 @@ object settingsForm: TsettingsForm
   end
   object btnClose: TButton
     Left = 325
-    Top = 103
+    Top = 159
     Width = 75
     Height = 25
     Caption = 'Close'
@@ -52,9 +52,23 @@ object settingsForm: TsettingsForm
     Left = 8
     Top = 8
     Width = 393
-    Height = 89
+    Height = 145
     Caption = 'DX Cluster '
     TabOrder = 2
+    object Label1: TLabel
+      Left = 114
+      Top = 83
+      Width = 268
+      Height = 13
+      Caption = '(will be used for extra color spots, that sent by youself)'
+    end
+    object Label2: TLabel
+      Left = 11
+      Top = 112
+      Width = 129
+      Height = 13
+      Caption = 'Maximum number of spots:'
+    end
     object txtDXCUsername: TLabeledEdit
       Left = 11
       Top = 32
@@ -100,6 +114,30 @@ object settingsForm: TsettingsForm
       Height = 17
       Caption = 'Auto connect'
       TabOrder = 3
+    end
+    object txtStationCallsign: TLabeledEdit
+      Left = 11
+      Top = 80
+      Width = 97
+      Height = 21
+      Margins.Top = 4
+      EditLabel.Width = 75
+      EditLabel.Height = 13
+      EditLabel.Caption = 'Station callsign:'
+      MaxLength = 12
+      TabOrder = 4
+      Text = 'UN7ZAF'
+    end
+    object spSpotMaxNumber: TSpinEdit
+      Left = 146
+      Top = 109
+      Width = 47
+      Height = 22
+      Increment = 5
+      MaxValue = 400
+      MinValue = 50
+      TabOrder = 5
+      Value = 50
     end
   end
 end
