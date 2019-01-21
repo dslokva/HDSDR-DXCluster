@@ -6,7 +6,7 @@ object dxcViewForm: TdxcViewForm
   ClientWidth = 764
   Color = clBtnFace
   Constraints.MinHeight = 400
-  Constraints.MinWidth = 760
+  Constraints.MinWidth = 780
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11

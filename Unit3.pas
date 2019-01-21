@@ -180,8 +180,8 @@ end;
 
 procedure TdxcViewForm.btnRefreshClick(Sender: TObject);
 var
-spotList : TDictionary<variant, TArray<TSpot>>;
-i, row : integer;
+spotList : TList<TPair<variant, TArray<TSpot>>>;
+j, i, row : integer;
 spotArray : TArray<TSpot>;
 sortArray: array[0..0] of TSortInfo;
 freqBandStart, freqBandEnd, spotFreq : variant;
@@ -191,7 +191,8 @@ ClearDXCMainTable;
 spotList := FrequencyVisualForm.getSpotList();
 row := 1;
 
-for spotArray in spotList.Values do begin
+for j := 0 to spotList.Count-1 do begin
+  spotArray := spotList.Items[j].Value;
   for i := low(spotArray) to high(spotArray) do begin
     spotFreq := spotArray[i].Freq;
     if ((spotFreq >= 1810.00) and (spotFreq <= 2000.00) and not cb160m.Checked) then break else

@@ -105,33 +105,37 @@ type
     procedure AllowDrag;
     procedure SpotLabelMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure SpotLabelMouseEnter(Sender: TObject);
-    procedure SpotLabelMouseLeve(Sender: TObject);
+    procedure SpotLabelMouseLeave(Sender: TObject);
     procedure refreshSelectedBandEdges();
-    procedure RemoveOneSpot(dx : string);
+    procedure RemoveSelectedSpot(dx : string);
+    procedure DeleteFirstSpot();
     { Private declarations }
 
   public
     stationCallsign : string;
     maxSpotsNumber : integer;
-    function getSpotList() : TDictionary<variant, TArray<TSpot>>;
+    function getSpotList() : TList<TPair<variant, TArray<TSpot>>>;
     function getSpotTotalCount() : Integer;
+    function CheckSpotListContainsKey(spotFreq : variant) : boolean;
+    procedure updateSpotListArray(spotFreq : variant; spotArray : TArray<TSpot>);
+    function GetSpotArrayFromList(spotFreq : variant) : TArray<TSpot>;
     { Public declarations }
   end;
 
 var
   FrequencyVisualForm : TFrequencyVisualForm;
+
   spaceAdjustValue, lineSpacer, boxWidth : integer;
   freqShifter, freqStart, freqAddKhz : real;
   freqBandStart, freqBandEnd : variant;
   Xold : Integer;
   regExp : TRegExpr;
-  spotList : TDictionary<variant, TArray<TSpot>>;
+  spotList : TList<TPair<variant, TArray<TSpot>>>;
   spotBandCount : integer;
   regex1, regex2 : string;
   longLine, shortLine, freqMarkerFontSize, textShiftValueLB, textShiftValueHB : integer;
   textXPosDPICorr, StartYPosDPICorr, EndYPosDPICorr, UnderFreqDPICorr, PenWidthDPICorr : integer;
   notNeedToShowPopup : boolean;
-
 
 implementation
 
@@ -142,23 +146,22 @@ uses Unit2, Unit3;
 constructor TSpotLabel.Create(AOwner: TComponent; spotDEStr : string);
 begin
   spotDE := spotDEStr;
-
   inherited Create(AOwner);
 End;
 
 function TFrequencyVisualForm.getSpotTotalCount() : Integer;
 var
-count : integer;
+i, count : integer;
 spotArray : TArray<TSpot>;
 
 begin
 count := 0;
 
-for spotArray in spotList.Values do
+for i := 0 to spotList.Count-1 do begin
+  spotArray := spotList.Items[i].Value;
   count := count + high(spotArray) + 1;
-
+end;
 result := count;
-
 End;
 
 procedure TFrequencyVisualForm.isPanelHoldActiveClick(Sender: TObject);
@@ -171,38 +174,39 @@ end else begin
   labPanelMode.Font.Style := [];
 end;
 
-
 End;
 
-function TFrequencyVisualForm.getSpotList() : TDictionary<variant, TArray<TSpot>>;
+function TFrequencyVisualForm.getSpotList() : TList<TPair<variant, TArray<TSpot>>>;
 begin
 result := spotList;
 end;
 
 procedure HideAllLabels(labelVisible : boolean);
 var
-i : integer;
+j, i : integer;
 spotArray : TArray<TSpot>;
 
 begin
-for spotArray in spotList.Values do begin
+for j := 0 to spotList.Count-1 do begin
+  spotArray := spotList.Items[j].Value;
   for i := low(spotArray) to high(spotArray) do
      spotArray[i].spotLabel.Visible := not labelVisible;
 end;
-
+//todo: hide all only when band changed, change visibility only for one band
 End;
 
 procedure DestroyAllLabels();
 var
-i : integer;
+j, i : integer;
 spotArray : TArray<TSpot>;
 
 begin
-for spotArray in spotList.Values do begin
+for j := 0 to spotList.Count-1 do begin
+  spotArray := spotList.Items[j].Value;
   for i := low(spotArray) to high(spotArray) do
      spotArray[i].spotLabel.Destroy;
 end;
-
+//todo: destroy all only when band changed, change visibility only for one band
 End;
 
 function CheckHexForHash(col: string):string;
@@ -243,7 +247,7 @@ begin
 //Tag value is used for vertical alignment of spotLabels
 if Button = mbLeft then begin
   if ssAlt in Shift then begin
-    RemoveOneSpot(TLabel(Sender).Caption);
+    RemoveSelectedSpot(TLabel(Sender).Caption);
   end else TLabel(Sender).Tag := TLabel(Sender).Tag + 1;
 end;
 
@@ -262,7 +266,7 @@ begin
 TSpotLabel(Sender).Font.Color := clLime;
 End;
 
-procedure TFrequencyVisualForm.SpotLabelMouseLeve(Sender: TObject);
+procedure TFrequencyVisualForm.SpotLabelMouseLeave(Sender: TObject);
 var
 spotLabel : TSpotLabel;
 
@@ -381,7 +385,7 @@ Xold := 0;
 spotBandCount := 0;
 regex1 := 'DX de\s([a-zA-Z0-9\\\/]+)\:?\s+([0-9.,]+)\s+([a-zA-Z0-9\\\/]+)\s(.*)?\s([0-9]{4})Z.*';
 regex2 := '([0-9.,]+)\s+([a-zA-Z0-9\\\/]+)\s.*([0-9]{4})Z\s(.*)\s<([a-zA-Z0-9\\\/]+)\>';
-spotList := TDictionary<variant, TArray<TSpot>>.Create();
+spotList := TList<TPair<variant, TArray<TSpot>>>.Create();
 
 notNeedToShowPopup := false;
 
@@ -447,7 +451,7 @@ end;
 
 End;
 
-   procedure TFrequencyVisualForm.Label1MouseDown(Sender: TObject; Button: TMouseButton;
+procedure TFrequencyVisualForm.Label1MouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   AllowDrag;
@@ -582,30 +586,6 @@ case bandSwitcher.ItemIndex of
 end;
 End;
 
-procedure TFrequencyVisualForm.btnSpotClearBandClick(Sender: TObject);
-var
-i : integer;
-key : variant;
-spotArray : TArray<TSpot>;
-
-begin
-refreshSelectedBandEdges();
-//will remove all labels for selected band
-for key in spotList.Keys do begin
-  if (key >= freqBandStart) and (key <= freqBandEnd) then begin
-    spotArray := spotList.Items[key];
-    for i := low(spotArray) to high(spotArray) do
-      spotArray[i].spotLabel.Destroy;
-    spotList.Remove(key);
-  end;
-end;
-
-spotBandCount := 0;
-
-HideAllLabels(true);
-RepaintFrequencySpan();
-End;
-
 procedure DeleteElement(var anArray:TArray<TSpot>; const aPosition:integer);
 var
    lg, j : integer;
@@ -623,26 +603,36 @@ begin
      anArray[j] := anArray[j+1];//...with a position
    SetLength(anArray, lg-1);//now we have one element less
    //that's all...
-end;
+End;
 
-procedure DeleteArrayIndex(var X: TArray<TSpot>; Index: Integer);
-begin
-  if Index > High(X) then Exit;
-  if Index < Low(X) then Exit;
-  if Index = High(X) then
-  begin
-    SetLength(X, Length(X) - 1);
-    Exit;
-  end;
-  Finalize(X[Index]);
-  System.Move(X[Index +1], X[Index],
-  (Length(X) - Index -1) * SizeOf(TSpot) + 1);
-  SetLength(X, Length(X) - 1);
-end;
-
-procedure TFrequencyVisualForm.RemoveOneSpot(dx : string);
+procedure TFrequencyVisualForm.btnSpotClearBandClick(Sender: TObject);
 var
-i : integer;
+j, i : integer;
+key : variant;
+spotArray : TArray<TSpot>;
+
+begin
+refreshSelectedBandEdges();
+//will remove all labels for selected band
+for j := 0 to spotList.Count-1 do begin
+  key := spotList.Items[j].Key;
+  if (key >= freqBandStart) and (key <= freqBandEnd) then begin
+    spotArray := spotList.Items[j].Value;
+    for i := low(spotArray) to high(spotArray) do
+      spotArray[i].spotLabel.Destroy;
+    spotList.Delete(j);
+  end;
+end;
+
+spotBandCount := 0;
+
+HideAllLabels(true);
+RepaintFrequencySpan();
+End;
+
+procedure TFrequencyVisualForm.RemoveSelectedSpot(dx : string);
+var
+j, i : integer;
 key : variant;
 spotArray : TArray<TSpot>;
 removed : boolean;
@@ -651,27 +641,29 @@ begin
 refreshSelectedBandEdges();
 removed := false;
 //will remove only one spot on band with caption = dx
-for key in spotList.Keys do begin
+for j := 0 to spotList.Count-1 do begin
+  key := spotList.Items[j].Key;
   if (key >= freqBandStart) and (key <= freqBandEnd) then begin
-    spotArray := spotList.Items[key];
+    spotArray := spotList.Items[j].Value;
     for i := low(spotArray) to high(spotArray) do
       if spotArray[i].spotLabel.Caption = dx then begin
         spotArray[i].spotLabel.Destroy;
         if Length(spotArray) > 1 then begin
           DeleteElement(spotArray, i);
-          spotList.Items[key] := spotArray;
+          spotList.Items[j] := TPair<variant, TArray<TSpot>>.Create(key, spotArray);
         end else
-          spotList.Remove(key);
+          spotList.Delete(j);
         removed := true;
         break;
       end;
   end;
   if removed then
     break;
+    //LOL, but I think that this must be here.
+    //Yes, I totally forgot about exit; :)
 end;
 
 spotBandCount := spotBandCount-1;
-
 HideAllLabels(true);
 RepaintFrequencySpan();
 End;
@@ -687,6 +679,24 @@ begin
 Panel1.Visible := not Panel1.Visible;
 End;
 
+function TFrequencyVisualForm.CheckSpotListContainsKey(spotFreq : variant) : boolean;
+var
+i,j : integer;
+spotArray : TArray<TSpot>;
+
+begin
+result := false;
+for j := 0 to spotList.Count-1 do begin
+  spotArray := spotList.Items[j].Value;
+  for i := low(spotArray) to high(spotArray) do
+    if spotArray[i].Freq = spotFreq then begin
+      result := true;
+      exit;
+    end;
+end;
+End;
+
+
 procedure TFrequencyVisualForm.AddFrequencyPosition(textXPos : integer; freqValue : variant);
 var
 spotArray : TArray<TSpot>;
@@ -695,11 +705,11 @@ spotCount, YPos : integer;
 spotLabel : TLabel;
 
 begin
-if spotList.ContainsKey(freqValue) then begin
+if CheckSpotListContainsKey(freqValue) then begin
 //this is a main procedure that draw spots on frequency pane
 //still very fragile for DPI and Scale options (((
-
-  if spotList.TryGetValue(freqValue, spotArray) then
+  spotArray := GetSpotArrayFromList(freqValue);
+  if spotArray <> nil then
     with PaintBox1.Canvas do begin
       Font.Size := freqMarkerFontSize;
       Font.Color := clWhite;
@@ -758,6 +768,70 @@ for i := low(spotArray) to high(spotArray) do
     break;
   end;
 End;
+
+//procedure TFrequencyVisualForm.deleteFirstSpotOnBand(spotFreq : string);
+//begin
+//  refreshSelectedBandEdges();
+//  if (key >= freqBandStart) and (key <= freqBandEnd) then
+//end;
+
+//procedure TFrequencyVisualForm.sortSpotListByTime();
+//begin
+//
+//End;
+
+procedure TFrequencyVisualForm.deleteFirstSpot();
+var
+i : integer;
+key : variant;
+spotArray : TArray<TSpot>;
+
+begin
+//most early spot - in begining of spotList
+if (spotList.Count) = 0 then exit;
+
+  spotArray := spotList.Items[0].Value;
+  if Length(spotArray) = 1 then begin
+    spotArray[0].spotLabel.Destroy;
+    spotList.Delete(0);
+    exit;
+  end else
+
+    for i := low(spotArray) to high(spotArray) do begin
+      spotArray[i].spotLabel.Destroy;
+      DeleteElement(spotArray, i);
+      spotList.Items[0] := TPair<variant, TArray<TSpot>>.Create(spotList.Items[0].Key, spotArray);
+      exit;
+    end;
+
+HideAllLabels(true);
+RepaintFrequencySpan();
+End;
+
+function TFrequencyVisualForm.GetSpotArrayFromList(spotFreq : variant) : TArray<TSpot>;
+var
+i : integer;
+begin
+result := nil;
+for i := 0 to spotList.Count-1 do
+  if spotList.Items[i].Key = spotFreq then begin
+    result := spotList.Items[i].Value;
+    break;
+  end;
+
+End;
+
+procedure TFrequencyVisualForm.updateSpotListArray(spotFreq : variant; spotArray : TArray<TSpot>);
+var
+i : integer;
+begin
+for i := 0 to spotList.Count-1 do
+  if spotList.Items[i].Key = spotFreq then begin
+    spotList.Items[i] := TPair<variant, TArray<TSpot>>.Create(spotFreq, spotArray);
+    break;
+  end;
+end;
+
 
 procedure TFrequencyVisualForm.IdTelnet1DataAvailable(Sender: TIdTelnet;
   const Buffer: TIdBytes);
@@ -832,27 +906,26 @@ while Start <= Length(incomeStr) do begin
         spotLabel.Visible := false;
         spotLabel.OnMouseDown := SpotLabelMouseDown;
         spotLabel.OnMouseEnter := SpotLabelMouseEnter;
-        spotLabel.OnMouseLeave := SpotLabelMouseLeve;
+        spotLabel.OnMouseLeave := SpotLabelMouseLeave;
         spotLabel.Tag := 0;
         spot.spotLabel := spotLabel;
 
         lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
 
-        if spotList.ContainsKey(spot.Freq) then begin
-          if spotList.TryGetValue(spot.Freq, localSpotArray) then
+        if CheckSpotListContainsKey(spot.Freq) then begin
+          localSpotArray := GetSpotArrayFromList(spot.Freq);
+          if localSpotArray <> nil then  //maybe this check is not needed?
             if not FindCallInArray(localSpotArray, spot.DX) then begin
               TAppender<TSpot>.Append(localSpotArray, spot);
-              spotList.Remove(spot.Freq);
-              spotList.Add(spot.Freq, localSpotArray);
+              updateSpotListArray(spot.Freq, localSpotArray);
             end;
         end else begin
-          spotList.Add(spot.Freq, TArray<TSpot>.Create(spot));
+          spotList.Add(TPair<variant, TArray<TSpot>>.Create(spot.Freq, TArray<TSpot>.Create(spot)));
         end;
-
         if maxSpotsNumber < getSpotTotalCount then begin
-
+           //delete first (most early by time) spot in list on same band//
+           deleteFirstSpot();
         end;
-
     end;
 
     //sh/dx spot processing
@@ -887,22 +960,31 @@ while Start <= Length(incomeStr) do begin
         spotLabel.Visible := false;
         spotLabel.OnMouseDown := SpotLabelMouseDown;
         spotLabel.OnMouseEnter := SpotLabelMouseEnter;
-        spotLabel.OnMouseLeave := SpotLabelMouseLeve;
+        spotLabel.OnMouseLeave := SpotLabelMouseLeave;
         spotLabel.Tag := 0;
         spot.spotLabel := spotLabel;
 
         lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
 
-        if spotList.ContainsKey(spot.Freq) then begin
-          if spotList.TryGetValue(spot.Freq, localSpotArray) then
-            if not FindCallInArray(localSpotArray, spot.DX) then begin
-              TAppender<TSpot>.Append(localSpotArray, spot);
-              spotList.Remove(spot.Freq);
-              spotList.Add(spot.Freq, localSpotArray);
-            end;
+        if CheckSpotListContainsKey(spot.Freq) then begin
+        localSpotArray := GetSpotArrayFromList(spot.Freq);
+        if localSpotArray <> nil then  //maybe this check is not needed?
+          if not FindCallInArray(localSpotArray, spot.DX) then begin
+            TAppender<TSpot>.Append(localSpotArray, spot);
+            updateSpotListArray(spot.Freq, localSpotArray);
+          end;
         end else begin
-          spotList.Add(spot.Freq, TArray<TSpot>.Create(spot));
+          spotList.Add(TPair<variant, TArray<TSpot>>.Create(spot.Freq, TArray<TSpot>.Create(spot)));
         end;
+        //need to revert all list, because DXCluster shows spots in descending time manner
+//        sortSpotListByTime();
+
+        if maxSpotsNumber < getSpotTotalCount then begin
+           //delete first (most early by time) spot in list on same band//
+           deleteFirstSpot();
+        end;
+
+
     end;
 
   finally
