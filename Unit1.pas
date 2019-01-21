@@ -974,10 +974,10 @@ while Start <= Length(incomeStr) do begin
             updateSpotListArray(spot.Freq, localSpotArray);
           end;
         end else begin
-          spotList.Add(TPair<variant, TArray<TSpot>>.Create(spot.Freq, TArray<TSpot>.Create(spot)));
+          //need to revert all list, because DXCluster shows spots in descending time manner
+          //so, we simple insert every spot to begin of the list
+          spotList.Insert(0, TPair<variant, TArray<TSpot>>.Create(spot.Freq, TArray<TSpot>.Create(spot)));
         end;
-        //need to revert all list, because DXCluster shows spots in descending time manner
-//        sortSpotListByTime();
 
         if maxSpotsNumber < getSpotTotalCount then begin
            //delete first (most early by time) spot in list on same band//
