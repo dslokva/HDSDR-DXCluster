@@ -24,10 +24,12 @@ type
     procedure txtDXCPortKeyPress(Sender: TObject; var Key: Char);
     procedure btnSaveClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure spSpotMaxNumberChange(Sender: TObject);
   private
     { Private declarations }
   public
     { Public declarations }
+    maxSpotsNumber : integer;
   end;
 
 var
@@ -69,6 +71,7 @@ finally
   labSaveInfo.Visible := false;
   settingsForm.Close;
   FrequencyVisualForm.stationCallsign := trim(txtStationCallsign.Text);
+  maxSpotsNumber := spSpotMaxNumber.Value;
 end;
 
 End;
@@ -89,13 +92,18 @@ try
   end;
   FrequencyVisualForm.btnDXCConnect.Hint := txtDXCHost.Text;
   FrequencyVisualForm.stationCallsign := trim(txtStationCallsign.Text);
-  FrequencyVisualForm.maxSpotsNumber := spSpotMaxNumber.Value;
+  maxSpotsNumber := spSpotMaxNumber.Value;
   if chkDXCAutoConnect.Checked then
     FrequencyVisualForm.btnDXCConnect.OnClick(self);
 
 finally
   iniFile.Free;
 end;
+End;
+
+procedure TsettingsForm.spSpotMaxNumberChange(Sender: TObject);
+begin
+maxSpotsNumber := spSpotMaxNumber.Value;
 End;
 
 procedure TsettingsForm.txtDXCPortKeyPress(Sender: TObject; var Key: Char);

@@ -113,9 +113,9 @@ type
 
   public
     stationCallsign : string;
-    maxSpotsNumber : integer;
     function getSpotList() : TList<TPair<variant, TArray<TSpot>>>;
     function getSpotTotalCount() : Integer;
+    function getSpotMaxCount() : Integer;
     function CheckSpotListContainsKey(spotFreq : variant) : boolean;
     procedure updateSpotListArray(spotFreq : variant; spotArray : TArray<TSpot>);
     function GetSpotArrayFromList(spotFreq : variant) : TArray<TSpot>;
@@ -163,6 +163,12 @@ for i := 0 to spotList.Count-1 do begin
 end;
 result := count;
 End;
+
+function TFrequencyVisualForm.getSpotMaxCount() : Integer;
+begin
+  result := settingsForm.maxSpotsNumber;
+End;
+
 
 procedure TFrequencyVisualForm.isPanelHoldActiveClick(Sender: TObject);
 begin
@@ -793,10 +799,10 @@ if (spotList.Count) = 0 then exit;
   spotArray := spotList.Items[0].Value;
   if Length(spotArray) = 1 then begin
     spotArray[0].spotLabel.Destroy;
+    DebugOutput('deleting spot :'+FloatToStr(spotList.Items[0].Key) + ' - ' + spotArray[0].DX + ' time: '+DateTimeToStr(spotArray[0].LocalTime));
     spotList.Delete(0);
     exit;
   end else
-
     for i := low(spotArray) to high(spotArray) do begin
       spotArray[i].spotLabel.Destroy;
       DeleteElement(spotArray, i);
@@ -804,8 +810,8 @@ if (spotList.Count) = 0 then exit;
       exit;
     end;
 
-HideAllLabels(true);
-RepaintFrequencySpan();
+//HideAllLabels(true);
+//RepaintFrequencySpan();
 End;
 
 function TFrequencyVisualForm.GetSpotArrayFromList(spotFreq : variant) : TArray<TSpot>;
@@ -836,7 +842,7 @@ end;
 procedure TFrequencyVisualForm.IdTelnet1DataAvailable(Sender: TIdTelnet;
   const Buffer: TIdBytes);
 var
-Start, Stop, i, spotPosition: Integer;
+Start, Stop : Integer;
 spotFreqStr, incomeStr, hh, mm : string;
 spot : TSpot;
 localSpotArray : TArray<TSpot>;
@@ -872,16 +878,16 @@ while Start <= Length(incomeStr) do begin
    try
     regExp := TRegExpr.Create;
     regExp.ModifierM := true;
-    spot := TSpot.Create;
 
     //regular spot processing
     regExp.Expression := regex1;
     if regExp.Exec(fromDXCstr) then begin
-        spot.DE := Trim(regExp.Match[1]);
-
         spotFreqStr := StringReplace(regExp.Match[2], '.', ',', [rfIgnoreCase, rfReplaceAll]);
-        spot.Freq := StrToFloat(spotFreqStr);
+        if StrToFloat(spotFreqStr) > 150000 then exit;
 
+        spot := TSpot.Create;
+        spot.DE := Trim(regExp.Match[1]);
+        spot.Freq := StrToFloat(spotFreqStr);
         spot.DX := Trim(regExp.Match[3]);
         spot.Comment := Trim(regExp.Match[4]);
 
@@ -921,8 +927,9 @@ while Start <= Length(incomeStr) do begin
             end;
         end else begin
           spotList.Add(TPair<variant, TArray<TSpot>>.Create(spot.Freq, TArray<TSpot>.Create(spot)));
+          DebugOutput('spot incoming (add):'+FloatToStr(spot.Freq) + ' - ' + spot.DX + ' time: '+DateTimeToStr(spot.LocalTime));
         end;
-        if maxSpotsNumber < getSpotTotalCount then begin
+        if getSpotMaxCount < getSpotTotalCount then begin
            //delete first (most early by time) spot in list on same band//
            deleteFirstSpot();
         end;
@@ -931,9 +938,11 @@ while Start <= Length(incomeStr) do begin
     //sh/dx spot processing
     regExp.Expression := regex2;
     if regExp.Exec(fromDXCstr) then begin
-        spot.DE := Trim(regExp.Match[5]);
-
         spotFreqStr := StringReplace(regExp.Match[1], '.', ',', [rfIgnoreCase, rfReplaceAll]);
+        if StrToFloat(spotFreqStr) > 150000 then exit;
+
+        spot := TSpot.Create;
+        spot.DE := Trim(regExp.Match[5]);
         spot.Freq := StrToFloat(spotFreqStr);
 
         spot.DX := Trim(regExp.Match[2]);
@@ -977,19 +986,18 @@ while Start <= Length(incomeStr) do begin
           //need to revert all list, because DXCluster shows spots in descending time manner
           //so, we simple insert every spot to begin of the list
           spotList.Insert(0, TPair<variant, TArray<TSpot>>.Create(spot.Freq, TArray<TSpot>.Create(spot)));
+          DebugOutput('spot incoming (sh/dx):'+FloatToStr(spot.Freq) + ' - ' + spot.DX + ' time: '+DateTimeToStr(spot.LocalTime));
         end;
 
-        if maxSpotsNumber < getSpotTotalCount then begin
+        if getSpotMaxCount < getSpotTotalCount then begin
            //delete first (most early by time) spot in list on same band//
            deleteFirstSpot();
         end;
-
 
     end;
 
   finally
     regExp.Free;
-
     HideAllLabels(true);
     RepaintFrequencySpan();
   end;

@@ -138,6 +138,7 @@ object settingsForm: TsettingsForm
       MinValue = 50
       TabOrder = 5
       Value = 50
+      OnChange = spSpotMaxNumberChange
     end
   end
 end
