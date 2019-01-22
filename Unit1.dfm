@@ -180,8 +180,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnMouseLeave = PaintBox1MouseLeave
       OnMouseMove = PaintBox1MouseMove
       OnPaint = PaintBox1Paint
-      ExplicitLeft = 164
-      ExplicitTop = -70
+      ExplicitTop = -2
     end
     object Panel3: TPanel
       Left = 0
@@ -321,11 +320,23 @@ object FrequencyVisualForm: TFrequencyVisualForm
   end
   object freqPanelMenu: TPopupMenu
     Left = 24
-    Top = 80
+    Top = 72
     object isPanelHoldActive: TMenuItem
       AutoCheck = True
       Caption = 'Hold frequency panel'
       OnClick = isPanelHoldActiveClick
+    end
+  end
+  object spotLabelMenu: TPopupMenu
+    Left = 24
+    Top = 128
+    object Viewonqrzcom1: TMenuItem
+      Caption = 'view on qrz.com'
+      OnClick = Viewonqrzcom1Click
+    end
+    object Viewonqrzru1: TMenuItem
+      Caption = 'view on qrz.ru'
+      OnClick = Viewonqrzru1Click
     end
   end
 end

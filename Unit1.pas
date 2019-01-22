@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.ButtonGroup, Vcl.WinXCtrls, IdBaseComponent, IdComponent, IdTCPConnection,
   IdTCPClient, IdTelnet, RegExpr, IdGlobal, System.Generics.Collections,
-  Vcl.Buttons, inifiles, Vcl.Menus, IdUDPBase, IdUDPServer, IdSocketHandle;
+  Vcl.Buttons, inifiles, Vcl.Menus, IdUDPBase, IdUDPServer, IdSocketHandle, Winapi.ShellAPI;
 
 type
   TSpotLabel = class(TLabel)
@@ -62,6 +62,9 @@ type
     isPanelHoldActive: TMenuItem;
     Panel7: TPanel;
     labPanelMode: TLabel;
+    spotLabelMenu : TPopupMenu;
+    Viewonqrzcom1: TMenuItem;
+    Viewonqrzru1: TMenuItem;
     procedure Button1Click(Sender: TObject);
     procedure PaintBox1DblClick(Sender: TObject);
     procedure PaintBox1Paint(Sender: TObject);
@@ -97,8 +100,10 @@ type
     procedure isPanelHoldActiveClick(Sender: TObject);
     procedure PaintBox1ContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
     procedure labPanelModeDblClick(Sender: TObject);
-  private
     procedure CreateParams(var Params: TCreateParams); override;
+    procedure Viewonqrzcom1Click(Sender: TObject);
+    procedure Viewonqrzru1Click(Sender: TObject);
+  private
     procedure RepaintFrequencySpan();
     procedure RefreshLineSpacer();
     procedure AddFrequencyPosition(textXPos : integer; freqValue : variant);
@@ -106,6 +111,8 @@ type
     procedure SpotLabelMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure SpotLabelMouseEnter(Sender: TObject);
     procedure SpotLabelMouseLeave(Sender: TObject);
+    procedure SpotLabelContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
+
     procedure refreshSelectedBandEdges();
     procedure RemoveSelectedSpot(dx : string);
     procedure DeleteFirstSpot();
@@ -135,7 +142,7 @@ var
   regex1, regex2 : string;
   longLine, shortLine, freqMarkerFontSize, textShiftValueLB, textShiftValueHB : integer;
   textXPosDPICorr, StartYPosDPICorr, EndYPosDPICorr, UnderFreqDPICorr, PenWidthDPICorr : integer;
-  notNeedToShowPopup : boolean;
+  notNeedToShowPopupForFreqPanel, notNeedToShowPopupForSpotLabel : boolean;
 
 implementation
 
@@ -258,9 +265,14 @@ if Button = mbLeft then begin
 end;
 
 if Button = mbRight then begin
-  if TLabel(Sender).Top >= longLine+UnderFreqDPICorr+EndYPosDPICorr then
-    TLabel(Sender).Tag := TLabel(Sender).Tag - 1;
-  notNeedToShowPopup := true;
+  if ssCtrl in Shift then begin
+    notNeedToShowPopupForSpotLabel := false;
+  end else begin
+    notNeedToShowPopupForSpotLabel := true;
+    notNeedToShowPopupForFreqPanel := true;
+    if TLabel(Sender).Top >= longLine+UnderFreqDPICorr+EndYPosDPICorr then
+      TLabel(Sender).Tag := TLabel(Sender).Tag - 1;
+  end;
 end;
 
 HideAllLabels(true);
@@ -352,7 +364,6 @@ try
      WriteInteger('Placement', 'MainFormLeft', Left);
      WriteInteger('Placement', 'MainFormWidth', Width);
      WriteInteger('Placement', 'MainFormHeight', Height);
-
   end;
 finally
   iniFile.Free;
@@ -364,7 +375,7 @@ finally
   IdTelnet1.Free;
 end;
 
-end;
+End;
 
 procedure TFrequencyVisualForm.FormCreate(Sender: TObject);
 var
@@ -393,7 +404,8 @@ regex1 := 'DX de\s([a-zA-Z0-9\\\/]+)\:?\s+([0-9.,]+)\s+([a-zA-Z0-9\\\/]+)\s(.*)?
 regex2 := '([0-9.,]+)\s+([a-zA-Z0-9\\\/]+)\s.*([0-9]{4})Z\s(.*)\s<([a-zA-Z0-9\\\/]+)\>';
 spotList := TList<TPair<variant, TArray<TSpot>>>.Create();
 
-notNeedToShowPopup := false;
+notNeedToShowPopupForFreqPanel := false;
+notNeedToShowPopupForSpotLabel := false;
 
 iniFile := TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
 try
@@ -509,7 +521,6 @@ End;
 
 procedure TFrequencyVisualForm.btnDXCConnectClick(Sender: TObject);
 var
-result : boolean;
 dxcAddress, dxcUsername : string;
 dxcPort : integer;
 
@@ -676,7 +687,13 @@ End;
 
 procedure TFrequencyVisualForm.PaintBox1ContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
 begin
-if notNeedToShowPopup then
+if notNeedToShowPopupForFreqPanel then
+   Handled := True;
+end;
+
+procedure TFrequencyVisualForm.spotLabelContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
+begin
+if notNeedToShowPopupForSpotLabel then
    Handled := True;
 end;
 
@@ -789,7 +806,6 @@ End;
 procedure TFrequencyVisualForm.deleteFirstSpot();
 var
 i : integer;
-key : variant;
 spotArray : TArray<TSpot>;
 
 begin
@@ -810,8 +826,6 @@ if (spotList.Count) = 0 then exit;
       exit;
     end;
 
-//HideAllLabels(true);
-//RepaintFrequencySpan();
 End;
 
 function TFrequencyVisualForm.GetSpotArrayFromList(spotFreq : variant) : TArray<TSpot>;
@@ -838,6 +852,18 @@ for i := 0 to spotList.Count-1 do
   end;
 end;
 
+
+procedure TFrequencyVisualForm.Viewonqrzcom1Click(Sender: TObject);
+begin
+ShellExecute(self.WindowHandle,'open',PChar('https://www.qrz.com/lookup/'+TSpotLabel(spotLabelMenu.PopupComponent).Caption),nil,nil, SW_SHOWNORMAL);
+
+End;
+
+procedure TFrequencyVisualForm.Viewonqrzru1Click(Sender: TObject);
+begin
+ShellExecute(self.WindowHandle,'open',PChar('https://www.qrz.ru/db/'+TSpotLabel(spotLabelMenu.PopupComponent).Caption),nil,nil, SW_SHOWNORMAL);
+
+End;
 
 procedure TFrequencyVisualForm.IdTelnet1DataAvailable(Sender: TIdTelnet;
   const Buffer: TIdBytes);
@@ -913,6 +939,8 @@ while Start <= Length(incomeStr) do begin
         spotLabel.OnMouseDown := SpotLabelMouseDown;
         spotLabel.OnMouseEnter := SpotLabelMouseEnter;
         spotLabel.OnMouseLeave := SpotLabelMouseLeave;
+        spotLabel.OnContextPopup := SpotLabelContextPopup;
+        spotLabel.PopupMenu := spotLabelMenu;
         spotLabel.Tag := 0;
         spot.spotLabel := spotLabel;
 
@@ -970,6 +998,8 @@ while Start <= Length(incomeStr) do begin
         spotLabel.OnMouseDown := SpotLabelMouseDown;
         spotLabel.OnMouseEnter := SpotLabelMouseEnter;
         spotLabel.OnMouseLeave := SpotLabelMouseLeave;
+        spotLabel.OnContextPopup := SpotLabelContextPopup;
+        spotLabel.PopupMenu := spotLabelMenu;
         spotLabel.Tag := 0;
         spot.spotLabel := spotLabel;
 
@@ -1034,10 +1064,10 @@ if (ssRight in Shift) and (not isPanelHoldActive.Checked) then begin
     HideAllLabels(true);
     RepaintFrequencySpan();
 
-    notNeedToShowPopup := true;
+    notNeedToShowPopupForFreqPanel := true;
     exit;
   end;
-  notNeedToShowPopup := false;
+  notNeedToShowPopupForFreqPanel := false;
 End;
 
 procedure TFrequencyVisualForm.RepaintFrequencySpan();
