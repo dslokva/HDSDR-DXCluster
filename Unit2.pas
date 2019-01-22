@@ -12,7 +12,6 @@ type
     btnClose: TButton;
     GroupBox1: TGroupBox;
     txtDXCUsername: TLabeledEdit;
-    txtDXCHost: TLabeledEdit;
     txtDXCPort: TLabeledEdit;
     chkDXCAutoConnect: TCheckBox;
     labSaveInfo: TLabel;
@@ -20,6 +19,8 @@ type
     Label1: TLabel;
     Label2: TLabel;
     spSpotMaxNumber: TSpinEdit;
+    Label3: TLabel;
+    txtDXCHost: TComboBox;
     procedure btnCloseClick(Sender: TObject);
     procedure txtDXCPortKeyPress(Sender: TObject; var Key: Char);
     procedure btnSaveClick(Sender: TObject);

@@ -49,7 +49,7 @@ object settingsForm: TsettingsForm
     OnClick = btnCloseClick
   end
   object GroupBox1: TGroupBox
-    Left = 8
+    Left = 7
     Top = 8
     Width = 393
     Height = 145
@@ -57,7 +57,7 @@ object settingsForm: TsettingsForm
     TabOrder = 2
     object Label1: TLabel
       Left = 114
-      Top = 83
+      Top = 80
       Width = 268
       Height = 13
       Caption = '(will be used for extra color spots, that sent by youself)'
@@ -68,6 +68,13 @@ object settingsForm: TsettingsForm
       Width = 129
       Height = 13
       Caption = 'Maximum number of spots:'
+    end
+    object Label3: TLabel
+      Left = 114
+      Top = 16
+      Width = 26
+      Height = 13
+      Caption = 'Host:'
     end
     object txtDXCUsername: TLabeledEdit
       Left = 11
@@ -82,18 +89,6 @@ object settingsForm: TsettingsForm
       TabOrder = 0
       Text = 'UN7ZAF'
     end
-    object txtDXCHost: TLabeledEdit
-      Left = 112
-      Top = 32
-      Width = 121
-      Height = 21
-      EditLabel.Width = 26
-      EditLabel.Height = 13
-      EditLabel.Caption = 'Host:'
-      MaxLength = 254
-      TabOrder = 1
-      Text = 'dxc.kfrr.kz'
-    end
     object txtDXCPort: TLabeledEdit
       Left = 239
       Top = 32
@@ -103,7 +98,7 @@ object settingsForm: TsettingsForm
       EditLabel.Height = 13
       EditLabel.Caption = 'Port:'
       MaxLength = 5
-      TabOrder = 2
+      TabOrder = 1
       Text = '8000'
       OnKeyPress = txtDXCPortKeyPress
     end
@@ -113,11 +108,11 @@ object settingsForm: TsettingsForm
       Width = 82
       Height = 17
       Caption = 'Auto connect'
-      TabOrder = 3
+      TabOrder = 2
     end
     object txtStationCallsign: TLabeledEdit
       Left = 11
-      Top = 80
+      Top = 77
       Width = 97
       Height = 21
       Margins.Top = 4
@@ -125,7 +120,7 @@ object settingsForm: TsettingsForm
       EditLabel.Height = 13
       EditLabel.Caption = 'Station callsign:'
       MaxLength = 12
-      TabOrder = 4
+      TabOrder = 3
       Text = 'UN7ZAF'
     end
     object spSpotMaxNumber: TSpinEdit
@@ -136,9 +131,22 @@ object settingsForm: TsettingsForm
       Increment = 5
       MaxValue = 400
       MinValue = 50
-      TabOrder = 5
+      TabOrder = 4
       Value = 50
       OnChange = spSpotMaxNumberChange
+    end
+    object txtDXCHost: TComboBox
+      Left = 114
+      Top = 32
+      Width = 113
+      Height = 21
+      TabOrder = 5
+      Text = 'dxc.kfrr.kz'
+      Items.Strings = (
+        'dxc.kfrr.kz'
+        'dxc.pi4cc.nl'
+        'dxfun.com'
+        'odxc.ru')
     end
   end
 end

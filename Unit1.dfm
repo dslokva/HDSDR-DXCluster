@@ -2,8 +2,8 @@ object FrequencyVisualForm: TFrequencyVisualForm
   Left = 0
   Top = 0
   Caption = 'HDSDR-DXCluster-Helper'
-  ClientHeight = 311
-  ClientWidth = 729
+  ClientHeight = 313
+  ClientWidth = 745
   Color = clBtnFace
   Constraints.MinHeight = 220
   Constraints.MinWidth = 745
@@ -22,8 +22,8 @@ object FrequencyVisualForm: TFrequencyVisualForm
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 203
-    Width = 729
+    Top = 205
+    Width = 745
     Height = 108
     Align = alBottom
     BevelEdges = []
@@ -31,8 +31,10 @@ object FrequencyVisualForm: TFrequencyVisualForm
     BevelOuter = bvNone
     TabOrder = 0
     OnMouseDown = Panel1MouseDown
+    ExplicitTop = 203
+    ExplicitWidth = 729
     object dxcStatusLabel: TLabel
-      Left = 312
+      Left = 332
       Top = 21
       Width = 113
       Height = 13
@@ -45,7 +47,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       ParentFont = False
     end
     object Panel2: TPanel
-      Left = 551
+      Left = 567
       Top = 0
       Width = 178
       Height = 108
@@ -53,6 +55,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       BevelOuter = bvNone
       TabOrder = 0
       OnMouseDown = Panel2MouseDown
+      ExplicitLeft = 551
       object Button1: TButton
         Left = 104
         Top = 71
@@ -97,7 +100,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
     object bandSwitcher: TRadioGroup
       Left = 6
       Top = 4
-      Width = 299
+      Width = 315
       Height = 93
       Caption = 'Band select:'
       Columns = 3
@@ -116,7 +119,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnClick = bandSwitcherClick
     end
     object btnDXCConnect: TButton
-      Left = 311
+      Left = 331
       Top = 40
       Width = 123
       Height = 25
@@ -127,7 +130,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnClick = btnDXCConnectClick
     end
     object btnSpotClearAll: TButton
-      Left = 311
+      Left = 331
       Top = 70
       Width = 56
       Height = 26
@@ -136,7 +139,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnClick = btnSpotClearAllClick
     end
     object btnSpotClearBand: TButton
-      Left = 367
+      Left = 387
       Top = 70
       Width = 67
       Height = 26
@@ -145,7 +148,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnClick = btnSpotClearBandClick
     end
     object Button3: TButton
-      Left = 440
+      Left = 460
       Top = 71
       Width = 105
       Height = 25
@@ -157,17 +160,19 @@ object FrequencyVisualForm: TFrequencyVisualForm
   object Panel5: TPanel
     Left = 0
     Top = 0
-    Width = 729
-    Height = 203
+    Width = 745
+    Height = 205
     Align = alClient
     BevelEdges = []
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitWidth = 729
+    ExplicitHeight = 203
     object PaintBox1: TPaintBox
       Left = 0
       Top = 0
-      Width = 729
-      Height = 182
+      Width = 745
+      Height = 184
       Hint = 'Left click - spot down, right - up. Alt+Click - delete spot.'
       Align = alClient
       Color = clSkyBlue
@@ -181,17 +186,21 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnMouseMove = PaintBox1MouseMove
       OnPaint = PaintBox1Paint
       ExplicitTop = -2
+      ExplicitWidth = 729
+      ExplicitHeight = 182
     end
     object Panel3: TPanel
       Left = 0
-      Top = 182
-      Width = 729
+      Top = 184
+      Width = 745
       Height = 21
       Align = alBottom
       BevelEdges = [beTop, beBottom]
       BevelKind = bkSoft
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitTop = 182
+      ExplicitWidth = 729
       object Panel4: TPanel
         Left = 0
         Top = 0
@@ -230,7 +239,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       object spacerScroll: TScrollBar
         Left = 209
         Top = 0
-        Width = 368
+        Width = 384
         Height = 17
         Align = alClient
         Max = 2500
@@ -239,9 +248,10 @@ object FrequencyVisualForm: TFrequencyVisualForm
         Position = 1070
         TabOrder = 1
         OnChange = spacerScrollChange
+        ExplicitWidth = 368
       end
       object Panel6: TPanel
-        Left = 577
+        Left = 593
         Top = 0
         Width = 152
         Height = 17
@@ -250,6 +260,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
         BevelKind = bkFlat
         BevelOuter = bvNone
         TabOrder = 2
+        ExplicitLeft = 577
         object lbSpotTotal: TLabel
           Left = 98
           Top = 2
