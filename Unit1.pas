@@ -4,10 +4,10 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, JSons,
   Vcl.ButtonGroup, Vcl.WinXCtrls, IdBaseComponent, IdComponent, IdTCPConnection,
-  IdTCPClient, IdTelnet, RegExpr, IdGlobal, System.Generics.Collections,
-  Vcl.Buttons, inifiles, Vcl.Menus, IdUDPBase, IdUDPServer, IdSocketHandle, Winapi.ShellAPI;
+  IdTCPClient, IdTelnet, RegExpr, IdGlobal, System.Generics.Collections, IdUDPClient,
+  Vcl.Buttons, inifiles, Vcl.Menus, IdUDPBase, IdUDPServer, IdSocketHandle, Winapi.ShellAPI, AALogClientJSONObjects;
 
 type
   TSpotLabel = class(TLabel)
@@ -112,7 +112,7 @@ type
     procedure SpotLabelMouseEnter(Sender: TObject);
     procedure SpotLabelMouseLeave(Sender: TObject);
     procedure SpotLabelContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
-
+    procedure setFreqStartAndMode();
     procedure refreshSelectedBandEdges();
     procedure RemoveSelectedSpot(dx : string);
     procedure DeleteFirstSpot();
@@ -129,6 +129,23 @@ type
     { Public declarations }
   end;
 
+   TRequestThread = class(TThread)
+   private
+    var
+      answerStr : string;
+      UDPRequestStr : string;
+      UDPSrvHost : string;
+      UDPSrvPort : TIdPort;
+      IdUDPClient : TIdUDPClient;
+
+   public
+     constructor Create(requestStr, udpHost : string; udpPort : TIdPort);
+
+   protected
+     procedure UpdateUI();
+     procedure Execute; override;
+   end;
+
 var
   FrequencyVisualForm : TFrequencyVisualForm;
 
@@ -139,7 +156,7 @@ var
   regExp : TRegExpr;
   spotList : TList<TPair<variant, TArray<TSpot>>>;
   spotBandCount : integer;
-  regex1, regex2 : string;
+  regex1, regex2, freqText : string;
   longLine, shortLine, freqMarkerFontSize, textShiftValueLB, textShiftValueHB : integer;
   textXPosDPICorr, StartYPosDPICorr, EndYPosDPICorr, UnderFreqDPICorr, PenWidthDPICorr : integer;
   notNeedToShowPopupForFreqPanel, notNeedToShowPopupForSpotLabel : boolean;
@@ -149,6 +166,15 @@ implementation
 {$R *.dfm}
 
 uses Unit2, Unit3;
+
+constructor TRequestThread.Create(requestStr, udpHost : string; udpPort : TIdPort);
+begin
+  UDPSrvHost := udpHost;
+  UDPSrvPort := udpPort;
+  UDPRequestStr := requestStr;
+  inherited Create(true);
+End;
+
 
 constructor TSpotLabel.Create(AOwner: TComponent; spotDEStr : string);
 begin
@@ -421,11 +447,98 @@ try
 finally
   iniFile.Free;
 end;
+
+setFreqStartAndMode();
 End;
 
 procedure TFrequencyVisualForm.FormResize(Sender: TObject);
 begin
 boxWidth := PaintBox1.ClientWidth-40;
+End;
+
+function FillJsonSimpleCallsignRequest(request : TSimpleCallsignRequest) : string;
+var
+  JsonRequest : TJson;
+  str: string;
+begin
+try
+//request #1 - check callsign existence in log
+//  and   #2 - get QSO history for callsign with options (band, mode).
+JsonRequest := TJson.Create();
+JsonRequest.Put('requestType',  request.requestType);
+
+with JsonRequest['requestData'].AsObject do begin
+  Put('callsign', request.callsign);
+  Put('band', request.band);
+  Put('mode', request.mode);
+  Put('dataLimit', request.dataLimit);
+end;
+
+//result - JSON string
+result := JsonRequest.Stringify;
+finally
+//
+end;
+End;
+
+function DateTimeToStrUs(dt: TDatetime): string;
+var
+    us: string;
+begin
+    //Spit out most of the result: '20160802 11:34:36.'
+    Result := FormatDateTime('yyyymmdd hh":"nn":"ss"."', dt);
+
+    //extract the number of microseconds
+    dt := Frac(dt); //fractional part of day
+    dt := dt * 24*60*60; //number of seconds in that day
+    us := IntToStr(Round(Frac(dt)*1000000));
+
+    //Add the us integer to the end:
+    // '20160801 11:34:36.' + '00' + '123456'
+    Result := Result + StringOfChar('0', 6-Length(us)) + us;
+end;
+
+procedure TRequestThread.Execute;
+begin
+try
+  try
+    IdUDPClient := TIdUDPClient.Create();
+    IdUDPClient.Host := UDPSrvHost;
+    IdUDPClient.Port := UDPSrvPort;
+    IdUDPClient.Active := True;
+    IdUDPClient.ReceiveTimeout := 1000; //может уменьшить?
+    IdUDPClient.Connect;
+    if IdUDPClient.Connected then begin
+      IdUDPClient.Send(UDPRequestStr, IndyTextEncoding(encUTF8));
+      answerStr := IdUDPClient.ReceiveString(IdTimeoutDefault, IndyTextEncoding(encUTF8));
+    end;
+    //todo: answer parse!
+  except
+    on E: Exception do
+      answerStr := 'Error during request: ' + E.Message;
+  end;
+
+finally
+  if Length(answerStr) = 0 then answerStr := 'Empty answer from AALog server';
+  Synchronize(UpdateUI);
+  DebugOutput(DateTimeToStrUs(now) + ' - ' + answerStr);
+  IdUDPClient.Active := False;
+  IdUDPClient.Free;
+end;
+End;
+
+procedure TRequestThread.UpdateUI();
+begin
+//
+End;
+
+procedure SendRequestToAALog(requestStr, udpHost : string; udpPort : TIdPort);
+var
+  requestThread: TRequestThread;
+begin
+  requestThread := TRequestThread.Create(requestStr, udpHost, udpPort);
+  requestThread.FreeOnTerminate := true;
+  requestThread.Resume;
 End;
 
 procedure TFrequencyVisualForm.IdTelnet1Connected(Sender: TObject);
@@ -481,20 +594,53 @@ if IdTelnet1.Connected then
   IdTelnet1.SendString('SH/DX 50'+CR)
 end;
 
+procedure TFrequencyVisualForm.setFreqStartAndMode();
+begin
+case frequencyVisualForm.bandSwitcher.ItemIndex of
+ 0: begin
+   freqStart := 1809.00;
+   freqText := '160m';
+ end;
+ 1: begin
+    freqStart := 3599.00;
+    freqText := '80m';
+ end;
+ 2: begin
+    freqStart := 7049.00;
+    freqText := '40m';
+ end;
+ 3: begin
+    freqStart := 10099.00;
+    freqText := '30m';
+ end;
+ 4: begin
+    freqStart := 14104.00;
+    freqText := '20m';
+ end;
+ 5: begin
+    freqStart := 18109.00;
+    freqText := '17m';
+ end;
+ 6: begin
+    freqStart := 21109.00;
+    freqText := '15m';
+ end;
+ 7: begin
+    freqStart := 24890.00;
+    freqText := '12m';
+ end;
+ 8: begin
+    freqStart := 28294.00;
+    freqText := '10m';
+ end;
+end;
+
+end;
+
 procedure TFrequencyVisualForm.bandSwitcherClick(Sender: TObject);
 begin
   //todo: make boundaries while tuning
-case bandSwitcher.ItemIndex of
- 0: freqStart := 1809.00;
- 1: freqStart := 3599.00;
- 2: freqStart := 7049.00;
- 3: freqStart := 10099.00;
- 4: freqStart := 14104.00;
- 5: freqStart := 18109.00;
- 6: freqStart := 21109.00;
- 7: freqStart := 24890.00;
- 8: freqStart := 28294.00;
-end;
+setFreqStartAndMode();
 spotBandCount := 0;
 freqShifter := 0;
 
@@ -769,7 +915,6 @@ if CheckSpotListContainsKey(freqValue) then begin
       spotBandCount := spotBandCount + spotCount;
     end;
 end;
-//Memo1.Lines.Add(IntToStr(textXPos)+ '='+FloatToStrF(freqStart, ffFixed, 5, 2))
 
 End;
 
@@ -874,6 +1019,8 @@ spot : TSpot;
 localSpotArray : TArray<TSpot>;
 fromDXCstr : string;
 spotLabel : TSpotLabel;
+request : TSimpleCallsignRequest;
+requestStr : string;
 
 begin
 incomeStr := BytesToString(Buffer);
@@ -944,6 +1091,10 @@ while Start <= Length(incomeStr) do begin
         spotLabel.Tag := 0;
         spot.spotLabel := spotLabel;
 
+        request := TSimpleCallsignRequest.Create(spot.DX, freqText, 'SSB', REQ_IS_IN_LOG);
+        requestStr := FillJsonSimpleCallsignRequest(request);
+        SendRequestToAALog(requestStr, '127.0.0.1', StrToInt('3541'));
+
         lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
 
         if CheckSpotListContainsKey(spot.Freq) then begin
@@ -1002,6 +1153,10 @@ while Start <= Length(incomeStr) do begin
         spotLabel.PopupMenu := spotLabelMenu;
         spotLabel.Tag := 0;
         spot.spotLabel := spotLabel;
+
+        request := TSimpleCallsignRequest.Create(spot.DX, freqText, 'SSB', REQ_IS_IN_LOG);
+        requestStr := FillJsonSimpleCallsignRequest(request);
+        SendRequestToAALog(requestStr, '127.0.0.1', StrToInt('3541'));
 
         lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
 

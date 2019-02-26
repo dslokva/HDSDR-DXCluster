@@ -31,8 +31,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
     BevelOuter = bvNone
     TabOrder = 0
     OnMouseDown = Panel1MouseDown
-    ExplicitTop = 203
-    ExplicitWidth = 729
     object dxcStatusLabel: TLabel
       Left = 332
       Top = 21
@@ -55,7 +53,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
       BevelOuter = bvNone
       TabOrder = 0
       OnMouseDown = Panel2MouseDown
-      ExplicitLeft = 551
       object Button1: TButton
         Left = 104
         Top = 71
@@ -166,8 +163,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
     BevelEdges = []
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 729
-    ExplicitHeight = 203
     object PaintBox1: TPaintBox
       Left = 0
       Top = 0
@@ -199,8 +194,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
       BevelKind = bkSoft
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitTop = 182
-      ExplicitWidth = 729
       object Panel4: TPanel
         Left = 0
         Top = 0
@@ -242,13 +235,12 @@ object FrequencyVisualForm: TFrequencyVisualForm
         Width = 384
         Height = 17
         Align = alClient
-        Max = 2500
-        Min = 1000
+        Max = 2900
+        Min = 700
         PageSize = 0
         Position = 1070
         TabOrder = 1
         OnChange = spacerScrollChange
-        ExplicitWidth = 368
       end
       object Panel6: TPanel
         Left = 593
@@ -260,7 +252,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
         BevelKind = bkFlat
         BevelOuter = bvNone
         TabOrder = 2
-        ExplicitLeft = 577
         object lbSpotTotal: TLabel
           Left = 98
           Top = 2
