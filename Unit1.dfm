@@ -181,8 +181,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnMouseMove = PaintBox1MouseMove
       OnPaint = PaintBox1Paint
       ExplicitTop = -2
-      ExplicitWidth = 729
-      ExplicitHeight = 182
     end
     object Panel3: TPanel
       Left = 0
@@ -295,10 +293,10 @@ object FrequencyVisualForm: TFrequencyVisualForm
         object labPanelMode: TLabel
           Left = 3
           Top = 2
-          Width = 33
+          Width = 62
           Height = 13
           Alignment = taCenter
-          Caption = 'Normal'
+          Caption = 'Normal mode'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11

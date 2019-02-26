@@ -3,7 +3,7 @@ object settingsForm: TsettingsForm
   Top = 0
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 191
+  ClientHeight = 233
   ClientWidth = 408
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,22 +17,22 @@ object settingsForm: TsettingsForm
   PixelsPerInch = 96
   TextHeight = 13
   object labSaveInfo: TLabel
-    Left = 145
-    Top = 166
-    Width = 126
+    Left = 123
+    Top = 208
+    Width = 149
     Height = 13
     Caption = 'Settings saved succesfully'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clGreen
     Font.Height = -11
     Font.Name = 'Tahoma'
-    Font.Style = []
+    Font.Style = [fsBold]
     ParentFont = False
     Visible = False
   end
   object btnSave: TButton
     Left = 8
-    Top = 159
+    Top = 200
     Width = 75
     Height = 25
     Caption = 'Save'
@@ -41,7 +41,7 @@ object settingsForm: TsettingsForm
   end
   object btnClose: TButton
     Left = 325
-    Top = 159
+    Top = 200
     Width = 75
     Height = 25
     Caption = 'Close'
@@ -52,19 +52,12 @@ object settingsForm: TsettingsForm
     Left = 7
     Top = 8
     Width = 393
-    Height = 145
+    Height = 113
     Caption = 'DX Cluster '
     TabOrder = 2
-    object Label1: TLabel
-      Left = 114
-      Top = 80
-      Width = 268
-      Height = 13
-      Caption = '(will be used for extra color spots, that sent by youself)'
-    end
     object Label2: TLabel
-      Left = 11
-      Top = 112
+      Left = 115
+      Top = 80
       Width = 129
       Height = 13
       Caption = 'Maximum number of spots:'
@@ -124,8 +117,8 @@ object settingsForm: TsettingsForm
       Text = 'UN7ZAF'
     end
     object spSpotMaxNumber: TSpinEdit
-      Left = 146
-      Top = 109
+      Left = 250
+      Top = 77
       Width = 47
       Height = 22
       Increment = 5
@@ -148,5 +141,49 @@ object settingsForm: TsettingsForm
         'dxfun.com'
         'odxc.ru')
     end
+  end
+  object gbAALogIntegration: TGroupBox
+    Left = 8
+    Top = 127
+    Width = 201
+    Height = 67
+    Caption = '       AALog integration '
+    Enabled = False
+    TabOrder = 3
+    object txtAalAddr: TLabeledEdit
+      Left = 12
+      Top = 34
+      Width = 95
+      Height = 21
+      EditLabel.Width = 77
+      EditLabel.Height = 13
+      EditLabel.Caption = 'Server address:'
+      Enabled = False
+      MaxLength = 15
+      TabOrder = 0
+      Text = '127.0.0.1'
+    end
+    object txtAalPort: TLabeledEdit
+      Left = 122
+      Top = 34
+      Width = 63
+      Height = 21
+      EditLabel.Width = 59
+      EditLabel.Height = 13
+      EditLabel.Caption = 'Server port:'
+      Enabled = False
+      MaxLength = 5
+      TabOrder = 1
+      Text = '3541'
+      OnKeyPress = txtDXCPortKeyPress
+    end
+  end
+  object cbAALogIntegrationEnabled: TCheckBox
+    Left = 20
+    Top = 126
+    Width = 15
+    Height = 17
+    TabOrder = 4
+    OnClick = cbAALogIntegrationEnabledClick
   end
 end

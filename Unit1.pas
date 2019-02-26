@@ -4,8 +4,8 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, JSons,
-  Vcl.ButtonGroup, Vcl.WinXCtrls, IdBaseComponent, IdComponent, IdTCPConnection,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, JSons, uLkJSON,
+  Vcl.ButtonGroup, Vcl.WinXCtrls, IdBaseComponent, IdComponent, IdTCPConnection, UDPServerJSONObjects,
   IdTCPClient, IdTelnet, RegExpr, IdGlobal, System.Generics.Collections, IdUDPClient,
   Vcl.Buttons, inifiles, Vcl.Menus, IdUDPBase, IdUDPServer, IdSocketHandle, Winapi.ShellAPI, AALogClientJSONObjects;
 
@@ -116,6 +116,7 @@ type
     procedure refreshSelectedBandEdges();
     procedure RemoveSelectedSpot(dx : string);
     procedure DeleteFirstSpot();
+    procedure UpdateCallsignDetailsTable(answerData : TlkJSONobject);
     { Private declarations }
 
   public
@@ -142,7 +143,7 @@ type
      constructor Create(requestStr, udpHost : string; udpPort : TIdPort);
 
    protected
-     procedure UpdateUI();
+     procedure ProcessAnswerJSON();
      procedure Execute; override;
    end;
 
@@ -160,6 +161,7 @@ var
   longLine, shortLine, freqMarkerFontSize, textShiftValueLB, textShiftValueHB : integer;
   textXPosDPICorr, StartYPosDPICorr, EndYPosDPICorr, UnderFreqDPICorr, PenWidthDPICorr : integer;
   notNeedToShowPopupForFreqPanel, notNeedToShowPopupForSpotLabel : boolean;
+  callsingDataFromAALog: TDictionary<String, TSimpleCallsignAnswer>;
 
 implementation
 
@@ -209,7 +211,7 @@ if isPanelHoldActive.Checked then begin
   labPanelMode.Caption := 'Hold active';
   labPanelMode.Font.Style := [fsBold];
 end else begin
-  labPanelMode.Caption := 'Normal';
+  labPanelMode.Caption := 'Normal mode';
   labPanelMode.Font.Style := [];
 end;
 
@@ -429,6 +431,7 @@ spotBandCount := 0;
 regex1 := 'DX de\s([a-zA-Z0-9\\\/]+)\:?\s+([0-9.,]+)\s+([a-zA-Z0-9\\\/]+)\s(.*)?\s([0-9]{4})Z.*';
 regex2 := '([0-9.,]+)\s+([a-zA-Z0-9\\\/]+)\s.*([0-9]{4})Z\s(.*)\s<([a-zA-Z0-9\\\/]+)\>';
 spotList := TList<TPair<variant, TArray<TSpot>>>.Create();
+callsingDataFromAALog := TDictionary<String, TSimpleCallsignAnswer>.Create();
 
 notNeedToShowPopupForFreqPanel := false;
 notNeedToShowPopupForSpotLabel := false;
@@ -459,7 +462,6 @@ End;
 function FillJsonSimpleCallsignRequest(request : TSimpleCallsignRequest) : string;
 var
   JsonRequest : TJson;
-  str: string;
 begin
 try
 //request #1 - check callsign existence in log
@@ -512,25 +514,56 @@ try
       IdUDPClient.Send(UDPRequestStr, IndyTextEncoding(encUTF8));
       answerStr := IdUDPClient.ReceiveString(IdTimeoutDefault, IndyTextEncoding(encUTF8));
     end;
-    //todo: answer parse!
   except
     on E: Exception do
-      answerStr := 'Error during request: ' + E.Message;
+      answerStr := '0';
   end;
 
 finally
-  if Length(answerStr) = 0 then answerStr := 'Empty answer from AALog server';
-  Synchronize(UpdateUI);
+  if Length(answerStr) = 0 then answerStr := '0';
+  Synchronize(ProcessAnswerJSON);
   DebugOutput(DateTimeToStrUs(now) + ' - ' + answerStr);
   IdUDPClient.Active := False;
   IdUDPClient.Free;
 end;
 End;
 
-procedure TRequestThread.UpdateUI();
+procedure TRequestThread.ProcessAnswerJSON();
+var
+  JsonAnswer, jsData: TlkJSONobject;
+  answerType : string;
 begin
-//
+JsonAnswer := TlkJSON.ParseText(answerStr) as TlkJSONobject;
+answerType := (JsonAnswer.Field['answerType'] as TlkJSONstring).value;
+jsData := JsonAnswer.Field['answerData'] as TlkJSONobject;
+
+if (answerType = REQ_IS_IN_LOG) then
+    frequencyVisualForm.UpdateCallsignDetailsTable(jsData);
+
 End;
+
+
+procedure TFrequencyVisualForm.UpdateCallsignDetailsTable(answerData : TlkJSONobject);
+var
+  JsonAnswer : TlkJSONobject;
+  isLoTWUser, isEqslUser, callsign, hamName, hamQTH : string;
+   presentOnMode,  presentOnBand, presentInLog: string;
+  answer : TSimpleCallsignAnswer;
+begin
+  callsign := (answerData.Field['callsign'] as TlkJSONstring).value;
+  hamName := (answerData.Field['hamName'] as TlkJSONstring).value;
+  hamQTH := (answerData.Field['hamQTH'] as TlkJSONstring).value;
+
+  isLoTWUser := (answerData.Field['isLoTWUser'] as TlkJSONstring).value;
+  isEqslUser := (answerData.Field['isEqslUser'] as TlkJSONstring).value;
+  presentInLog := (answerData.Field['presentInLog'] as TlkJSONstring).value;
+  presentOnBand := (answerData.Field['presentOnBand'] as TlkJSONstring).value;
+  presentOnMode := (answerData.Field['presentOnMode'] as TlkJSONstring).value;
+
+  answer := TSimpleCallsignAnswer.Create(callsign, hamName, hamQTH, isLoTWUser[1], isEqslUser[1], presentOnBand[1], presentOnMode[1], presentInLog[1]);
+  callsingDataFromAALog.Add(callsign, answer);
+End;
+
 
 procedure SendRequestToAALog(requestStr, udpHost : string; udpPort : TIdPort);
 var
@@ -937,17 +970,6 @@ for i := low(spotArray) to high(spotArray) do
   end;
 End;
 
-//procedure TFrequencyVisualForm.deleteFirstSpotOnBand(spotFreq : string);
-//begin
-//  refreshSelectedBandEdges();
-//  if (key >= freqBandStart) and (key <= freqBandEnd) then
-//end;
-
-//procedure TFrequencyVisualForm.sortSpotListByTime();
-//begin
-//
-//End;
-
 procedure TFrequencyVisualForm.deleteFirstSpot();
 var
 i : integer;
@@ -1091,9 +1113,11 @@ while Start <= Length(incomeStr) do begin
         spotLabel.Tag := 0;
         spot.spotLabel := spotLabel;
 
-        request := TSimpleCallsignRequest.Create(spot.DX, freqText, 'SSB', REQ_IS_IN_LOG);
-        requestStr := FillJsonSimpleCallsignRequest(request);
-        SendRequestToAALog(requestStr, '127.0.0.1', StrToInt('3541'));
+        if (settingsForm.cbAALogIntegrationEnabled.Checked) then begin
+          request := TSimpleCallsignRequest.Create(spot.DX, freqText, 'SSB', REQ_IS_IN_LOG);
+          requestStr := FillJsonSimpleCallsignRequest(request);
+          SendRequestToAALog(requestStr, settingsForm.txtAalAddr.Text, StrToInt(settingsForm.txtAalPort.Text));
+        end;
 
         lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
 
@@ -1154,10 +1178,11 @@ while Start <= Length(incomeStr) do begin
         spotLabel.Tag := 0;
         spot.spotLabel := spotLabel;
 
-        request := TSimpleCallsignRequest.Create(spot.DX, freqText, 'SSB', REQ_IS_IN_LOG);
-        requestStr := FillJsonSimpleCallsignRequest(request);
-        SendRequestToAALog(requestStr, '127.0.0.1', StrToInt('3541'));
-
+        if (settingsForm.cbAALogIntegrationEnabled.Checked) then begin
+          request := TSimpleCallsignRequest.Create(spot.DX, freqText, 'SSB', REQ_IS_IN_LOG);
+          requestStr := FillJsonSimpleCallsignRequest(request);
+          SendRequestToAALog(requestStr, settingsForm.txtAalAddr.Text, StrToInt(settingsForm.txtAalPort.Text));
+        end;
         lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
 
         if CheckSpotListContainsKey(spot.Freq) then begin
