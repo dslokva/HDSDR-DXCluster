@@ -65,6 +65,7 @@ type
     spotLabelMenu : TPopupMenu;
     Viewonqrzcom1: TMenuItem;
     Viewonqrzru1: TMenuItem;
+    BalloonHint1: TBalloonHint;
     procedure Button1Click(Sender: TObject);
     procedure PaintBox1DblClick(Sender: TObject);
     procedure PaintBox1Paint(Sender: TObject);
@@ -104,6 +105,8 @@ type
     procedure Viewonqrzcom1Click(Sender: TObject);
     procedure Viewonqrzru1Click(Sender: TObject);
   private
+    procedure SpotLabelMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
     procedure RepaintFrequencySpan();
     procedure RefreshLineSpacer();
     procedure AddFrequencyPosition(textXPos : integer; freqValue : variant);
@@ -162,6 +165,7 @@ var
   textXPosDPICorr, StartYPosDPICorr, EndYPosDPICorr, UnderFreqDPICorr, PenWidthDPICorr : integer;
   notNeedToShowPopupForFreqPanel, notNeedToShowPopupForSpotLabel : boolean;
   callsingDataFromAALog: TDictionary<String, TSimpleCallsignAnswer>;
+  spotHintOldX, spotHintOldY : integer;
 
 implementation
 
@@ -283,6 +287,45 @@ begin
   end;
 End;
 
+procedure TFrequencyVisualForm.SpotLabelMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+var
+i,j : integer;
+spotHintPoint : TPoint;
+spotLabel : TSpotLabel;
+call, newHintStr : string;
+spotAALogData : TSimpleCallsignAnswer;
+begin
+
+if (spotHintOldX <> X) or (spotHintOldY <> Y) then begin
+  spotLabel := TSpotLabel(Sender);
+  BalloonHint1.Title := spotLabel.Caption;
+
+  if (callsingDataFromAALog.ContainsKey(spotLabel.Caption)) then begin
+    spotAALogData := callsingDataFromAALog.Items[spotLabel.Caption];
+
+    newHintStr := spotLabel.Hint + #13#13;
+
+    if (spotAALogData.hamName <> '') then
+      newHintStr := newHintStr + 'Name: '+spotAALogData.hamName + #13;
+    if (spotAALogData.hamQTH <> '') then
+        newHintStr := newHintStr + 'QTH: '+spotAALogData.hamQTH + #13;
+
+     newHintStr := newHintStr + 'InLog: '+spotAALogData.presentInLog + ', LoTW: '+spotAALogData.isLoTWUser + ', EQSL.cc: '+spotAALogData.isEqslUser + #13 + ' ';
+
+    BalloonHint1.Description := newHintStr;
+  end else begin
+    BalloonHint1.Description := spotLabel.Hint;
+  end;
+
+  spotHintPoint := TPoint.Create(spotLabel.Left+X, spotLabel.Top+Y);
+  spotHintOldX := X;
+  spotHintOldY := Y;
+  BalloonHint1.ShowHint(ClientToScreen(spotHintPoint));
+end;
+
+End;
+
 procedure TFrequencyVisualForm.SpotLabelMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
 //Tag value is used for vertical alignment of spotLabels
@@ -309,7 +352,8 @@ End;
 
 procedure TFrequencyVisualForm.SpotLabelMouseEnter(Sender: TObject);
 begin
-TSpotLabel(Sender).Font.Color := clLime;
+if (settingsForm.cbOwnSpotColorize.Checked) then
+  TSpotLabel(Sender).Font.Color := settingsForm.colBoxSpotMouseMove.Selected;
 End;
 
 procedure TFrequencyVisualForm.SpotLabelMouseLeave(Sender: TObject);
@@ -318,10 +362,11 @@ spotLabel : TSpotLabel;
 
 begin
 spotLabel := TSpotLabel(Sender);
-if spotLabel.spotDE = stationCallsign then
-  spotLabel.Font.Color := clYellow
+if (spotLabel.spotDE = stationCallsign) and (settingsForm.cbOwnSpotColorize.Checked) then
+  spotLabel.Font.Color := settingsForm.colBoxOwnSpot.Selected
 else spotLabel.Font.Color := clWhite;
 
+BalloonHint1.HideHint;
 End;
 
 
@@ -431,7 +476,7 @@ spotBandCount := 0;
 regex1 := 'DX de\s([a-zA-Z0-9\\\/]+)\:?\s+([0-9.,]+)\s+([a-zA-Z0-9\\\/]+)\s(.*)?\s([0-9]{4})Z.*';
 regex2 := '([0-9.,]+)\s+([a-zA-Z0-9\\\/]+)\s.*([0-9]{4})Z\s(.*)\s<([a-zA-Z0-9\\\/]+)\>';
 spotList := TList<TPair<variant, TArray<TSpot>>>.Create();
-callsingDataFromAALog := TDictionary<String, TSimpleCallsignAnswer>.Create();
+callsingDataFromAALog := TDictionary<String, TSimpleCallsignAnswer>.Create;
 
 notNeedToShowPopupForFreqPanel := false;
 notNeedToShowPopupForSpotLabel := false;
@@ -533,6 +578,8 @@ var
   JsonAnswer, jsData: TlkJSONobject;
   answerType : string;
 begin
+if answerStr = '0' then exit;
+
 JsonAnswer := TlkJSON.ParseText(answerStr) as TlkJSONobject;
 answerType := (JsonAnswer.Field['answerType'] as TlkJSONstring).value;
 jsData := JsonAnswer.Field['answerData'] as TlkJSONobject;
@@ -561,7 +608,9 @@ begin
   presentOnMode := (answerData.Field['presentOnMode'] as TlkJSONstring).value;
 
   answer := TSimpleCallsignAnswer.Create(callsign, hamName, hamQTH, isLoTWUser[1], isEqslUser[1], presentOnBand[1], presentOnMode[1], presentInLog[1]);
-  callsingDataFromAALog.Add(callsign, answer);
+
+  if not(callsingDataFromAALog.ContainsKey(callsign)) then
+    callsingDataFromAALog.Add(callsign, answer);
 End;
 
 
@@ -735,6 +784,7 @@ procedure TFrequencyVisualForm.btnSpotClearAllClick(Sender: TObject);
 begin
 DestroyAllLabels();
 spotList.Clear;
+callsingDataFromAALog.Clear;
 spotBandCount := 0;
 
 RepaintFrequencySpan();
@@ -875,6 +925,8 @@ begin
 if notNeedToShowPopupForSpotLabel then
    Handled := True;
 end;
+
+
 
 procedure TFrequencyVisualForm.PaintBox1DblClick(Sender: TObject);
 begin
@@ -1103,12 +1155,13 @@ while Start <= Length(incomeStr) do begin
         else spotLabel.Font.Color := clWhite;
 
         spotLabel.Hint := spotFreqStr + ' de '+spot.DE+' @'+DateTimeToStr(spot.LocalTime)+' '+spot.Comment;
-        spotLabel.ShowHint := true;
+        spotLabel.ShowHint := false;
         spotLabel.Visible := false;
         spotLabel.OnMouseDown := SpotLabelMouseDown;
         spotLabel.OnMouseEnter := SpotLabelMouseEnter;
-        spotLabel.OnMouseLeave := SpotLabelMouseLeave;
         spotLabel.OnContextPopup := SpotLabelContextPopup;
+        spotLabel.OnMouseMove := SpotLabelMouseMove;
+        spotLabel.OnMouseLeave := SpotLabelMouseLeave;
         spotLabel.PopupMenu := spotLabelMenu;
         spotLabel.Tag := 0;
         spot.spotLabel := spotLabel;
@@ -1168,12 +1221,13 @@ while Start <= Length(incomeStr) do begin
         else spotLabel.Font.Color := clWhite;
 
         spotLabel.Hint := spotFreqStr + ' de '+spot.DE+' @'+DateTimeToStr(spot.LocalTime)+' '+spot.Comment;
-        spotLabel.ShowHint := true;
+        spotLabel.ShowHint := false;
         spotLabel.Visible := false;
         spotLabel.OnMouseDown := SpotLabelMouseDown;
         spotLabel.OnMouseEnter := SpotLabelMouseEnter;
-        spotLabel.OnMouseLeave := SpotLabelMouseLeave;
         spotLabel.OnContextPopup := SpotLabelContextPopup;
+        spotLabel.OnMouseMove := SpotLabelMouseMove;
+        spotLabel.OnMouseLeave := SpotLabelMouseLeave;
         spotLabel.PopupMenu := spotLabelMenu;
         spotLabel.Tag := 0;
         spot.spotLabel := spotLabel;
@@ -1248,6 +1302,7 @@ if (ssRight in Shift) and (not isPanelHoldActive.Checked) then begin
     exit;
   end;
   notNeedToShowPopupForFreqPanel := false;
+  BalloonHint1.HideHint;
 End;
 
 procedure TFrequencyVisualForm.RepaintFrequencySpan();

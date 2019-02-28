@@ -3,8 +3,8 @@ object settingsForm: TsettingsForm
   Top = 0
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 233
-  ClientWidth = 408
+  ClientHeight = 243
+  ClientWidth = 425
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,7 +18,7 @@ object settingsForm: TsettingsForm
   TextHeight = 13
   object labSaveInfo: TLabel
     Left = 123
-    Top = 208
+    Top = 218
     Width = 149
     Height = 13
     Caption = 'Settings saved succesfully'
@@ -32,7 +32,7 @@ object settingsForm: TsettingsForm
   end
   object btnSave: TButton
     Left = 8
-    Top = 200
+    Top = 210
     Width = 75
     Height = 25
     Caption = 'Save'
@@ -41,7 +41,7 @@ object settingsForm: TsettingsForm
   end
   object btnClose: TButton
     Left = 325
-    Top = 200
+    Top = 210
     Width = 75
     Height = 25
     Caption = 'Close'
@@ -51,7 +51,7 @@ object settingsForm: TsettingsForm
   object GroupBox1: TGroupBox
     Left = 7
     Top = 8
-    Width = 393
+    Width = 410
     Height = 113
     Caption = 'DX Cluster '
     TabOrder = 2
@@ -146,13 +146,13 @@ object settingsForm: TsettingsForm
     Left = 8
     Top = 127
     Width = 201
-    Height = 67
+    Height = 77
     Caption = '       AALog integration '
     Enabled = False
     TabOrder = 3
     object txtAalAddr: TLabeledEdit
       Left = 12
-      Top = 34
+      Top = 42
       Width = 95
       Height = 21
       EditLabel.Width = 77
@@ -165,7 +165,7 @@ object settingsForm: TsettingsForm
     end
     object txtAalPort: TLabeledEdit
       Left = 122
-      Top = 34
+      Top = 42
       Width = 63
       Height = 21
       EditLabel.Width = 59
@@ -185,5 +185,53 @@ object settingsForm: TsettingsForm
     Height = 17
     TabOrder = 4
     OnClick = cbAALogIntegrationEnabledClick
+  end
+  object GroupBox2: TGroupBox
+    Left = 215
+    Top = 127
+    Width = 202
+    Height = 77
+    Caption = 'Spot colors'
+    TabOrder = 5
+    object cbOwnSpotColorize: TCheckBox
+      Left = 8
+      Top = 17
+      Width = 66
+      Height = 17
+      Caption = 'Own spot:'
+      Checked = True
+      State = cbChecked
+      TabOrder = 0
+      OnClick = cbOwnSpotColorizeClick
+    end
+    object colBoxOwnSpot: TColorBox
+      Left = 96
+      Top = 15
+      Width = 97
+      Height = 22
+      Selected = clYellow
+      Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
+      TabOrder = 1
+    end
+    object colBoxSpotMouseMove: TColorBox
+      Left = 96
+      Top = 45
+      Width = 97
+      Height = 22
+      Selected = clLime
+      Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
+      TabOrder = 2
+    end
+    object cbSpotMouseMoveColorize: TCheckBox
+      Left = 8
+      Top = 47
+      Width = 82
+      Height = 17
+      Caption = 'MouseMove:'
+      Checked = True
+      State = cbChecked
+      TabOrder = 3
+      OnClick = cbSpotMouseMoveColorizeClick
+    end
   end
 end

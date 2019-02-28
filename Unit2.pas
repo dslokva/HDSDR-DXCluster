@@ -4,7 +4,8 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, inifiles, Vcl.Samples.Spin;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, inifiles, Vcl.Samples.Spin,
+  Vcl.ActnMan, Vcl.ActnColorMaps, VCLTee.TeCanvas;
 
 type
   TsettingsForm = class(TForm)
@@ -24,12 +25,19 @@ type
     txtAalAddr: TLabeledEdit;
     txtAalPort: TLabeledEdit;
     cbAALogIntegrationEnabled: TCheckBox;
+    GroupBox2: TGroupBox;
+    cbOwnSpotColorize: TCheckBox;
+    colBoxOwnSpot: TColorBox;
+    colBoxSpotMouseMove: TColorBox;
+    cbSpotMouseMoveColorize: TCheckBox;
     procedure btnCloseClick(Sender: TObject);
     procedure txtDXCPortKeyPress(Sender: TObject; var Key: Char);
     procedure btnSaveClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure spSpotMaxNumberChange(Sender: TObject);
     procedure cbAALogIntegrationEnabledClick(Sender: TObject);
+    procedure cbOwnSpotColorizeClick(Sender: TObject);
+    procedure cbSpotMouseMoveColorizeClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -62,6 +70,8 @@ try
   with iniFile, settingsForm do begin
     WriteInteger('DXCluster', 'DXCPort', StrToInt(txtDXCPort.Text));
     WriteInteger('DXCluster', 'MaxSpots', spSpotMaxNumber.Value);
+    WriteInteger('DXCluster', 'OwnSpotColor', colBoxOwnSpot.Selected);
+    WriteInteger('DXCluster', 'MouseMoveSpotColor', colBoxSpotMouseMove.Selected);
     WriteString('DXCluster', 'DXCHost', txtDXCHost.Text);
     WriteString('DXCluster', 'DXCUsername', txtDXCUsername.Text);
     WriteString('DXCluster', 'StationCallsign', txtStationCallsign.Text);
@@ -69,6 +79,9 @@ try
     WriteString('DXCluster', 'AALogPort', txtAalPort.Text);
     WriteBool('DXCluster', 'DXCAutoConnect', chkDXCAutoConnect.Checked);
     WriteBool('DXCluster', 'AALogIntegrationEnabled', cbAALogIntegrationEnabled.Checked);
+    WriteBool('DXCluster', 'OwnSpotColorize', cbOwnSpotColorize.Checked);
+    WriteBool('DXCluster', 'SpotMouseMoveColorize', cbSpotMouseMoveColorize.Checked);
+
   end;
 
   labSaveInfo.Visible := true;
@@ -92,6 +105,16 @@ txtAalAddr.Enabled := cbAALogIntegrationEnabled.Checked;
 txtAalPort.Enabled := cbAALogIntegrationEnabled.Checked;
 End;
 
+procedure TsettingsForm.cbOwnSpotColorizeClick(Sender: TObject);
+begin
+colBoxOwnSpot.Enabled := cbOwnSpotColorize.Checked;
+End;
+
+procedure TsettingsForm.cbSpotMouseMoveColorizeClick(Sender: TObject);
+begin
+colBoxSpotMouseMove.Enabled := cbSpotMouseMoveColorize.Checked;
+end;
+
 procedure TsettingsForm.FormCreate(Sender: TObject);
 var
 iniFile : TIniFile;
@@ -107,7 +130,13 @@ try
     txtDXCUsername.Text := ReadString('DXCluster', 'DXCUsername', '');
     txtStationCallsign.Text := ReadString('DXCluster', 'StationCallsign', '');
     chkDXCAutoConnect.Checked := ReadBool('DXCluster', 'DXCAutoConnect', false);
+    cbOwnSpotColorize.Checked := ReadBool('DXCluster', 'OwnSpotColorize', true);
+    cbSpotMouseMoveColorize.Checked := ReadBool('DXCluster', 'SpotMouseMoveColorize', true);
     cbAALogIntegrationEnabled.Checked := ReadBool('DXCluster', 'AALogIntegrationEnabled', false);
+    colBoxOwnSpot.Selected := ReadInteger('DXCluster', 'OwnSpotColor', clYellow);
+    colBoxSpotMouseMove.Selected := ReadInteger('DXCluster', 'MouseMoveSpotColor', clLime);
+
+
   end;
   FrequencyVisualForm.btnDXCConnect.Hint := txtDXCHost.Text;
   FrequencyVisualForm.stationCallsign := trim(txtStationCallsign.Text);

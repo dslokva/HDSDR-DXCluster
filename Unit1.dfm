@@ -339,4 +339,9 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnClick = Viewonqrzru1Click
     end
   end
+  object BalloonHint1: TBalloonHint
+    Delay = 350
+    Left = 88
+    Top = 128
+  end
 end
