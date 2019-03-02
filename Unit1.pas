@@ -1009,7 +1009,7 @@ procedure TFrequencyVisualForm.AddFrequencyPosition(textXPos : integer; freqValu
 var
 spotArray : TArray<TSpot>;
 spot : TSpot;
-spotCount, YPos : integer;
+spotCount, YPos, spacingCorrection : integer;
 spotLabel : TSpotLabel;
 LogBrush: TLogBrush;
 
@@ -1032,7 +1032,13 @@ if CheckSpotListContainsKey(freqValue) then begin
       //don't touch digits formulas below! :)
       for spot in spotArray do begin
         spotLabel := spot.spotLabel;
-        YPos := longLine+UnderFreqDPICorr+(EndYPosDPICorr*(spotCount+spotLabel.Tag));
+
+        if spotLabel.Tag >= 1 then
+          spacingCorrection := 7
+        else
+          spacingCorrection := 0;
+
+        YPos := longLine+spacingCorrection+UnderFreqDPICorr+(EndYPosDPICorr*(spotCount+spotLabel.Tag));
 
         if bandSwitcher.ItemIndex < 4 then begin
         //LSB items
