@@ -464,6 +464,7 @@ try
   with iniFile, FrequencyVisualForm do begin
      WriteInteger('MainSettings', 'ScrollPosition', spacerScroll.Position);
      WriteInteger('MainSettings', 'SelectedBand', bandSwitcher.ItemIndex);
+     WriteFloat('MainSettings', 'freqShift', freqShifter);
      WriteBool('MainSettings', 'HighResScreen', cbHiRes.Checked);
      WriteInteger('Placement', 'MainFormTop', Top);
      WriteInteger('Placement', 'MainFormLeft', Left);
@@ -518,12 +519,15 @@ Application.HintColor := clCream;
 labelSpotHint.Transparent := false;
 labelSpotHint.Color := clCream;
 
+PaintBox1.Color := ConvertHtmlHexToTColor('#151B47');
+
 iniFile := TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
 try
   with iniFile, FrequencyVisualForm do begin
     spacerScroll.Position := ReadInteger('MainSettings', 'ScrollPosition', 1070);
     bandSwitcher.ItemIndex := ReadInteger('MainSettings', 'SelectedBand', 0);
     cbHiRes.Checked := ReadBool('MainSettings', 'HighResScreen', true);
+    freqShifter := ReadFloat('MainSettings', 'freqShift', 0);
     Top := iniFile.ReadInteger('Placement','MainFormTop', 0) ;
     Left := iniFile.ReadInteger('Placement','MainFormLeft', 0);
     Width := iniFile.ReadInteger('Placement','MainFormWidth', 745);
@@ -1393,9 +1397,6 @@ case bandSwitcher.ItemIndex of
  8: freqStart := 28294.00 + freqShifter;
 end;
 
-//Memo1.Lines.Clear();
-PaintBox1.Color := ConvertHtmlHexToTColor('#151B47');
-
 with PaintBox1.Canvas do begin
      FillRect(Rect(0, 0, PaintBox1.Width, PaintBox1.Height));
      Pen.Width := 1;
@@ -1441,6 +1442,7 @@ with PaintBox1.Canvas do begin
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 2;
 
+       //
        for i := 1 to 3 do begin
          lineHeigth := shortLine;
          MoveTo(lineStart, 1);
