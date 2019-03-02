@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, JSons, uLkJSON,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, JSons, uLkJSON, IdURI,
   Vcl.ButtonGroup, Vcl.WinXCtrls, IdBaseComponent, IdComponent, IdTCPConnection, UDPServerJSONObjects,
   IdTCPClient, IdTelnet, RegExpr, IdGlobal, System.Generics.Collections, IdUDPClient,
   Vcl.Buttons, inifiles, Vcl.Menus, IdUDPBase, IdUDPServer, IdSocketHandle, Winapi.ShellAPI, AALogClientJSONObjects;
@@ -13,7 +13,8 @@ type
   TSpotLabel = class(TLabel)
     public
       spotDE : string;
-
+      isLotwEqsl : boolean;
+      isInLog : boolean;
       constructor Create(AOwner: TComponent; spotDEStr : string);
   end;
 
@@ -25,7 +26,7 @@ type
     Freq: variant;
     UTCTime: TDateTime;
     LocalTime: TDateTime;
-    spotLabel : TLabel;
+    spotLabel : TSpotLabel;
   end;
 
 type
@@ -65,7 +66,7 @@ type
     spotLabelMenu : TPopupMenu;
     Viewonqrzcom1: TMenuItem;
     Viewonqrzru1: TMenuItem;
-    BalloonHint1: TBalloonHint;
+    labelSpotHint: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure PaintBox1DblClick(Sender: TObject);
     procedure PaintBox1Paint(Sender: TObject);
@@ -119,7 +120,8 @@ type
     procedure refreshSelectedBandEdges();
     procedure RemoveSelectedSpot(dx : string);
     procedure DeleteFirstSpot();
-    procedure UpdateCallsignDetailsTable(answerData : TlkJSONobject);
+    procedure UpdateCallsignDetailsTable(answerData : TlkJSONobject; spotLabel : TSpotLabel);
+    procedure MyShowHint(var HintStr: string; var CanShow: Boolean; var HintInfo: THintInfo);
     { Private declarations }
 
   public
@@ -141,9 +143,10 @@ type
       UDPSrvHost : string;
       UDPSrvPort : TIdPort;
       IdUDPClient : TIdUDPClient;
+      corrSpotLabel : TSpotLabel;
 
    public
-     constructor Create(requestStr, udpHost : string; udpPort : TIdPort);
+     constructor Create(requestStr, udpHost : string; udpPort : TIdPort; spotLabelIn : TSpotLabel);
 
    protected
      procedure ProcessAnswerJSON();
@@ -173,11 +176,13 @@ implementation
 
 uses Unit2, Unit3;
 
-constructor TRequestThread.Create(requestStr, udpHost : string; udpPort : TIdPort);
+constructor TRequestThread.Create(requestStr, udpHost : string; udpPort : TIdPort; spotLabelIn : TSpotLabel);
 begin
   UDPSrvHost := udpHost;
   UDPSrvPort := udpPort;
   UDPRequestStr := requestStr;
+  corrSpotLabel := spotLabelIn;
+
   inherited Create(true);
 End;
 
@@ -287,41 +292,66 @@ begin
   end;
 End;
 
+procedure TFrequencyVisualForm.MyShowHint(var HintStr: string; var CanShow: Boolean;
+  var HintInfo: THintInfo);
+var
+  i: integer;
+begin
+  for I := 0 to Application.ComponentCount-1 do begin
+    if Application.Components[0] is THintWindow then begin
+      with THintWindow(Application.Components[0]) do begin
+        Canvas.Font.Name := 'Monotype Corsiva';
+        Canvas.Font.Size := 10;
+        Canvas.Font.Style := [];
+        Canvas.Brush.Color := clCream;
+      end;
+    end;
+  end;
+end;
+
 procedure TFrequencyVisualForm.SpotLabelMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
 var
 i,j : integer;
 spotHintPoint : TPoint;
 spotLabel : TSpotLabel;
-call, newHintStr : string;
+newHintStr : string;
 spotAALogData : TSimpleCallsignAnswer;
 begin
 
 if (spotHintOldX <> X) or (spotHintOldY <> Y) then begin
   spotLabel := TSpotLabel(Sender);
-  BalloonHint1.Title := spotLabel.Caption;
+  newHintStr := '';
+  labelSpotHint.Caption := spotLabel.Hint;
 
-  if (callsingDataFromAALog.ContainsKey(spotLabel.Caption)) then begin
-    spotAALogData := callsingDataFromAALog.Items[spotLabel.Caption];
+  //todo: change aproach to set additional data in spotLabel to aalog answer processing thread
+  if not spotLabel.Hint.Contains('From AALog') then
+    if (callsingDataFromAALog.ContainsKey(spotLabel.Caption)) then begin
+      spotAALogData := callsingDataFromAALog.Items[spotLabel.Caption];
 
-    newHintStr := spotLabel.Hint + #13#13;
+      newHintStr := spotLabel.Hint + #13#13 + 'From AALog: ' + #13;
 
-    if (spotAALogData.hamName <> '') then
-      newHintStr := newHintStr + 'Name: '+spotAALogData.hamName + #13;
-    if (spotAALogData.hamQTH <> '') then
-        newHintStr := newHintStr + 'QTH: '+spotAALogData.hamQTH + #13;
+      if (spotAALogData.hamName <> '') then
+        newHintStr := newHintStr + 'Name: ' + (spotAALogData.hamName) + #13;
+      if (spotAALogData.hamQTH <> '') then
+          newHintStr := newHintStr + 'QTH: ' + (spotAALogData.hamQTH) + #13;
 
-     newHintStr := newHintStr + 'InLog: '+spotAALogData.presentInLog + ', LoTW: '+spotAALogData.isLoTWUser + ', EQSL.cc: '+spotAALogData.isEqslUser + #13 + ' ';
+       newHintStr := newHintStr + 'InLog: '+spotAALogData.presentInLog + ', LoTW: '+spotAALogData.isLoTWUser + ', EQSL.cc: '+spotAALogData.isEqslUser + ' ';
 
-    BalloonHint1.Description := newHintStr;
-  end else begin
-    BalloonHint1.Description := spotLabel.Hint;
-  end;
+      spotLabel.Hint := newHintStr;
+      labelSpotHint.Caption := newHintStr;
+      labelSpotHint.Width := labelSpotHint.Width + 3;
+    end;
 
   spotHintPoint := TPoint.Create(spotLabel.Left+X, spotLabel.Top+Y);
   spotHintOldX := X;
   spotHintOldY := Y;
-  BalloonHint1.ShowHint(ClientToScreen(spotHintPoint));
+
+  labelSpotHint.Top := spotLabel.Top + 50 + Y;
+  labelSpotHint.Left := spotLabel.Left + 25 + X;
+
+  labelSpotHint.Visible := true;
+  // (ClientToScreen(spotHintPoint));
 end;
 
 End;
@@ -362,13 +392,15 @@ spotLabel : TSpotLabel;
 
 begin
 spotLabel := TSpotLabel(Sender);
-if (spotLabel.spotDE = stationCallsign) and (settingsForm.cbOwnSpotColorize.Checked) then
+//own spot has more power that in log (because in some time anyone can spot he again and label will have gray color
+if (spotLabel.isInLog) and (settingsForm.cbSpotInLog.Checked) then
+  spotLabel.Font.Color := settingsForm.colBoxSpotInLog.Selected
+else if (spotLabel.spotDE = stationCallsign) and (settingsForm.cbOwnSpotColorize.Checked) then
   spotLabel.Font.Color := settingsForm.colBoxOwnSpot.Selected
+
 else spotLabel.Font.Color := clWhite;
-
-BalloonHint1.HideHint;
+labelSpotHint.Visible := false;
 End;
-
 
 procedure TFrequencyVisualForm.cbHiResClick(Sender: TObject);
 begin
@@ -481,6 +513,11 @@ callsingDataFromAALog := TDictionary<String, TSimpleCallsignAnswer>.Create;
 notNeedToShowPopupForFreqPanel := false;
 notNeedToShowPopupForSpotLabel := false;
 
+Application.OnShowHint := MyShowHint;
+Application.HintColor := clCream;
+labelSpotHint.Transparent := false;
+labelSpotHint.Color := clCream;
+
 iniFile := TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
 try
   with iniFile, FrequencyVisualForm do begin
@@ -553,11 +590,12 @@ try
     IdUDPClient.Host := UDPSrvHost;
     IdUDPClient.Port := UDPSrvPort;
     IdUDPClient.Active := True;
-    IdUDPClient.ReceiveTimeout := 1000; //может уменьшить?
+    IdUDPClient.ReceiveTimeout := 3000; //может уменьшить?
     IdUDPClient.Connect;
     if IdUDPClient.Connected then begin
       IdUDPClient.Send(UDPRequestStr, IndyTextEncoding(encUTF8));
-      answerStr := IdUDPClient.ReceiveString(IdTimeoutDefault, IndyTextEncoding(encUTF8));
+      answerStr := IdUDPClient.ReceiveString(IdTimeoutDefault, IndyTextEncoding(encOSDefault));
+      DebugOutput(answerStr);
     end;
   except
     on E: Exception do
@@ -585,12 +623,12 @@ answerType := (JsonAnswer.Field['answerType'] as TlkJSONstring).value;
 jsData := JsonAnswer.Field['answerData'] as TlkJSONobject;
 
 if (answerType = REQ_IS_IN_LOG) then
-    frequencyVisualForm.UpdateCallsignDetailsTable(jsData);
+    frequencyVisualForm.UpdateCallsignDetailsTable(jsData, corrSpotLabel);
 
 End;
 
 
-procedure TFrequencyVisualForm.UpdateCallsignDetailsTable(answerData : TlkJSONobject);
+procedure TFrequencyVisualForm.UpdateCallsignDetailsTable(answerData : TlkJSONobject; spotLabel : TSpotLabel);
 var
   JsonAnswer : TlkJSONobject;
   isLoTWUser, isEqslUser, callsign, hamName, hamQTH : string;
@@ -608,17 +646,29 @@ begin
   presentOnMode := (answerData.Field['presentOnMode'] as TlkJSONstring).value;
 
   answer := TSimpleCallsignAnswer.Create(callsign, hamName, hamQTH, isLoTWUser[1], isEqslUser[1], presentOnBand[1], presentOnMode[1], presentInLog[1]);
+  if (isLoTWUser = '1') or (isEqslUser = '1') then begin
+    spotLabel.isLotwEqsl := true;
+   // spotLabel.Font.Style := [fsUnderline];
+   //variant #1, second - simple dash line under label, that will be draw during label placement
+  end;
+
+  if presentInLog = '1' then begin
+    spotLabel.isInLog := true;
+    spotLabel.Font.Color := settingsForm.colBoxSpotInLog.Selected;
+  end else
+    if spotLabel.spotDE <> trim(settingsForm.txtStationCallsign.Text) then
+      spotLabel.Font.Color := clWhite;
 
   if not(callsingDataFromAALog.ContainsKey(callsign)) then
     callsingDataFromAALog.Add(callsign, answer);
 End;
 
 
-procedure SendRequestToAALog(requestStr, udpHost : string; udpPort : TIdPort);
+procedure SendRequestToAALog(requestStr, udpHost : string; udpPort : TIdPort; spotLabelIn : TSpotLabel);
 var
   requestThread: TRequestThread;
 begin
-  requestThread := TRequestThread.Create(requestStr, udpHost, udpPort);
+  requestThread := TRequestThread.Create(requestStr, udpHost, udpPort, spotLabelIn);
   requestThread.FreeOnTerminate := true;
   requestThread.Resume;
 End;
@@ -956,7 +1006,8 @@ var
 spotArray : TArray<TSpot>;
 spot : TSpot;
 spotCount, YPos : integer;
-spotLabel : TLabel;
+spotLabel : TSpotLabel;
+LogBrush: TLogBrush;
 
 begin
 if CheckSpotListContainsKey(freqValue) then begin
@@ -971,6 +1022,9 @@ if CheckSpotListContainsKey(freqValue) then begin
       if cbHiRes.Checked then Pen.Width := 2
       else Pen.Width := 1;
 
+       LogBrush.lbStyle := BS_SOLID;
+       LogBrush.lbColor := clWhite;
+
       //don't touch digits formulas below! :)
       for spot in spotArray do begin
         spotLabel := spot.spotLabel;
@@ -980,20 +1034,34 @@ if CheckSpotListContainsKey(freqValue) then begin
         //LSB items
           MoveTo(textXPos, YPos+StartYPosDPICorr);
           LineTo(textXPos, YPos+EndYPosDPICorr);
-          spotLabel.Top := YPos;
+          //Draw dotted line if spot is LoTW or EQSL.cc user
+          if (spotLabel.isLotwEqsl) and (settingsForm.cbSpotLotwEqsl.Checked) then begin
+            Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DASHDOT, 3, LogBrush, 0, nil);
+            MoveTo(textXPos-spotLabel.Width-2, spotLabel.Top+EndYPosDPICorr+4);
+            LineTo(textXPos, spotLabel.Top+EndYPosDPICorr+4);
+            Pen.Handle := ExtCreatePen(PS_SOLID, 1, LogBrush, 0, nil);
+          end;
+
           spotLabel.Left := textXPos-spotLabel.Width-textXPosDPICorr;
-          spotLabel.Visible := true;
 //          TextOut(textXPos-TextWidth(spot.DX)-6, YPos, spot.DX);
         end else begin
         //USB items
           MoveTo(textXPos, YPos+StartYPosDPICorr);
           LineTo(textXPos, YPos+EndYPosDPICorr);
-          spotLabel.Top := YPos;
+          //Draw dotted line if spot is LoTW or EQSL.cc user
+          if (spotLabel.isLotwEqsl) and (settingsForm.cbSpotLotwEqsl.Checked) then begin
+            Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DASHDOT, 3, LogBrush, 0, nil);
+            MoveTo(textXPos, spotLabel.Top+EndYPosDPICorr+4);
+            LineTo(textXPos+spotLabel.Width+3, spotLabel.Top+EndYPosDPICorr+4);
+            Pen.Handle := ExtCreatePen(PS_SOLID, 1, LogBrush, 0, nil);
+          end;
+
           spotLabel.Left := textXPos+textXPosDPICorr;
-          spotLabel.Visible := true;
 //          TextOut(textXPos+6, YPos, spot.DX);
         end;
 
+        spotLabel.Top := YPos;
+        spotLabel.Visible := true;
         inc(spotCount);
       end;
       Pen.Width := 1;
@@ -1169,7 +1237,7 @@ while Start <= Length(incomeStr) do begin
         if (settingsForm.cbAALogIntegrationEnabled.Checked) then begin
           request := TSimpleCallsignRequest.Create(spot.DX, freqText, 'SSB', REQ_IS_IN_LOG);
           requestStr := FillJsonSimpleCallsignRequest(request);
-          SendRequestToAALog(requestStr, settingsForm.txtAalAddr.Text, StrToInt(settingsForm.txtAalPort.Text));
+          SendRequestToAALog(requestStr, settingsForm.txtAalAddr.Text, StrToInt(settingsForm.txtAalPort.Text), spotLabel);
         end;
 
         lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
@@ -1235,7 +1303,7 @@ while Start <= Length(incomeStr) do begin
         if (settingsForm.cbAALogIntegrationEnabled.Checked) then begin
           request := TSimpleCallsignRequest.Create(spot.DX, freqText, 'SSB', REQ_IS_IN_LOG);
           requestStr := FillJsonSimpleCallsignRequest(request);
-          SendRequestToAALog(requestStr, settingsForm.txtAalAddr.Text, StrToInt(settingsForm.txtAalPort.Text));
+          SendRequestToAALog(requestStr, settingsForm.txtAalAddr.Text, StrToInt(settingsForm.txtAalPort.Text), spotLabel);
         end;
         lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
 
@@ -1302,7 +1370,6 @@ if (ssRight in Shift) and (not isPanelHoldActive.Checked) then begin
     exit;
   end;
   notNeedToShowPopupForFreqPanel := false;
-  BalloonHint1.HideHint;
 End;
 
 procedure TFrequencyVisualForm.RepaintFrequencySpan();

@@ -182,6 +182,20 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnPaint = PaintBox1Paint
       ExplicitTop = -2
     end
+    object labelSpotHint: TLabel
+      Left = 664
+      Top = 8
+      Width = 72
+      Height = 14
+      Caption = 'labelSpotHint'
+      Font.Charset = RUSSIAN_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      Visible = False
+    end
     object Panel3: TPanel
       Left = 0
       Top = 184
@@ -338,10 +352,5 @@ object FrequencyVisualForm: TFrequencyVisualForm
       Caption = 'view on qrz.ru'
       OnClick = Viewonqrzru1Click
     end
-  end
-  object BalloonHint1: TBalloonHint
-    Delay = 350
-    Left = 88
-    Top = 128
   end
 end

@@ -3,8 +3,8 @@ object settingsForm: TsettingsForm
   Top = 0
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 243
-  ClientWidth = 425
+  ClientHeight = 266
+  ClientWidth = 442
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,8 +17,8 @@ object settingsForm: TsettingsForm
   PixelsPerInch = 96
   TextHeight = 13
   object labSaveInfo: TLabel
-    Left = 123
-    Top = 218
+    Left = 36
+    Top = 245
     Width = 149
     Height = 13
     Caption = 'Settings saved succesfully'
@@ -40,7 +40,7 @@ object settingsForm: TsettingsForm
     OnClick = btnSaveClick
   end
   object btnClose: TButton
-    Left = 325
+    Left = 134
     Top = 210
     Width = 75
     Height = 25
@@ -51,13 +51,13 @@ object settingsForm: TsettingsForm
   object GroupBox1: TGroupBox
     Left = 7
     Top = 8
-    Width = 410
+    Width = 427
     Height = 113
     Caption = 'DX Cluster '
     TabOrder = 2
     object Label2: TLabel
-      Left = 115
-      Top = 80
+      Left = 116
+      Top = 81
       Width = 129
       Height = 13
       Caption = 'Maximum number of spots:'
@@ -85,7 +85,7 @@ object settingsForm: TsettingsForm
     object txtDXCPort: TLabeledEdit
       Left = 239
       Top = 32
-      Width = 58
+      Width = 59
       Height = 21
       EditLabel.Width = 24
       EditLabel.Height = 13
@@ -96,8 +96,8 @@ object settingsForm: TsettingsForm
       OnKeyPress = txtDXCPortKeyPress
     end
     object chkDXCAutoConnect: TCheckBox
-      Left = 303
-      Top = 32
+      Left = 304
+      Top = 34
       Width = 82
       Height = 17
       Caption = 'Auto connect'
@@ -105,7 +105,7 @@ object settingsForm: TsettingsForm
     end
     object txtStationCallsign: TLabeledEdit
       Left = 11
-      Top = 77
+      Top = 78
       Width = 97
       Height = 21
       Margins.Top = 4
@@ -117,8 +117,8 @@ object settingsForm: TsettingsForm
       Text = 'UN7ZAF'
     end
     object spSpotMaxNumber: TSpinEdit
-      Left = 250
-      Top = 77
+      Left = 251
+      Top = 78
       Width = 47
       Height = 22
       Increment = 5
@@ -189,8 +189,8 @@ object settingsForm: TsettingsForm
   object GroupBox2: TGroupBox
     Left = 215
     Top = 127
-    Width = 202
-    Height = 77
+    Width = 219
+    Height = 130
     Caption = 'Spot colors'
     TabOrder = 5
     object cbOwnSpotColorize: TCheckBox
@@ -205,7 +205,7 @@ object settingsForm: TsettingsForm
       OnClick = cbOwnSpotColorizeClick
     end
     object colBoxOwnSpot: TColorBox
-      Left = 96
+      Left = 112
       Top = 15
       Width = 97
       Height = 22
@@ -214,7 +214,7 @@ object settingsForm: TsettingsForm
       TabOrder = 1
     end
     object colBoxSpotMouseMove: TColorBox
-      Left = 96
+      Left = 112
       Top = 45
       Width = 97
       Height = 22
@@ -231,6 +231,37 @@ object settingsForm: TsettingsForm
       Checked = True
       State = cbChecked
       TabOrder = 3
+      OnClick = cbSpotMouseMoveColorizeClick
+    end
+    object cbSpotInLog: TCheckBox
+      Left = 8
+      Top = 75
+      Width = 98
+      Height = 17
+      Caption = 'Already in Log:'
+      Checked = True
+      State = cbChecked
+      TabOrder = 4
+      OnClick = cbSpotInLogClick
+    end
+    object colBoxSpotInLog: TColorBox
+      Left = 112
+      Top = 73
+      Width = 97
+      Height = 22
+      Selected = clGray
+      Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
+      TabOrder = 5
+    end
+    object cbSpotLotwEqsl: TCheckBox
+      Left = 8
+      Top = 103
+      Width = 161
+      Height = 17
+      Caption = 'Underline if LoTW or EQSL.cc'
+      Checked = True
+      State = cbChecked
+      TabOrder = 6
       OnClick = cbSpotMouseMoveColorizeClick
     end
   end

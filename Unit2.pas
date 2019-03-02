@@ -30,6 +30,9 @@ type
     colBoxOwnSpot: TColorBox;
     colBoxSpotMouseMove: TColorBox;
     cbSpotMouseMoveColorize: TCheckBox;
+    cbSpotInLog: TCheckBox;
+    colBoxSpotInLog: TColorBox;
+    cbSpotLotwEqsl: TCheckBox;
     procedure btnCloseClick(Sender: TObject);
     procedure txtDXCPortKeyPress(Sender: TObject; var Key: Char);
     procedure btnSaveClick(Sender: TObject);
@@ -38,6 +41,7 @@ type
     procedure cbAALogIntegrationEnabledClick(Sender: TObject);
     procedure cbOwnSpotColorizeClick(Sender: TObject);
     procedure cbSpotMouseMoveColorizeClick(Sender: TObject);
+    procedure cbSpotInLogClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -81,7 +85,8 @@ try
     WriteBool('DXCluster', 'AALogIntegrationEnabled', cbAALogIntegrationEnabled.Checked);
     WriteBool('DXCluster', 'OwnSpotColorize', cbOwnSpotColorize.Checked);
     WriteBool('DXCluster', 'SpotMouseMoveColorize', cbSpotMouseMoveColorize.Checked);
-
+    WriteBool('DXCluster', 'SpotInLogColorize', cbSpotInLog.Checked);
+    WriteBool('DXCluster', 'SpotLotwEqslColorize', cbSpotLotwEqsl.Checked);
   end;
 
   labSaveInfo.Visible := true;
@@ -109,6 +114,11 @@ procedure TsettingsForm.cbOwnSpotColorizeClick(Sender: TObject);
 begin
 colBoxOwnSpot.Enabled := cbOwnSpotColorize.Checked;
 End;
+
+procedure TsettingsForm.cbSpotInLogClick(Sender: TObject);
+begin
+colBoxSpotInLog.Enabled := cbSpotInLog.Checked;
+end;
 
 procedure TsettingsForm.cbSpotMouseMoveColorizeClick(Sender: TObject);
 begin

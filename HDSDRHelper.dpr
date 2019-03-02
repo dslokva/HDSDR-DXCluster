@@ -13,6 +13,8 @@ begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
   Application.Title := 'HDSDR-DXCluster ';
+  Application.HintPause := 250;    // 250 mSec before hint is shown
+  Application.HintHidePause := 8000; // hint disappears after 3 secs
   Application.CreateForm(TFrequencyVisualForm, FrequencyVisualForm);
   Application.CreateForm(TsettingsForm, settingsForm);
   Application.CreateForm(TdxcViewForm, dxcViewForm);
