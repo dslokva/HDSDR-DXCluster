@@ -393,12 +393,12 @@ spotLabel : TSpotLabel;
 begin
 spotLabel := TSpotLabel(Sender);
 //own spot has more power that in log (because in some time anyone can spot he again and label will have gray color
-if (spotLabel.isInLog) and (settingsForm.cbSpotInLog.Checked) then
-  spotLabel.Font.Color := settingsForm.colBoxSpotInLog.Selected
-else if (spotLabel.spotDE = stationCallsign) and (settingsForm.cbOwnSpotColorize.Checked) then
+if (spotLabel.spotDE = stationCallsign) and (settingsForm.cbOwnSpotColorize.Checked) then
   spotLabel.Font.Color := settingsForm.colBoxOwnSpot.Selected
-
+else if (spotLabel.isInLog) and (settingsForm.cbSpotInLog.Checked) then
+  spotLabel.Font.Color := settingsForm.colBoxSpotInLog.Selected
 else spotLabel.Font.Color := clWhite;
+
 labelSpotHint.Visible := false;
 End;
 
@@ -653,15 +653,17 @@ begin
   if (isLoTWUser = '1') or (isEqslUser = '1') then begin
     spotLabel.isLotwEqsl := true;
    // spotLabel.Font.Style := [fsUnderline];
-   //variant #1, second - simple dash line under label, that will be draw during label placement
+   // variant #1, second - simple dash line under label, that will be draw during label placement
   end;
 
-  if presentInLog = '1' then begin
+  if presentInLog = '1' then
     spotLabel.isInLog := true;
-    spotLabel.Font.Color := settingsForm.colBoxSpotInLog.Selected;
-  end else
-    if spotLabel.spotDE <> trim(settingsForm.txtStationCallsign.Text) then
-      spotLabel.Font.Color := clWhite;
+
+  if (spotLabel.spotDE = stationCallsign) and (settingsForm.cbOwnSpotColorize.Checked) then
+    spotLabel.Font.Color := settingsForm.colBoxOwnSpot.Selected
+  else if (spotLabel.isInLog) and (settingsForm.cbSpotInLog.Checked) then
+    spotLabel.Font.Color := settingsForm.colBoxSpotInLog.Selected
+  else spotLabel.Font.Color := clWhite;
 
   if not(callsingDataFromAALog.ContainsKey(callsign)) then
     callsingDataFromAALog.Add(callsign, answer);
@@ -1034,7 +1036,7 @@ if CheckSpotListContainsKey(freqValue) then begin
         spotLabel := spot.spotLabel;
 
         if spotLabel.Tag >= 1 then
-          spacingCorrection := 7
+          spacingCorrection := 6
         else
           spacingCorrection := 0;
 
