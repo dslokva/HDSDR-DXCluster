@@ -163,7 +163,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
     BevelEdges = []
     BevelOuter = bvNone
     TabOrder = 1
-    object PaintBox1: TPaintBox
+    object frequencyPaintBox: TPaintBox
       Left = 0
       Top = 0
       Width = 745
@@ -175,11 +175,11 @@ object FrequencyVisualForm: TFrequencyVisualForm
       ParentShowHint = False
       PopupMenu = freqPanelMenu
       ShowHint = True
-      OnContextPopup = PaintBox1ContextPopup
-      OnDblClick = PaintBox1DblClick
-      OnMouseLeave = PaintBox1MouseLeave
-      OnMouseMove = PaintBox1MouseMove
-      OnPaint = PaintBox1Paint
+      OnContextPopup = frequencyPaintBoxContextPopup
+      OnDblClick = frequencyPaintBoxDblClick
+      OnMouseLeave = frequencyPaintBoxMouseLeave
+      OnMouseMove = frequencyPaintBoxMouseMove
+      OnPaint = frequencyPaintBoxPaint
       ExplicitTop = -2
     end
     object labelSpotHint: TLabel

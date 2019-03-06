@@ -18,7 +18,7 @@ object settingsForm: TsettingsForm
   TextHeight = 13
   object labSaveInfo: TLabel
     Left = 36
-    Top = 264
+    Top = 273
     Width = 149
     Height = 13
     Caption = 'Settings saved succesfully'
@@ -30,9 +30,16 @@ object settingsForm: TsettingsForm
     ParentFont = False
     Visible = False
   end
+  object Label1: TLabel
+    Left = 8
+    Top = 215
+    Width = 102
+    Height = 13
+    Caption = 'Frequency pan color:'
+  end
   object btnSave: TButton
     Left = 8
-    Top = 226
+    Top = 242
     Width = 75
     Height = 25
     Caption = 'Save'
@@ -41,7 +48,7 @@ object settingsForm: TsettingsForm
   end
   object btnClose: TButton
     Left = 134
-    Top = 226
+    Top = 242
     Width = 75
     Height = 25
     Caption = 'Close'
@@ -50,13 +57,13 @@ object settingsForm: TsettingsForm
   end
   object GroupBox1: TGroupBox
     Left = 7
-    Top = 8
+    Top = 7
     Width = 442
     Height = 113
     Caption = 'DX Cluster '
     TabOrder = 2
     object Label2: TLabel
-      Left = 116
+      Left = 114
       Top = 81
       Width = 129
       Height = 13
@@ -282,5 +289,15 @@ object settingsForm: TsettingsForm
       Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
       TabOrder = 8
     end
+  end
+  object colBoxMainFreqPanel: TColorBox
+    Left = 116
+    Top = 210
+    Width = 93
+    Height = 22
+    Selected = 4659989
+    Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
+    TabOrder = 6
+    OnChange = colBoxMainFreqPanelChange
   end
 end

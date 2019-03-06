@@ -35,6 +35,8 @@ type
     cbSpotLotwEqsl: TCheckBox;
     cbEarlySpot: TCheckBox;
     colBoxEarlySpot: TColorBox;
+    colBoxMainFreqPanel: TColorBox;
+    Label1: TLabel;
     procedure btnCloseClick(Sender: TObject);
     procedure txtDXCPortKeyPress(Sender: TObject; var Key: Char);
     procedure btnSaveClick(Sender: TObject);
@@ -44,6 +46,7 @@ type
     procedure cbOwnSpotColorizeClick(Sender: TObject);
     procedure cbSpotMouseMoveColorizeClick(Sender: TObject);
     procedure cbSpotInLogClick(Sender: TObject);
+    procedure colBoxMainFreqPanelChange(Sender: TObject);
   private
     { Private declarations }
   public
@@ -79,6 +82,7 @@ try
     WriteInteger('DXCluster', 'OwnSpotColor', colBoxOwnSpot.Selected);
     WriteInteger('DXCluster', 'MouseMoveSpotColor', colBoxSpotMouseMove.Selected);
     WriteInteger('DXCluster', 'EarlySpotColor', colBoxEarlySpot.Selected);
+    WriteInteger('DXCluster', 'MainFreqPanColor', colBoxMainFreqPanel.Selected);
     WriteString('DXCluster', 'DXCHost', txtDXCHost.Text);
     WriteString('DXCluster', 'DXCUsername', txtDXCUsername.Text);
     WriteString('DXCluster', 'StationCallsign', txtStationCallsign.Text);
@@ -129,6 +133,11 @@ begin
 colBoxSpotMouseMove.Enabled := cbSpotMouseMoveColorize.Checked;
 end;
 
+procedure TsettingsForm.colBoxMainFreqPanelChange(Sender: TObject);
+begin
+FrequencyVisualForm.frequencyPaintBox.Color := colBoxMainFreqPanel.Selected;
+end;
+
 procedure TsettingsForm.FormCreate(Sender: TObject);
 var
 iniFile : TIniFile;
@@ -151,7 +160,7 @@ try
     colBoxOwnSpot.Selected := ReadInteger('DXCluster', 'OwnSpotColor', clYellow);
     colBoxSpotMouseMove.Selected := ReadInteger('DXCluster', 'MouseMoveSpotColor', clLime);
     colBoxEarlySpot.Selected := ReadInteger('DXCluster', 'EarlySpotColor', clRed);
-
+    colBoxMainFreqPanel.Selected := ReadInteger('DXCluster', 'MainFreqPanColor', $00471B15);
   end;
   FrequencyVisualForm.btnDXCConnect.Hint := txtDXCHost.Text;
   FrequencyVisualForm.stationCallsign := trim(txtStationCallsign.Text);

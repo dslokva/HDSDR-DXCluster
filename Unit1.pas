@@ -4,20 +4,10 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, JSons, uLkJSON, IdURI,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, JSons, uLkJSON, IdURI, SpotLabel,
   Vcl.ButtonGroup, Vcl.WinXCtrls, IdBaseComponent, IdComponent, IdTCPConnection, UDPServerJSONObjects,
   IdTCPClient, IdTelnet, RegExpr, IdGlobal, System.Generics.Collections, IdUDPClient, DateUtils,
   Vcl.Buttons, inifiles, Vcl.Menus, IdUDPBase, IdUDPServer, IdSocketHandle, Winapi.ShellAPI, AALogClientJSONObjects;
-
-type
-  TSpotLabel = class(TLabel)
-    public
-      spotDE : string;
-      isLotwEqsl : boolean;
-      isInLog : boolean;
-      receiveTime : TDateTime;
-      constructor Create(AOwner: TComponent; spotDEStr : string; receiveTimeOrig : TDateTime);
-  end;
 
 type
   TSpot = class(TObject)
@@ -42,7 +32,7 @@ type
     Button1: TButton;
     bandSwitcher: TRadioGroup;
     Panel5: TPanel;
-    PaintBox1: TPaintBox;
+    frequencyPaintBox: TPaintBox;
     Panel3: TPanel;
     Panel4: TPanel;
     Label1: TLabel;
@@ -69,8 +59,8 @@ type
     Viewonqrzru1: TMenuItem;
     labelSpotHint: TLabel;
     procedure Button1Click(Sender: TObject);
-    procedure PaintBox1DblClick(Sender: TObject);
-    procedure PaintBox1Paint(Sender: TObject);
+    procedure frequencyPaintBoxDblClick(Sender: TObject);
+    procedure frequencyPaintBoxPaint(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure chkStayOnTopClick(Sender: TObject);
     procedure Panel1MouseDown(Sender: TObject; Button: TMouseButton;
@@ -82,9 +72,9 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure Label1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,
+    procedure frequencyPaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
-    procedure PaintBox1MouseLeave(Sender: TObject);
+    procedure frequencyPaintBoxMouseLeave(Sender: TObject);
     procedure cbHiResClick(Sender: TObject);
     procedure btnDXCConnectClick(Sender: TObject);
     procedure IdTelnet1Connected(Sender: TObject);
@@ -101,7 +91,7 @@ type
     procedure Button3Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure isPanelHoldActiveClick(Sender: TObject);
-    procedure PaintBox1ContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
+    procedure frequencyPaintBoxContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
     procedure labPanelModeDblClick(Sender: TObject);
     procedure CreateParams(var Params: TCreateParams); override;
     procedure Viewonqrzcom1Click(Sender: TObject);
@@ -188,13 +178,6 @@ begin
   inherited Create(true);
 End;
 
-
-constructor TSpotLabel.Create(AOwner: TComponent; spotDEStr : string; receiveTimeOrig : TDateTime);
-begin
-  spotDE := spotDEStr;
-  receiveTime := receiveTimeOrig;
-  inherited Create(AOwner);
-End;
 
 function TFrequencyVisualForm.getSpotTotalCount() : Integer;
 var
@@ -502,7 +485,7 @@ begin
   EndYPosDPICorr := 25;
   UnderFreqDPICorr := 28;
   PenWidthDPICorr := 2;
-boxWidth := PaintBox1.ClientWidth-40;
+boxWidth := frequencyPaintBox.ClientWidth-40;
 RefreshLineSpacer();
 freqAddKhz := 0.5;
 freqStart := 3600.0;
@@ -521,7 +504,7 @@ Application.HintColor := clCream;
 labelSpotHint.Transparent := false;
 labelSpotHint.Color := clCream;
 
-PaintBox1.Color := ConvertHtmlHexToTColor('#151B47');
+frequencyPaintBox.Color := $00471B15;
 
 iniFile := TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
 try
@@ -544,7 +527,7 @@ End;
 
 procedure TFrequencyVisualForm.FormResize(Sender: TObject);
 begin
-boxWidth := PaintBox1.ClientWidth-40;
+boxWidth := frequencyPaintBox.ClientWidth-40;
 End;
 
 function FillJsonSimpleCallsignRequest(request : TSimpleCallsignRequest) : string;
@@ -624,7 +607,10 @@ var
   JsonAnswer, jsData: TlkJSONobject;
   answerType : string;
 begin
-if answerStr = '0' then exit;
+if answerStr = '0' then begin
+  FrequencyVisualForm.ColorizeSpotLabel(corrSpotLabel);
+  exit;
+end;
 
 JsonAnswer := TlkJSON.ParseText(answerStr) as TlkJSONobject;
 answerType := (JsonAnswer.Field['answerType'] as TlkJSONstring).value;
@@ -970,7 +956,7 @@ HideAllLabels(true);
 RepaintFrequencySpan();
 End;
 
-procedure TFrequencyVisualForm.PaintBox1ContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
+procedure TFrequencyVisualForm.frequencyPaintBoxContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
 begin
 if notNeedToShowPopupForFreqPanel then
    Handled := True;
@@ -984,7 +970,7 @@ end;
 
 
 
-procedure TFrequencyVisualForm.PaintBox1DblClick(Sender: TObject);
+procedure TFrequencyVisualForm.frequencyPaintBoxDblClick(Sender: TObject);
 begin
 Panel1.Visible := not Panel1.Visible;
 End;
@@ -1021,7 +1007,7 @@ if CheckSpotListContainsKey(freqValue) then begin
 //still very fragile for DPI and Scale options (((
   spotArray := GetSpotArrayFromList(freqValue);
   if spotArray <> nil then
-    with PaintBox1.Canvas do begin
+    with frequencyPaintBox.Canvas do begin
       Font.Size := freqMarkerFontSize;
       Font.Color := clWhite;
       spotCount := 0;
@@ -1354,12 +1340,12 @@ end;
 
 End;
 
-procedure TFrequencyVisualForm.PaintBox1MouseLeave(Sender: TObject);
+procedure TFrequencyVisualForm.frequencyPaintBoxMouseLeave(Sender: TObject);
 begin
   Xold := 0;
 End;
 
-procedure TFrequencyVisualForm.PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,
+procedure TFrequencyVisualForm.frequencyPaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 var
   horz : Integer;
@@ -1406,8 +1392,8 @@ case bandSwitcher.ItemIndex of
  8: freqStart := 28294.00 + freqShifter;
 end;
 
-with PaintBox1.Canvas do begin
-     FillRect(Rect(0, 0, PaintBox1.Width, PaintBox1.Height));
+with frequencyPaintBox.Canvas do begin
+     FillRect(Rect(0, 0, frequencyPaintBox.Width, frequencyPaintBox.Height));
      Pen.Width := 1;
      Pen.Color := clWhite;
      Pen.Style := psSolid;
@@ -1473,7 +1459,7 @@ end;
 lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
 End;
 
-procedure TFrequencyVisualForm.PaintBox1Paint(Sender: TObject);
+procedure TFrequencyVisualForm.frequencyPaintBoxPaint(Sender: TObject);
 begin
 RepaintFrequencySpan();
 End;
