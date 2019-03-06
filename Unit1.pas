@@ -329,7 +329,7 @@ if (spotHintOldX <> X) or (spotHintOldY <> Y) then begin
 
   spotSecDiff := SecondsBetween(now, spotLabel.receiveTime);
   spotAge := Format('%2.2d:%2.2d:%2.2d',[spotSecDiff div SecsPerHour,(spotSecDiff div SecsPerMin) mod SecsPerMin, spotSecDiff mod SecsPerMin]);
-  labelSpotHint.Caption := spotLabel.Hint + #10#13 + 'Spot age: ' + spotAge;
+  labelSpotHint.Caption := spotLabel.Hint;
 
   //todo: change aproach to set additional data in spotLabel to aalog answer processing thread
   if not spotLabel.Hint.Contains('From AALog') then
