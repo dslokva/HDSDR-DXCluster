@@ -123,6 +123,7 @@ type
     procedure DeleteFirstSpot();
     procedure UpdateCallsignDetailsTable(answerData : TlkJSONobject; spotLabel : TSpotLabel);
     procedure MyShowHint(var HintStr: string; var CanShow: Boolean; var HintInfo: THintInfo);
+    procedure ColorizeSpotLabel(spotLabel: TSpotLabel);
     { Private declarations }
 
   public
@@ -335,7 +336,7 @@ if (spotHintOldX <> X) or (spotHintOldY <> Y) then begin
     if (callsingDataFromAALog.ContainsKey(spotLabel.Caption)) then begin
       spotAALogData := callsingDataFromAALog.Items[spotLabel.Caption];
 
-      newHintStr := spotLabel.Hint + #13#13 + 'From AALog: ' + #13;
+      newHintStr := spotLabel.Hint + #10#13 + 'Spot age: ' + spotAge + #13#13 + 'From AALog: ' + #13;
 
       if (spotAALogData.hamName <> '') then
         newHintStr := newHintStr + 'Name: ' + (spotAALogData.hamName) + #13;
@@ -388,10 +389,8 @@ End;
 
 procedure TFrequencyVisualForm.SpotLabelMouseEnter(Sender: TObject);
 begin
-//if (settingsForm.cbOwnSpotColorize.Checked) then
-//  TSpotLabel(Sender).Font.Color := settingsForm.colBoxSpotMouseMove.Selected;
-
-
+if (settingsForm.cbOwnSpotColorize.Checked) then
+  TSpotLabel(Sender).Font.Color := settingsForm.colBoxSpotMouseMove.Selected;
 End;
 
 procedure TFrequencyVisualForm.SpotLabelMouseLeave(Sender: TObject);
@@ -400,14 +399,7 @@ spotLabel : TSpotLabel;
 
 begin
 spotLabel := TSpotLabel(Sender);
-
-  if (spotLabel.isInLog) and (settingsForm.cbSpotInLog.Checked) then
-    spotLabel.Font.Color := settingsForm.colBoxSpotInLog.Selected
-  else if (SecondsBetween(now, spotLabel.receiveTime) < 180) and (settingsForm.cbEarlySpot.Checked) then
-    spotLabel.Font.Color := settingsForm.colBoxEarlySpot.Selected
-  else if (spotLabel.spotDE = stationCallsign) and (settingsForm.cbOwnSpotColorize.Checked) then
-    spotLabel.Font.Color := settingsForm.colBoxOwnSpot.Selected
-  else spotLabel.Font.Color := clWhite;
+ColorizeSpotLabel(spotLabel);
 
 labelSpotHint.Visible := false;
 End;
@@ -671,13 +663,7 @@ begin
   if presentInLog = '1' then
     spotLabel.isInLog := true;
 
-  if (spotLabel.isInLog) and (settingsForm.cbSpotInLog.Checked) then
-    spotLabel.Font.Color := settingsForm.colBoxSpotInLog.Selected
-  else if (SecondsBetween(now, spotLabel.receiveTime) < 180) and (settingsForm.cbEarlySpot.Checked) then
-    spotLabel.Font.Color := settingsForm.colBoxEarlySpot.Selected
-  else if (spotLabel.spotDE = stationCallsign) and (settingsForm.cbOwnSpotColorize.Checked) then
-    spotLabel.Font.Color := settingsForm.colBoxOwnSpot.Selected
-  else spotLabel.Font.Color := clWhite;
+  ColorizeSpotLabel(spotLabel);
 
   if not(callsingDataFromAALog.ContainsKey(callsign)) then
     callsingDataFromAALog.Add(callsign, answer);
@@ -1025,7 +1011,7 @@ procedure TFrequencyVisualForm.AddFrequencyPosition(textXPos : integer; freqValu
 var
 spotArray : TArray<TSpot>;
 spot : TSpot;
-penWidth, spotCount, YPos, spacingCorrection : integer;
+spotCount, YPos : integer;
 spotLabel : TSpotLabel;
 LogBrush: TLogBrush;
 
@@ -1039,27 +1025,16 @@ if CheckSpotListContainsKey(freqValue) then begin
       Font.Size := freqMarkerFontSize;
       Font.Color := clWhite;
       spotCount := 0;
-      if cbHiRes.Checked then begin
-        Pen.Width := 2;
-        penWidth := 2;
-      end else begin
-        Pen.Width := 1;
-        penWidth := 1;
-      end;
 
-       LogBrush.lbStyle := BS_SOLID;
-       LogBrush.lbColor := clWhite;
+      Pen.Width := PenWidthDPICorr;
+      LogBrush.lbStyle := BS_SOLID;
+      LogBrush.lbColor := clWhite;
 
       //don't touch digits formulas below! :)
       for spot in spotArray do begin
         spotLabel := spot.spotLabel;
 
-       // if spotLabel.Tag > 0 then
-          spacingCorrection := 3;
-       // else
-       //   spacingCorrection := 0;
-
-        YPos := longLine+spacingCorrection+UnderFreqDPICorr+(EndYPosDPICorr*(spotCount+spotLabel.Tag));
+        YPos := longLine+UnderFreqDPICorr+(EndYPosDPICorr*(spotCount+spotLabel.Tag));
 
         if bandSwitcher.ItemIndex < 4 then begin
         //LSB items
@@ -1067,10 +1042,10 @@ if CheckSpotListContainsKey(freqValue) then begin
           LineTo(textXPos, YPos+EndYPosDPICorr);
           //Draw dotted line if spot is LoTW or EQSL.cc user
           if (spotLabel.isLotwEqsl) and (settingsForm.cbSpotLotwEqsl.Checked) then begin
-            Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, penWidth, LogBrush, 0, nil);
-            MoveTo(textXPos-spotLabel.Width-2, YPos+EndYPosDPICorr+4);
+            Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, PenWidthDPICorr, LogBrush, 0, nil);
+            MoveTo(textXPos-spotLabel.Width-2, YPos+EndYPosDPICorr+3);
             LineTo(textXPos, YPos+EndYPosDPICorr+3);
-            Pen.Handle := ExtCreatePen(BS_SOLID, penWidth, LogBrush, 0, nil);
+            Pen.Handle := ExtCreatePen(BS_SOLID, PenWidthDPICorr, LogBrush, 0, nil);
           end;
 
           spotLabel.Left := textXPos-spotLabel.Width-textXPosDPICorr;
@@ -1081,10 +1056,10 @@ if CheckSpotListContainsKey(freqValue) then begin
           LineTo(textXPos, YPos+EndYPosDPICorr);
           //Draw dotted line if spot is LoTW or EQSL.cc user
           if (spotLabel.isLotwEqsl) and (settingsForm.cbSpotLotwEqsl.Checked) then begin
-            Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, penWidth, LogBrush, 0, nil);
+            Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, PenWidthDPICorr, LogBrush, 0, nil);
             MoveTo(textXPos, YPos+EndYPosDPICorr+3);
             LineTo(textXPos+spotLabel.Width+2, YPos+EndYPosDPICorr+3);
-            Pen.Handle := ExtCreatePen(BS_SOLID, penWidth, LogBrush, 0, nil);
+            Pen.Handle := ExtCreatePen(BS_SOLID, PenWidthDPICorr, LogBrush, 0, nil);
           end;
 
           spotLabel.Left := textXPos+textXPosDPICorr;
@@ -1095,7 +1070,7 @@ if CheckSpotListContainsKey(freqValue) then begin
         spotLabel.Visible := true;
         inc(spotCount);
       end;
-      Pen.Width := 1;
+      Pen.Width := 1;//restore pen width for next lines of frequency scale markers
       spotBandCount := spotBandCount + spotCount;
     end;
 end;
@@ -1158,6 +1133,18 @@ for i := 0 to spotList.Count-1 do
   end;
 
 End;
+
+procedure TFrequencyVisualForm.ColorizeSpotLabel(spotLabel: TSpotLabel);
+begin
+  if (spotLabel.isInLog) and (settingsForm.cbSpotInLog.Checked) then
+    spotLabel.Font.Color := settingsForm.colBoxSpotInLog.Selected
+  else if (SecondsBetween(now, spotLabel.receiveTime) < 180) and (settingsForm.cbEarlySpot.Checked) then
+    spotLabel.Font.Color := settingsForm.colBoxEarlySpot.Selected
+  else if (spotLabel.spotDE = stationCallsign) and (settingsForm.cbOwnSpotColorize.Checked) then
+    spotLabel.Font.Color := settingsForm.colBoxOwnSpot.Selected
+  else
+    spotLabel.Font.Color := clWhite;
+end;
 
 procedure TFrequencyVisualForm.updateSpotListArray(spotFreq : variant; spotArray : TArray<TSpot>);
 var
@@ -1247,7 +1234,7 @@ while Start <= Length(incomeStr) do begin
         spotLabel.Left := 0;
         spotLabel.Top := 0;
         spotLabel.Caption := spot.DX;
-
+        spotLabel.Font.Color := clWhite;
         spotLabel.Font.Size := 9;
         spotLabel.Hint := spotFreqStr + ' de '+spot.DE+' @'+DateTimeToStr(spot.LocalTime)+' '+spot.Comment;
         spotLabel.ShowHint := false;
@@ -1265,7 +1252,8 @@ while Start <= Length(incomeStr) do begin
           request := TSimpleCallsignRequest.Create(spot.DX, freqText, 'SSB', REQ_IS_IN_LOG);
           requestStr := FillJsonSimpleCallsignRequest(request);
           SendRequestToAALog(requestStr, settingsForm.txtAalAddr.Text, StrToInt(settingsForm.txtAalPort.Text), spotLabel);
-        end;
+        end else
+          ColorizeSpotLabel(spotLabel);
 
         lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
 
@@ -1310,6 +1298,7 @@ while Start <= Length(incomeStr) do begin
         spotLabel.Top := 0;
         spotLabel.Caption := spot.DX;
         spotLabel.Font.Size := 9;
+        spotLabel.Font.Color := clWhite;
         spotLabel.Hint := spotFreqStr + ' de '+spot.DE+' @'+DateTimeToStr(spot.LocalTime)+' '+spot.Comment;
         spotLabel.ShowHint := false;
         spotLabel.Visible := false;
@@ -1326,7 +1315,8 @@ while Start <= Length(incomeStr) do begin
           request := TSimpleCallsignRequest.Create(spot.DX, freqText, 'SSB', REQ_IS_IN_LOG);
           requestStr := FillJsonSimpleCallsignRequest(request);
           SendRequestToAALog(requestStr, settingsForm.txtAalAddr.Text, StrToInt(settingsForm.txtAalPort.Text), spotLabel);
-        end;
+        end else
+          ColorizeSpotLabel(spotLabel);
 
         lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
 
