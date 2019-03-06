@@ -33,6 +33,8 @@ type
     cbSpotInLog: TCheckBox;
     colBoxSpotInLog: TColorBox;
     cbSpotLotwEqsl: TCheckBox;
+    cbEarlySpot: TCheckBox;
+    colBoxEarlySpot: TColorBox;
     procedure btnCloseClick(Sender: TObject);
     procedure txtDXCPortKeyPress(Sender: TObject; var Key: Char);
     procedure btnSaveClick(Sender: TObject);
@@ -76,6 +78,7 @@ try
     WriteInteger('DXCluster', 'MaxSpots', spSpotMaxNumber.Value);
     WriteInteger('DXCluster', 'OwnSpotColor', colBoxOwnSpot.Selected);
     WriteInteger('DXCluster', 'MouseMoveSpotColor', colBoxSpotMouseMove.Selected);
+    WriteInteger('DXCluster', 'EarlySpotColor', colBoxEarlySpot.Selected);
     WriteString('DXCluster', 'DXCHost', txtDXCHost.Text);
     WriteString('DXCluster', 'DXCUsername', txtDXCUsername.Text);
     WriteString('DXCluster', 'StationCallsign', txtStationCallsign.Text);
@@ -87,6 +90,7 @@ try
     WriteBool('DXCluster', 'SpotMouseMoveColorize', cbSpotMouseMoveColorize.Checked);
     WriteBool('DXCluster', 'SpotInLogColorize', cbSpotInLog.Checked);
     WriteBool('DXCluster', 'SpotLotwEqslColorize', cbSpotLotwEqsl.Checked);
+    WriteBool('DXCluster', 'EarlySpotColorize', cbEarlySpot.Checked);
   end;
 
   labSaveInfo.Visible := true;
@@ -143,9 +147,10 @@ try
     cbOwnSpotColorize.Checked := ReadBool('DXCluster', 'OwnSpotColorize', true);
     cbSpotMouseMoveColorize.Checked := ReadBool('DXCluster', 'SpotMouseMoveColorize', true);
     cbAALogIntegrationEnabled.Checked := ReadBool('DXCluster', 'AALogIntegrationEnabled', false);
+    cbEarlySpot.Checked := ReadBool('DXCluster', 'EarlySpotColorize', false);
     colBoxOwnSpot.Selected := ReadInteger('DXCluster', 'OwnSpotColor', clYellow);
     colBoxSpotMouseMove.Selected := ReadInteger('DXCluster', 'MouseMoveSpotColor', clLime);
-
+    colBoxEarlySpot.Selected := ReadInteger('DXCluster', 'EarlySpotColor', clRed);
 
   end;
   FrequencyVisualForm.btnDXCConnect.Hint := txtDXCHost.Text;

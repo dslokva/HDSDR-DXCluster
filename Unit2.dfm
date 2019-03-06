@@ -3,8 +3,8 @@ object settingsForm: TsettingsForm
   Top = 0
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 266
-  ClientWidth = 442
+  ClientHeight = 294
+  ClientWidth = 457
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,7 +18,7 @@ object settingsForm: TsettingsForm
   TextHeight = 13
   object labSaveInfo: TLabel
     Left = 36
-    Top = 245
+    Top = 264
     Width = 149
     Height = 13
     Caption = 'Settings saved succesfully'
@@ -32,7 +32,7 @@ object settingsForm: TsettingsForm
   end
   object btnSave: TButton
     Left = 8
-    Top = 210
+    Top = 226
     Width = 75
     Height = 25
     Caption = 'Save'
@@ -41,7 +41,7 @@ object settingsForm: TsettingsForm
   end
   object btnClose: TButton
     Left = 134
-    Top = 210
+    Top = 226
     Width = 75
     Height = 25
     Caption = 'Close'
@@ -51,7 +51,7 @@ object settingsForm: TsettingsForm
   object GroupBox1: TGroupBox
     Left = 7
     Top = 8
-    Width = 427
+    Width = 442
     Height = 113
     Caption = 'DX Cluster '
     TabOrder = 2
@@ -189,8 +189,8 @@ object settingsForm: TsettingsForm
   object GroupBox2: TGroupBox
     Left = 215
     Top = 127
-    Width = 219
-    Height = 130
+    Width = 234
+    Height = 160
     Caption = 'Spot colors'
     TabOrder = 5
     object cbOwnSpotColorize: TCheckBox
@@ -205,7 +205,7 @@ object settingsForm: TsettingsForm
       OnClick = cbOwnSpotColorizeClick
     end
     object colBoxOwnSpot: TColorBox
-      Left = 112
+      Left = 127
       Top = 15
       Width = 97
       Height = 22
@@ -214,7 +214,7 @@ object settingsForm: TsettingsForm
       TabOrder = 1
     end
     object colBoxSpotMouseMove: TColorBox
-      Left = 112
+      Left = 127
       Top = 45
       Width = 97
       Height = 22
@@ -235,7 +235,7 @@ object settingsForm: TsettingsForm
     end
     object cbSpotInLog: TCheckBox
       Left = 8
-      Top = 75
+      Top = 76
       Width = 98
       Height = 17
       Caption = 'Already in Log:'
@@ -245,8 +245,8 @@ object settingsForm: TsettingsForm
       OnClick = cbSpotInLogClick
     end
     object colBoxSpotInLog: TColorBox
-      Left = 112
-      Top = 73
+      Left = 127
+      Top = 74
       Width = 97
       Height = 22
       Selected = clGray
@@ -255,14 +255,32 @@ object settingsForm: TsettingsForm
     end
     object cbSpotLotwEqsl: TCheckBox
       Left = 8
-      Top = 103
+      Top = 132
       Width = 161
       Height = 17
       Caption = 'Underline if LoTW or EQSL.cc'
       Checked = True
       State = cbChecked
       TabOrder = 6
-      OnClick = cbSpotMouseMoveColorizeClick
+    end
+    object cbEarlySpot: TCheckBox
+      Left = 8
+      Top = 105
+      Width = 113
+      Height = 17
+      Caption = 'Early spot (2 min):'
+      Checked = True
+      State = cbChecked
+      TabOrder = 7
+    end
+    object colBoxEarlySpot: TColorBox
+      Left = 127
+      Top = 103
+      Width = 97
+      Height = 22
+      Selected = clRed
+      Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
+      TabOrder = 8
     end
   end
 end

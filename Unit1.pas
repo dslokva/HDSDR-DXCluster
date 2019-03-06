@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, JSons, uLkJSON, IdURI,
   Vcl.ButtonGroup, Vcl.WinXCtrls, IdBaseComponent, IdComponent, IdTCPConnection, UDPServerJSONObjects,
-  IdTCPClient, IdTelnet, RegExpr, IdGlobal, System.Generics.Collections, IdUDPClient,
+  IdTCPClient, IdTelnet, RegExpr, IdGlobal, System.Generics.Collections, IdUDPClient, DateUtils,
   Vcl.Buttons, inifiles, Vcl.Menus, IdUDPBase, IdUDPServer, IdSocketHandle, Winapi.ShellAPI, AALogClientJSONObjects;
 
 type
@@ -15,7 +15,8 @@ type
       spotDE : string;
       isLotwEqsl : boolean;
       isInLog : boolean;
-      constructor Create(AOwner: TComponent; spotDEStr : string);
+      receiveTime : TDateTime;
+      constructor Create(AOwner: TComponent; spotDEStr : string; receiveTimeOrig : TDateTime);
   end;
 
 type
@@ -187,9 +188,10 @@ begin
 End;
 
 
-constructor TSpotLabel.Create(AOwner: TComponent; spotDEStr : string);
+constructor TSpotLabel.Create(AOwner: TComponent; spotDEStr : string; receiveTimeOrig : TDateTime);
 begin
   spotDE := spotDEStr;
+  receiveTime := receiveTimeOrig;
   inherited Create(AOwner);
 End;
 
@@ -315,14 +317,18 @@ var
 i,j : integer;
 spotHintPoint : TPoint;
 spotLabel : TSpotLabel;
-newHintStr : string;
+spotSecDiff : Integer;
+newHintStr, spotAge : string;
 spotAALogData : TSimpleCallsignAnswer;
 begin
 
 if (spotHintOldX <> X) or (spotHintOldY <> Y) then begin
   spotLabel := TSpotLabel(Sender);
   newHintStr := '';
-  labelSpotHint.Caption := spotLabel.Hint;
+
+  spotSecDiff := SecondsBetween(now, spotLabel.receiveTime);
+  spotAge := Format('%2.2d:%2.2d:%2.2d',[spotSecDiff div SecsPerHour,(spotSecDiff div SecsPerMin) mod SecsPerMin, spotSecDiff mod SecsPerMin]);
+  labelSpotHint.Caption := spotLabel.Hint + #10#13 + 'Spot age: ' + spotAge;
 
   //todo: change aproach to set additional data in spotLabel to aalog answer processing thread
   if not spotLabel.Hint.Contains('From AALog') then
@@ -382,8 +388,10 @@ End;
 
 procedure TFrequencyVisualForm.SpotLabelMouseEnter(Sender: TObject);
 begin
-if (settingsForm.cbOwnSpotColorize.Checked) then
-  TSpotLabel(Sender).Font.Color := settingsForm.colBoxSpotMouseMove.Selected;
+//if (settingsForm.cbOwnSpotColorize.Checked) then
+//  TSpotLabel(Sender).Font.Color := settingsForm.colBoxSpotMouseMove.Selected;
+
+
 End;
 
 procedure TFrequencyVisualForm.SpotLabelMouseLeave(Sender: TObject);
@@ -392,12 +400,14 @@ spotLabel : TSpotLabel;
 
 begin
 spotLabel := TSpotLabel(Sender);
-//own spot has more power that in log (because in some time anyone can spot he again and label will have gray color
-if (spotLabel.spotDE = stationCallsign) and (settingsForm.cbOwnSpotColorize.Checked) then
-  spotLabel.Font.Color := settingsForm.colBoxOwnSpot.Selected
-else if (spotLabel.isInLog) and (settingsForm.cbSpotInLog.Checked) then
-  spotLabel.Font.Color := settingsForm.colBoxSpotInLog.Selected
-else spotLabel.Font.Color := clWhite;
+
+  if (spotLabel.isInLog) and (settingsForm.cbSpotInLog.Checked) then
+    spotLabel.Font.Color := settingsForm.colBoxSpotInLog.Selected
+  else if (SecondsBetween(now, spotLabel.receiveTime) < 180) and (settingsForm.cbEarlySpot.Checked) then
+    spotLabel.Font.Color := settingsForm.colBoxEarlySpot.Selected
+  else if (spotLabel.spotDE = stationCallsign) and (settingsForm.cbOwnSpotColorize.Checked) then
+    spotLabel.Font.Color := settingsForm.colBoxOwnSpot.Selected
+  else spotLabel.Font.Color := clWhite;
 
 labelSpotHint.Visible := false;
 End;
@@ -594,12 +604,14 @@ try
     IdUDPClient.Host := UDPSrvHost;
     IdUDPClient.Port := UDPSrvPort;
     IdUDPClient.Active := True;
-    IdUDPClient.ReceiveTimeout := 3000; //может уменьшить?
+    IdUDPClient.ReceiveTimeout := 5000; //может уменьшить?
     IdUDPClient.Connect;
     if IdUDPClient.Connected then begin
+      randomize();
+      sleep(random(200));
       IdUDPClient.Send(UDPRequestStr, IndyTextEncoding(encUTF8));
       answerStr := IdUDPClient.ReceiveString(IdTimeoutDefault, IndyTextEncoding(encOSDefault));
-      DebugOutput(answerStr);
+      //DebugOutput(answerStr);
     end;
   except
     on E: Exception do
@@ -659,10 +671,12 @@ begin
   if presentInLog = '1' then
     spotLabel.isInLog := true;
 
-  if (spotLabel.spotDE = stationCallsign) and (settingsForm.cbOwnSpotColorize.Checked) then
-    spotLabel.Font.Color := settingsForm.colBoxOwnSpot.Selected
-  else if (spotLabel.isInLog) and (settingsForm.cbSpotInLog.Checked) then
+  if (spotLabel.isInLog) and (settingsForm.cbSpotInLog.Checked) then
     spotLabel.Font.Color := settingsForm.colBoxSpotInLog.Selected
+  else if (SecondsBetween(now, spotLabel.receiveTime) < 180) and (settingsForm.cbEarlySpot.Checked) then
+    spotLabel.Font.Color := settingsForm.colBoxEarlySpot.Selected
+  else if (spotLabel.spotDE = stationCallsign) and (settingsForm.cbOwnSpotColorize.Checked) then
+    spotLabel.Font.Color := settingsForm.colBoxOwnSpot.Selected
   else spotLabel.Font.Color := clWhite;
 
   if not(callsingDataFromAALog.ContainsKey(callsign)) then
@@ -1011,7 +1025,7 @@ procedure TFrequencyVisualForm.AddFrequencyPosition(textXPos : integer; freqValu
 var
 spotArray : TArray<TSpot>;
 spot : TSpot;
-spotCount, YPos, spacingCorrection : integer;
+penWidth, spotCount, YPos, spacingCorrection : integer;
 spotLabel : TSpotLabel;
 LogBrush: TLogBrush;
 
@@ -1025,8 +1039,13 @@ if CheckSpotListContainsKey(freqValue) then begin
       Font.Size := freqMarkerFontSize;
       Font.Color := clWhite;
       spotCount := 0;
-      if cbHiRes.Checked then Pen.Width := 2
-      else Pen.Width := 1;
+      if cbHiRes.Checked then begin
+        Pen.Width := 2;
+        penWidth := 2;
+      end else begin
+        Pen.Width := 1;
+        penWidth := 1;
+      end;
 
        LogBrush.lbStyle := BS_SOLID;
        LogBrush.lbColor := clWhite;
@@ -1035,10 +1054,10 @@ if CheckSpotListContainsKey(freqValue) then begin
       for spot in spotArray do begin
         spotLabel := spot.spotLabel;
 
-        if spotLabel.Tag >= 1 then
-          spacingCorrection := 6
-        else
-          spacingCorrection := 0;
+       // if spotLabel.Tag > 0 then
+          spacingCorrection := 3;
+       // else
+       //   spacingCorrection := 0;
 
         YPos := longLine+spacingCorrection+UnderFreqDPICorr+(EndYPosDPICorr*(spotCount+spotLabel.Tag));
 
@@ -1048,10 +1067,10 @@ if CheckSpotListContainsKey(freqValue) then begin
           LineTo(textXPos, YPos+EndYPosDPICorr);
           //Draw dotted line if spot is LoTW or EQSL.cc user
           if (spotLabel.isLotwEqsl) and (settingsForm.cbSpotLotwEqsl.Checked) then begin
-            Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DASHDOT, 3, LogBrush, 0, nil);
-            MoveTo(textXPos-spotLabel.Width-2, spotLabel.Top+EndYPosDPICorr+4);
-            LineTo(textXPos, spotLabel.Top+EndYPosDPICorr+4);
-            Pen.Handle := ExtCreatePen(PS_SOLID, 1, LogBrush, 0, nil);
+            Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, penWidth, LogBrush, 0, nil);
+            MoveTo(textXPos-spotLabel.Width-2, YPos+EndYPosDPICorr+4);
+            LineTo(textXPos, YPos+EndYPosDPICorr+3);
+            Pen.Handle := ExtCreatePen(BS_SOLID, penWidth, LogBrush, 0, nil);
           end;
 
           spotLabel.Left := textXPos-spotLabel.Width-textXPosDPICorr;
@@ -1062,10 +1081,10 @@ if CheckSpotListContainsKey(freqValue) then begin
           LineTo(textXPos, YPos+EndYPosDPICorr);
           //Draw dotted line if spot is LoTW or EQSL.cc user
           if (spotLabel.isLotwEqsl) and (settingsForm.cbSpotLotwEqsl.Checked) then begin
-            Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DASHDOT, 3, LogBrush, 0, nil);
-            MoveTo(textXPos, spotLabel.Top+EndYPosDPICorr+4);
-            LineTo(textXPos+spotLabel.Width+3, spotLabel.Top+EndYPosDPICorr+4);
-            Pen.Handle := ExtCreatePen(PS_SOLID, 1, LogBrush, 0, nil);
+            Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, penWidth, LogBrush, 0, nil);
+            MoveTo(textXPos, YPos+EndYPosDPICorr+3);
+            LineTo(textXPos+spotLabel.Width+2, YPos+EndYPosDPICorr+3);
+            Pen.Handle := ExtCreatePen(BS_SOLID, penWidth, LogBrush, 0, nil);
           end;
 
           spotLabel.Left := textXPos+textXPosDPICorr;
@@ -1154,13 +1173,13 @@ end;
 
 procedure TFrequencyVisualForm.Viewonqrzcom1Click(Sender: TObject);
 begin
-ShellExecute(self.WindowHandle,'open',PChar('https://www.qrz.com/lookup/'+TSpotLabel(spotLabelMenu.PopupComponent).Caption),nil,nil, SW_SHOWNORMAL);
+ShellExecute(self.WindowHandle, 'open', PChar('https://www.qrz.com/lookup/'+TSpotLabel(spotLabelMenu.PopupComponent).Caption), nil, nil, SW_SHOWNORMAL);
 
 End;
 
 procedure TFrequencyVisualForm.Viewonqrzru1Click(Sender: TObject);
 begin
-ShellExecute(self.WindowHandle,'open',PChar('https://www.qrz.ru/db/'+TSpotLabel(spotLabelMenu.PopupComponent).Caption),nil,nil, SW_SHOWNORMAL);
+ShellExecute(self.WindowHandle, 'open', PChar('https://www.qrz.ru/db/'+TSpotLabel(spotLabelMenu.PopupComponent).Caption), nil, nil, SW_SHOWNORMAL);
 
 End;
 
@@ -1223,17 +1242,13 @@ while Start <= Length(incomeStr) do begin
         spot.UTCTime := date+EncodeTime(StrToInt(hh),StrToInt(mm),00,000);
         spot.LocalTime := LocalDateTimeFromUTCDateTime(spot.UTCTime);
 
-        spotLabel := TSpotLabel.Create(Panel5, spot.DE);
+        spotLabel := TSpotLabel.Create(Panel5, spot.DE, spot.LocalTime);
         spotLabel.Parent := Panel5;
         spotLabel.Left := 0;
         spotLabel.Top := 0;
         spotLabel.Caption := spot.DX;
 
         spotLabel.Font.Size := 9;
-        if spot.DE = stationCallsign then
-          spotLabel.Font.Color := clYellow
-        else spotLabel.Font.Color := clWhite;
-
         spotLabel.Hint := spotFreqStr + ' de '+spot.DE+' @'+DateTimeToStr(spot.LocalTime)+' '+spot.Comment;
         spotLabel.ShowHint := false;
         spotLabel.Visible := false;
@@ -1289,17 +1304,12 @@ while Start <= Length(incomeStr) do begin
         spot.UTCTime := date+EncodeTime(StrToInt(hh),StrToInt(mm),00,000);
         spot.LocalTime := LocalDateTimeFromUTCDateTime(spot.UTCTime);
 
-        spotLabel := TSpotLabel.Create(Panel5, spot.DE);
+        spotLabel := TSpotLabel.Create(Panel5, spot.DE, spot.LocalTime);
         spotLabel.Parent := Panel5;
         spotLabel.Left := 0;
         spotLabel.Top := 0;
         spotLabel.Caption := spot.DX;
         spotLabel.Font.Size := 9;
-
-        if spot.DE = stationCallsign then
-          spotLabel.Font.Color := clYellow
-        else spotLabel.Font.Color := clWhite;
-
         spotLabel.Hint := spotFreqStr + ' de '+spot.DE+' @'+DateTimeToStr(spot.LocalTime)+' '+spot.Comment;
         spotLabel.ShowHint := false;
         spotLabel.Visible := false;
@@ -1317,6 +1327,7 @@ while Start <= Length(incomeStr) do begin
           requestStr := FillJsonSimpleCallsignRequest(request);
           SendRequestToAALog(requestStr, settingsForm.txtAalAddr.Text, StrToInt(settingsForm.txtAalPort.Text), spotLabel);
         end;
+
         lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
 
         if CheckSpotListContainsKey(spot.Freq) then begin
