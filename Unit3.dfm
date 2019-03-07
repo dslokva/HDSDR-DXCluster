@@ -232,7 +232,7 @@ object dxcViewForm: TdxcViewForm
       Align = alBottom
       TabOrder = 1
       object Button3: TButton
-        Left = 89
+        Left = 170
         Top = 6
         Width = 75
         Height = 25
@@ -241,7 +241,7 @@ object dxcViewForm: TdxcViewForm
         OnClick = Button3Click
       end
       object Button2: TButton
-        Left = 8
+        Left = 89
         Top = 6
         Width = 75
         Height = 25
@@ -266,6 +266,15 @@ object dxcViewForm: TdxcViewForm
           TabOrder = 0
           OnClick = btnRefreshClick
         end
+      end
+      object Button4: TButton
+        Left = 8
+        Top = 6
+        Width = 75
+        Height = 25
+        Caption = 'SH/DX 150'
+        TabOrder = 3
+        OnClick = Button4Click
       end
     end
     object Panel6: TPanel

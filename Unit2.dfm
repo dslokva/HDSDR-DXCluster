@@ -3,7 +3,7 @@ object settingsForm: TsettingsForm
   Top = 0
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 294
+  ClientHeight = 322
   ClientWidth = 457
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,12 +16,26 @@ object settingsForm: TsettingsForm
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
-  object labSaveInfo: TLabel
-    Left = 36
-    Top = 273
-    Width = 149
+  object Label1: TLabel
+    Left = 8
+    Top = 213
+    Width = 81
+    Height = 11
+    Caption = 'Freq panel color:'
+  end
+  object Label5: TLabel
+    Left = 9
+    Top = 270
+    Width = 200
     Height = 13
-    Caption = 'Settings saved succesfully'
+    Caption = '--------------------------------------------------'
+  end
+  object labSaveInfo: TLabel
+    Left = 101
+    Top = 294
+    Width = 15
+    Height = 13
+    Caption = 'OK'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clGreen
     Font.Height = -11
@@ -29,17 +43,11 @@ object settingsForm: TsettingsForm
     Font.Style = [fsBold]
     ParentFont = False
     Visible = False
-  end
-  object Label1: TLabel
-    Left = 8
-    Top = 215
-    Width = 102
-    Height = 13
-    Caption = 'Frequency pan color:'
+    WordWrap = True
   end
   object btnSave: TButton
     Left = 8
-    Top = 242
+    Top = 289
     Width = 75
     Height = 25
     Caption = 'Save'
@@ -48,7 +56,7 @@ object settingsForm: TsettingsForm
   end
   object btnClose: TButton
     Left = 134
-    Top = 242
+    Top = 289
     Width = 75
     Height = 25
     Caption = 'Close'
@@ -56,7 +64,7 @@ object settingsForm: TsettingsForm
     OnClick = btnCloseClick
   end
   object GroupBox1: TGroupBox
-    Left = 7
+    Left = 8
     Top = 7
     Width = 442
     Height = 113
@@ -124,7 +132,7 @@ object settingsForm: TsettingsForm
       Text = 'UN7ZAF'
     end
     object spSpotMaxNumber: TSpinEdit
-      Left = 251
+      Left = 249
       Top = 78
       Width = 47
       Height = 22
@@ -132,7 +140,7 @@ object settingsForm: TsettingsForm
       MaxValue = 400
       MinValue = 50
       TabOrder = 4
-      Value = 50
+      Value = 120
       OnChange = spSpotMaxNumberChange
     end
     object txtDXCHost: TComboBox
@@ -197,9 +205,16 @@ object settingsForm: TsettingsForm
     Left = 215
     Top = 127
     Width = 234
-    Height = 160
+    Height = 186
     Caption = 'Spot colors'
     TabOrder = 5
+    object Label4: TLabel
+      Left = 9
+      Top = 107
+      Width = 216
+      Height = 13
+      Caption = '--------------------AALog data--------------------'
+    end
     object cbOwnSpotColorize: TCheckBox
       Left = 8
       Top = 17
@@ -242,7 +257,7 @@ object settingsForm: TsettingsForm
     end
     object cbSpotInLog: TCheckBox
       Left = 8
-      Top = 76
+      Top = 130
       Width = 98
       Height = 17
       Caption = 'Already in Log:'
@@ -253,7 +268,7 @@ object settingsForm: TsettingsForm
     end
     object colBoxSpotInLog: TColorBox
       Left = 127
-      Top = 74
+      Top = 128
       Width = 97
       Height = 22
       Selected = clGray
@@ -262,7 +277,7 @@ object settingsForm: TsettingsForm
     end
     object cbSpotLotwEqsl: TCheckBox
       Left = 8
-      Top = 132
+      Top = 156
       Width = 161
       Height = 17
       Caption = 'Underline if LoTW or EQSL.cc'
@@ -272,7 +287,7 @@ object settingsForm: TsettingsForm
     end
     object cbEarlySpot: TCheckBox
       Left = 8
-      Top = 105
+      Top = 75
       Width = 113
       Height = 17
       Caption = 'Early spot (2 min):'
@@ -282,7 +297,7 @@ object settingsForm: TsettingsForm
     end
     object colBoxEarlySpot: TColorBox
       Left = 127
-      Top = 103
+      Top = 73
       Width = 97
       Height = 22
       Selected = clRed
@@ -291,13 +306,58 @@ object settingsForm: TsettingsForm
     end
   end
   object colBoxMainFreqPanel: TColorBox
-    Left = 116
+    Left = 95
     Top = 210
-    Width = 93
+    Width = 114
     Height = 22
     Selected = 4659989
     Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
     TabOrder = 6
     OnChange = colBoxMainFreqPanelChange
+  end
+  object btnDefaultFreqPanColor: TButton
+    Left = 176
+    Top = 240
+    Width = 35
+    Height = 20
+    Caption = 'Def'
+    TabOrder = 7
+    OnClick = btnDefaultFreqPanColorClick
+  end
+  object btnGreennyFreqPanColor: TButton
+    Left = 8
+    Top = 240
+    Width = 35
+    Height = 20
+    Caption = 'Grn'
+    TabOrder = 8
+    OnClick = btnGreennyFreqPanColorClick
+  end
+  object Button1: TButton
+    Left = 50
+    Top = 240
+    Width = 35
+    Height = 20
+    Caption = 'Gre'
+    TabOrder = 9
+    OnClick = Button1Click
+  end
+  object Button2: TButton
+    Left = 92
+    Top = 240
+    Width = 35
+    Height = 20
+    Caption = 'Blk'
+    TabOrder = 10
+    OnClick = Button2Click
+  end
+  object Button3: TButton
+    Left = 134
+    Top = 240
+    Width = 35
+    Height = 20
+    Caption = 'Grn'
+    TabOrder = 11
+    OnClick = Button3Click
   end
 end

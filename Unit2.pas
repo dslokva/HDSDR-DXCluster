@@ -15,7 +15,6 @@ type
     txtDXCUsername: TLabeledEdit;
     txtDXCPort: TLabeledEdit;
     chkDXCAutoConnect: TCheckBox;
-    labSaveInfo: TLabel;
     txtStationCallsign: TLabeledEdit;
     Label2: TLabel;
     spSpotMaxNumber: TSpinEdit;
@@ -37,6 +36,14 @@ type
     colBoxEarlySpot: TColorBox;
     colBoxMainFreqPanel: TColorBox;
     Label1: TLabel;
+    Label4: TLabel;
+    btnDefaultFreqPanColor: TButton;
+    btnGreennyFreqPanColor: TButton;
+    Label5: TLabel;
+    labSaveInfo: TLabel;
+    Button1: TButton;
+    Button2: TButton;
+    Button3: TButton;
     procedure btnCloseClick(Sender: TObject);
     procedure txtDXCPortKeyPress(Sender: TObject; var Key: Char);
     procedure btnSaveClick(Sender: TObject);
@@ -47,6 +54,11 @@ type
     procedure cbSpotMouseMoveColorizeClick(Sender: TObject);
     procedure cbSpotInLogClick(Sender: TObject);
     procedure colBoxMainFreqPanelChange(Sender: TObject);
+    procedure btnDefaultFreqPanColorClick(Sender: TObject);
+    procedure btnGreennyFreqPanColorClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -68,6 +80,18 @@ procedure TsettingsForm.btnCloseClick(Sender: TObject);
 begin
 settingsForm.Close;
 End;
+
+procedure TsettingsForm.btnDefaultFreqPanColorClick(Sender: TObject);
+begin
+colBoxMainFreqPanel.Selected := $00471B15;
+colBoxMainFreqPanelChange(self);
+end;
+
+procedure TsettingsForm.btnGreennyFreqPanColorClick(Sender: TObject);
+begin
+colBoxMainFreqPanel.Selected := $00404000;
+colBoxMainFreqPanelChange(self);
+end;
 
 procedure TsettingsForm.btnSaveClick(Sender: TObject);
 var
@@ -110,6 +134,24 @@ finally
 end;
 
 End;
+
+procedure TsettingsForm.Button1Click(Sender: TObject);
+begin
+colBoxMainFreqPanel.Selected := $004F4F4F;
+colBoxMainFreqPanelChange(self);
+end;
+
+procedure TsettingsForm.Button2Click(Sender: TObject);
+begin
+colBoxMainFreqPanel.Selected := $00000000;
+colBoxMainFreqPanelChange(self);
+end;
+
+procedure TsettingsForm.Button3Click(Sender: TObject);
+begin
+colBoxMainFreqPanel.Selected := $00404000;
+colBoxMainFreqPanelChange(self);
+end;
 
 procedure TsettingsForm.cbAALogIntegrationEnabledClick(Sender: TObject);
 begin
@@ -161,6 +203,7 @@ try
     colBoxSpotMouseMove.Selected := ReadInteger('DXCluster', 'MouseMoveSpotColor', clLime);
     colBoxEarlySpot.Selected := ReadInteger('DXCluster', 'EarlySpotColor', clRed);
     colBoxMainFreqPanel.Selected := ReadInteger('DXCluster', 'MainFreqPanColor', $00471B15);
+    colBoxMainFreqPanelChange(self);
   end;
   FrequencyVisualForm.btnDXCConnect.Hint := txtDXCHost.Text;
   FrequencyVisualForm.stationCallsign := trim(txtStationCallsign.Text);

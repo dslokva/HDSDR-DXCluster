@@ -58,6 +58,7 @@ type
     Viewonqrzcom1: TMenuItem;
     Viewonqrzru1: TMenuItem;
     labelSpotHint: TLabel;
+    refreshTimer: TTimer;
     procedure Button1Click(Sender: TObject);
     procedure frequencyPaintBoxDblClick(Sender: TObject);
     procedure frequencyPaintBoxPaint(Sender: TObject);
@@ -96,6 +97,7 @@ type
     procedure CreateParams(var Params: TCreateParams); override;
     procedure Viewonqrzcom1Click(Sender: TObject);
     procedure Viewonqrzru1Click(Sender: TObject);
+    procedure refreshTimerTimer(Sender: TObject);
   private
     procedure SpotLabelMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
@@ -114,6 +116,7 @@ type
     procedure UpdateCallsignDetailsTable(answerData : TlkJSONobject; spotLabel : TSpotLabel);
     procedure MyShowHint(var HintStr: string; var CanShow: Boolean; var HintInfo: THintInfo);
     procedure ColorizeSpotLabel(spotLabel: TSpotLabel);
+    procedure ReColorizeAllLabels();
     { Private declarations }
 
   public
@@ -331,7 +334,13 @@ if (spotHintOldX <> X) or (spotHintOldY <> Y) then begin
       spotLabel.Hint := newHintStr;
       labelSpotHint.Caption := newHintStr;
       labelSpotHint.Width := labelSpotHint.Width + 3;
+    end else begin
+      newHintStr := spotLabel.Hint + #10#13 + 'Spot age: ' + spotAge;
+      labelSpotHint.Caption := newHintStr;
+      labelSpotHint.Width := labelSpotHint.Width + 3;
     end;
+
+
 
   spotHintPoint := TPoint.Create(spotLabel.Left+X, spotLabel.Top+Y);
   spotHintOldX := X;
@@ -400,7 +409,7 @@ if cbHiRes.Checked then begin
   StartYPosDPICorr := 4;
   EndYPosDPICorr := 25;
   UnderFreqDPICorr := 28;
-  PenWidthDPICorr := 2;
+  PenWidthDPICorr := 3;
 end else begin
   spaceAdjustValue := 75;
   longLine := 24;
@@ -484,7 +493,7 @@ begin
   StartYPosDPICorr := 4;
   EndYPosDPICorr := 25;
   UnderFreqDPICorr := 28;
-  PenWidthDPICorr := 2;
+  PenWidthDPICorr := 3;
 boxWidth := frequencyPaintBox.ClientWidth-40;
 RefreshLineSpacer();
 freqAddKhz := 0.5;
@@ -874,6 +883,11 @@ case bandSwitcher.ItemIndex of
 end;
 End;
 
+procedure TFrequencyVisualForm.refreshTimerTimer(Sender: TObject);
+begin
+ReColorizeAllLabels();
+End;
+
 procedure DeleteElement(var anArray:TArray<TSpot>; const aPosition:integer);
 var
    lg, j : integer;
@@ -1011,7 +1025,7 @@ if CheckSpotListContainsKey(freqValue) then begin
       Font.Size := freqMarkerFontSize;
       Font.Color := clWhite;
       spotCount := 0;
-
+      Pen.Color := clWhite;
       Pen.Width := PenWidthDPICorr;
       LogBrush.lbStyle := BS_SOLID;
       LogBrush.lbColor := clWhite;
@@ -1056,6 +1070,7 @@ if CheckSpotListContainsKey(freqValue) then begin
         spotLabel.Visible := true;
         inc(spotCount);
       end;
+      Pen.Color := clWhite;
       Pen.Width := 1;//restore pen width for next lines of frequency scale markers
       spotBandCount := spotBandCount + spotCount;
     end;
@@ -1120,6 +1135,20 @@ for i := 0 to spotList.Count-1 do
 
 End;
 
+procedure TFrequencyVisualForm.ReColorizeAllLabels();
+var
+j, i : integer;
+spotArray : TArray<TSpot>;
+
+begin
+for j := 0 to spotList.Count-1 do begin
+  spotArray := spotList.Items[j].Value;
+  for i := low(spotArray) to high(spotArray) do
+     ColorizeSpotLabel(spotArray[i].spotLabel);
+end;
+//todo: destroy all only when band changed, change visibility only for one band
+End;
+
 procedure TFrequencyVisualForm.ColorizeSpotLabel(spotLabel: TSpotLabel);
 begin
   if (spotLabel.isInLog) and (settingsForm.cbSpotInLog.Checked) then
@@ -1155,6 +1184,19 @@ begin
 ShellExecute(self.WindowHandle, 'open', PChar('https://www.qrz.ru/db/'+TSpotLabel(spotLabelMenu.PopupComponent).Caption), nil, nil, SW_SHOWNORMAL);
 
 End;
+
+function SystemTimeToUTC(Sys : TDateTime):TDateTime;
+var TimeZoneInf : _TIME_ZONE_INFORMATION;
+    SysTime,LocalTime: TSystemTime;
+begin
+  if GetTimeZoneInformation(TimeZoneInf) < $FFFFFFFF then
+  begin
+    DatetimetoSystemTime(Sys, SysTime);
+    if TzSpecificLocalTimeToSystemTime(@TimeZoneInf,SysTime,LocalTime) then
+      result:=SystemTimeToDateTime(LocalTime)
+    else result:=Sys;
+  end else result:=Sys;
+end;
 
 procedure TFrequencyVisualForm.IdTelnet1DataAvailable(Sender: TIdTelnet;
   const Buffer: TIdBytes);
@@ -1212,7 +1254,7 @@ while Start <= Length(incomeStr) do begin
 
         hh := Copy(regExp.Match[5],1,2);
         mm := Copy(regExp.Match[5],3,2);
-        spot.UTCTime := date+EncodeTime(StrToInt(hh),StrToInt(mm),00,000);
+        spot.UTCTime := DateOf(SystemTimeToUTC(Now)) + EncodeTime(StrToInt(hh),StrToInt(mm),00,000);
         spot.LocalTime := LocalDateTimeFromUTCDateTime(spot.UTCTime);
 
         spotLabel := TSpotLabel.Create(Panel5, spot.DE, spot.LocalTime);
@@ -1275,7 +1317,7 @@ while Start <= Length(incomeStr) do begin
 
         hh := Copy(regExp.Match[3],1,2);
         mm := Copy(regExp.Match[3],3,2);
-        spot.UTCTime := date+EncodeTime(StrToInt(hh),StrToInt(mm),00,000);
+        spot.UTCTime := DateOf(SystemTimeToUTC(Now)) + EncodeTime(StrToInt(hh),StrToInt(mm),00,000);
         spot.LocalTime := LocalDateTimeFromUTCDateTime(spot.UTCTime);
 
         spotLabel := TSpotLabel.Create(Panel5, spot.DE, spot.LocalTime);

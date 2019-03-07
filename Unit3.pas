@@ -37,6 +37,7 @@ type
     lbSpotCount: TLabel;
     cb60m: TCheckBox;
     cb4m: TCheckBox;
+    Button4: TButton;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -45,6 +46,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure dxcMainTableDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
+    procedure Button4Click(Sender: TObject);
   private
     procedure ClearDXCMainTable;
     { Private declarations }
@@ -246,6 +248,12 @@ begin
 if FrequencyVisualForm.IdTelnet1.Connected then
   FrequencyVisualForm.IdTelnet1.SendString('SH/DX 50'+CR);
 End;
+
+procedure TdxcViewForm.Button4Click(Sender: TObject);
+begin
+if FrequencyVisualForm.IdTelnet1.Connected then
+  FrequencyVisualForm.IdTelnet1.SendString('SH/DX 150'+CR);
+end;
 
 procedure TdxcViewForm.FormClose(Sender: TObject; var Action: TCloseAction);
 var

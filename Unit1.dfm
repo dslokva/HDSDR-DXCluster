@@ -353,4 +353,10 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnClick = Viewonqrzru1Click
     end
   end
+  object refreshTimer: TTimer
+    Interval = 60000
+    OnTimer = refreshTimerTimer
+    Left = 80
+    Top = 16
+  end
 end
