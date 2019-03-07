@@ -354,7 +354,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
     end
   end
   object refreshTimer: TTimer
-    Interval = 60000
+    Interval = 50000
     OnTimer = refreshTimerTimer
     Left = 80
     Top = 16

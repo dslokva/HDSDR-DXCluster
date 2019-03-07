@@ -20,7 +20,7 @@ object settingsForm: TsettingsForm
     Left = 8
     Top = 213
     Width = 81
-    Height = 11
+    Height = 13
     Caption = 'Freq panel color:'
   end
   object Label5: TLabel
@@ -249,7 +249,7 @@ object settingsForm: TsettingsForm
       Top = 47
       Width = 82
       Height = 17
-      Caption = 'MouseMove:'
+      Caption = 'Mouse move:'
       Checked = True
       State = cbChecked
       TabOrder = 3

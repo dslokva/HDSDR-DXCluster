@@ -588,7 +588,7 @@ try
     IdUDPClient.Host := UDPSrvHost;
     IdUDPClient.Port := UDPSrvPort;
     IdUDPClient.Active := True;
-    IdUDPClient.ReceiveTimeout := 5000; //может уменьшить?
+    IdUDPClient.ReceiveTimeout := 7000;
     IdUDPClient.Connect;
     if IdUDPClient.Connected then begin
       randomize();
@@ -1052,6 +1052,8 @@ if CheckSpotListContainsKey(freqValue) then begin
 //          TextOut(textXPos-TextWidth(spot.DX)-6, YPos, spot.DX);
         end else begin
         //USB items
+          Pen.Width := PenWidthDPICorr;
+          Pen.Color := clWhite;
           MoveTo(textXPos, YPos+StartYPosDPICorr);
           LineTo(textXPos, YPos+EndYPosDPICorr);
           //Draw dotted line if spot is LoTW or EQSL.cc user
