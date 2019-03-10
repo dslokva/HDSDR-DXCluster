@@ -158,6 +158,10 @@ begin
 gbAALogIntegration.Enabled := cbAALogIntegrationEnabled.Checked;
 txtAalAddr.Enabled := cbAALogIntegrationEnabled.Checked;
 txtAalPort.Enabled := cbAALogIntegrationEnabled.Checked;
+Label4.Enabled := cbAALogIntegrationEnabled.Checked;
+cbSpotInLog.Enabled := cbAALogIntegrationEnabled.Checked;
+cbSpotLotwEqsl.Enabled := cbAALogIntegrationEnabled.Checked;
+colBoxSpotInLog.Enabled := cbAALogIntegrationEnabled.Checked;
 End;
 
 procedure TsettingsForm.cbOwnSpotColorizeClick(Sender: TObject);
@@ -210,7 +214,7 @@ try
   maxSpotsNumber := spSpotMaxNumber.Value;
   if chkDXCAutoConnect.Checked then
     FrequencyVisualForm.btnDXCConnect.OnClick(self);
-
+  cbAALogIntegrationEnabledClick(self);
 finally
   iniFile.Free;
 end;

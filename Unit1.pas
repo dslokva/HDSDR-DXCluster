@@ -109,7 +109,7 @@ type
     procedure RefreshLineSpacer();
     procedure AddFrequencyPosition(textXPos : integer; freqValue : variant);
     procedure AllowDrag;
-    procedure SpotLabelMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure SpotLabelMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure SpotLabelMouseEnter(Sender: TObject);
     procedure SpotLabelMouseLeave(Sender: TObject);
     procedure SpotLabelContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
@@ -318,13 +318,16 @@ i,j : integer;
 spotHintPoint : TPoint;
 spotLabel : TSpotLabel;
 spotSecDiff : Integer;
-newHintStr, spotAge : string;
+newHintStr, spotAge, spotHold : string;
 spotAALogData : TSimpleCallsignAnswer;
 begin
 
 if (spotHintOldX <> X) or (spotHintOldY <> Y) then begin
   spotLabel := TSpotLabel(Sender);
   newHintStr := '';
+  spotHold := '';
+  if spotLabel.onHold then
+    spotHold := #10#13 + '---holded---';
 
   spotSecDiff := SecondsBetween(now, spotLabel.receiveTime);
   spotAge := Format('%2.2d:%2.2d:%2.2d',[spotSecDiff div SecsPerHour,(spotSecDiff div SecsPerMin) mod SecsPerMin, spotSecDiff mod SecsPerMin]);
@@ -335,7 +338,7 @@ if (spotHintOldX <> X) or (spotHintOldY <> Y) then begin
     if (callsingDataFromAALog.ContainsKey(spotLabel.Caption)) then begin
       spotAALogData := callsingDataFromAALog.Items[spotLabel.Caption];
 
-      newHintStr := spotLabel.Hint + #10#13 + 'Spot age: ' + spotAge + #13#13 + 'From AALog: ' + #13;
+      newHintStr := spotLabel.Hint + #10#13 + 'Spot age: ' + spotAge + spotHold + #13#13 + 'From AALog: ' + #13;
 
       if (spotAALogData.hamName <> '') then
         newHintStr := newHintStr + 'Name: ' + (spotAALogData.hamName) + #13;
@@ -348,7 +351,7 @@ if (spotHintOldX <> X) or (spotHintOldY <> Y) then begin
       labelSpotHint.Caption := newHintStr;
       labelSpotHint.Width := labelSpotHint.Width + 3;
     end else begin
-      newHintStr := spotLabel.Hint + #10#13 + 'Spot age: ' + spotAge;
+      newHintStr := spotLabel.Hint + #10#13 + 'Spot age: ' + spotAge + spotHold;
       labelSpotHint.Caption := newHintStr;
       labelSpotHint.Width := labelSpotHint.Width + 3;
     end;
@@ -368,13 +371,17 @@ end;
 
 End;
 
-procedure TFrequencyVisualForm.SpotLabelMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TFrequencyVisualForm.SpotLabelMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+spotLabel : TSpotLabel;
+
 begin
 //Tag value is used for vertical alignment of spotLabels
+spotLabel := TSpotLabel(Sender);
 
 if Button = mbLeft then begin
-  if ssAlt in Shift then
-    RemoveSelectedSpot(TSpotLabel(Sender).Caption);
+  if (ssAlt in Shift) and (spotLabel.onHold = false) then
+    RemoveSelectedSpot(spotLabel.Caption);
   if ssShift in Shift then
     TLabel(Sender).Tag := TLabel(Sender).Tag + 1
   else begin
@@ -864,6 +871,7 @@ End;
 
 procedure TFrequencyVisualForm.btnSpotClearAllClick(Sender: TObject);
 begin
+//todo: onHold labels processing
 DestroyAllLabels();
 spotList.Clear;
 callsingDataFromAALog.Clear;
@@ -943,22 +951,30 @@ var
 j, i : integer;
 key : variant;
 spotArray : TArray<TSpot>;
+spotLabel : TSpotLabel;
+labelHolded : boolean;
 
 begin
 refreshSelectedBandEdges();
 //will remove all labels for selected band
-for j := 0 to spotList.Count-1 do begin
+for j := spotList.Count-1 downto 0 do begin
   key := spotList.Items[j].Key;
   if (key >= freqBandStart) and (key <= freqBandEnd) then begin
     spotArray := spotList.Items[j].Value;
-    for i := low(spotArray) to high(spotArray) do
-      spotArray[i].spotLabel.Destroy;
-    spotList.Delete(j);
+    labelHolded := false;
+    for i := low(spotArray) to high(spotArray) do begin
+      if spotArray[i].spotLabel.onHold then
+        labelHolded := true
+      else
+        spotArray[i].spotLabel.Destroy;
+    end;
+    //if any label on freq is onHold then don't touch the spot marker
+    if not labelHolded then
+      spotList.Delete(j);
   end;
 end;
 
 spotBandCount := 0;
-
 HideAllLabels(true);
 RepaintFrequencySpan();
 End;
@@ -1198,26 +1214,39 @@ End;
 
 procedure TFrequencyVisualForm.deleteFirstSpot();
 var
-i : integer;
+nextSpotElement, i : integer;
 spotArray : TArray<TSpot>;
+deleted : boolean;
 
 begin
 //most early spot - in begining of spotList
 if (spotList.Count) = 0 then exit;
+nextSpotElement := 0;
+deleted := false;
 
-  spotArray := spotList.Items[0].Value;
+while not deleted do begin
+  spotArray := spotList.Items[nextSpotElement].Value;
   if Length(spotArray) = 1 then begin
-    spotArray[0].spotLabel.Destroy;
-    DebugOutput('deleting spot :'+FloatToStr(spotList.Items[0].Key) + ' - ' + spotArray[0].DX + ' time: '+DateTimeToStr(spotArray[0].LocalTime));
-    spotList.Delete(0);
-    exit;
+    if not spotArray[nextSpotElement].spotLabel.onHold then begin
+      spotArray[nextSpotElement].spotLabel.Destroy;
+      DebugOutput('deleting spot :'+FloatToStr(spotList.Items[nextSpotElement].Key) + ' - ' + spotArray[nextSpotElement].DX + ' time: '+DateTimeToStr(spotArray[nextSpotElement].LocalTime));
+      spotList.Delete(nextSpotElement);
+      deleted := true;
+      break;
+    end;
   end else
     for i := low(spotArray) to high(spotArray) do begin
-      spotArray[i].spotLabel.Destroy;
-      DeleteElement(spotArray, i);
-      spotList.Items[0] := TPair<variant, TArray<TSpot>>.Create(spotList.Items[0].Key, spotArray);
-      exit;
+      if not spotArray[i].spotLabel.onHold then begin
+        spotArray[i].spotLabel.Destroy;
+        DeleteElement(spotArray, i);
+        spotList.Items[0] := TPair<variant, TArray<TSpot>>.Create(spotList.Items[0].Key, spotArray);
+        deleted := true;
+        break;
+      end;
     end;
+
+inc(nextSpotElement);
+end;
 
 End;
 
@@ -1366,7 +1395,7 @@ while Start <= Length(incomeStr) do begin
         spotLabel.Hint := spotFreqStr + ' de '+spot.DE+' @'+DateTimeToStr(spot.LocalTime)+' '+spot.Comment;
         spotLabel.ShowHint := false;
         spotLabel.Visible := false;
-        spotLabel.OnMouseUp := SpotLabelMouseDown;
+        spotLabel.OnMouseUp := SpotLabelMouseUp;
         spotLabel.OnMouseEnter := SpotLabelMouseEnter;
         spotLabel.OnContextPopup := SpotLabelContextPopup;
         spotLabel.OnMouseMove := SpotLabelMouseMove;
@@ -1429,7 +1458,7 @@ while Start <= Length(incomeStr) do begin
         spotLabel.Hint := spotFreqStr + ' de '+spot.DE+' @'+DateTimeToStr(spot.LocalTime)+' '+spot.Comment;
         spotLabel.ShowHint := false;
         spotLabel.Visible := false;
-        spotLabel.OnMouseUp := SpotLabelMouseDown;
+        spotLabel.OnMouseUp := SpotLabelMouseUp;
         spotLabel.OnMouseEnter := SpotLabelMouseEnter;
         spotLabel.OnContextPopup := SpotLabelContextPopup;
         spotLabel.OnMouseMove := SpotLabelMouseMove;
