@@ -164,6 +164,7 @@ var
   notNeedToShowPopupForFreqPanel, notNeedToShowPopupForSpotLabel : boolean;
   callsingDataFromAALog: TDictionary<String, TSimpleCallsignAnswer>;
   spotHintOldX, spotHintOldY : integer;
+  lastSelectedSpotLabel : TSpotLabel;
 
 implementation
 
@@ -229,9 +230,9 @@ begin
 for j := 0 to spotList.Count-1 do begin
   spotArray := spotList.Items[j].Value;
   for i := low(spotArray) to high(spotArray) do
-     spotArray[i].spotLabel.Visible := not labelVisible;
+    spotArray[i].spotLabel.Visible := not labelVisible;
 end;
-//todo: hide all only when band changed, change visibility only for one band
+
 End;
 
 procedure DestroyAllLabels();
@@ -245,7 +246,7 @@ for j := 0 to spotList.Count-1 do begin
   for i := low(spotArray) to high(spotArray) do
      spotArray[i].spotLabel.Destroy;
 end;
-//todo: destroy all only when band changed, change visibility only for one band
+
 End;
 
 function CheckHexForHash(col: string):string;
@@ -361,12 +362,15 @@ begin
 
 if Button = mbLeft then begin
   if ssAlt in Shift then
-    RemoveSelectedSpot(TLabel(Sender).Caption);
+    RemoveSelectedSpot(TSpotLabel(Sender).Caption);
   if ssShift in Shift then
     TLabel(Sender).Tag := TLabel(Sender).Tag + 1;
 end else begin
 //label selected
-
+  if lastSelectedSpotLabel <> nil then
+     lastSelectedSpotLabel.selected := false;
+  TSpotLabel(Sender).selected := true;
+  lastSelectedSpotLabel := TSpotLabel(Sender);
 end;
 
 if Button = mbRight then begin
@@ -490,30 +494,33 @@ iniFile : TIniFile;
 
 begin
 // Initialize all nesessary things
-  spaceAdjustValue := 50;
-  longLine := 39;
-  shortLine := 26;
-  freqMarkerFontSize := 9;
-  textShiftValueHB := 27;
-  textShiftValueLB := 19;
-  textXPosDPICorr := 5;
-  StartYPosDPICorr := 4;
-  EndYPosDPICorr := 25;
-  UnderFreqDPICorr := 28;
-  PenWidthDPICorr := 3;
+spaceAdjustValue := 50;
+longLine := 39;
+shortLine := 26;
+freqMarkerFontSize := 9;
+textShiftValueHB := 27;
+textShiftValueLB := 19;
+textXPosDPICorr := 5;
+StartYPosDPICorr := 4;
+EndYPosDPICorr := 25;
+UnderFreqDPICorr := 28;
+PenWidthDPICorr := 3;
 boxWidth := frequencyPaintBox.ClientWidth-40;
 RefreshLineSpacer();
 freqAddKhz := 0.5;
 freqStart := 3600.0;
 Xold := 0;
 spotBandCount := 0;
+
 regex1 := 'DX de\s([a-zA-Z0-9\\\/]+)\:?\s+([0-9.,]+)\s+([a-zA-Z0-9\\\/]+)\s(.*)?\s([0-9]{4})Z.*';
 regex2 := '([0-9.,]+)\s+([a-zA-Z0-9\\\/]+)\s.*([0-9]{4})Z\s(.*)\s<([a-zA-Z0-9\\\/]+)\>';
+
 spotList := TList<TPair<variant, TArray<TSpot>>>.Create();
 callsingDataFromAALog := TDictionary<String, TSimpleCallsignAnswer>.Create;
 
 notNeedToShowPopupForFreqPanel := false;
 notNeedToShowPopupForSpotLabel := true;
+lastSelectedSpotLabel := nil;
 
 Application.OnShowHint := MyShowHint;
 Application.HintColor := clCream;
@@ -538,6 +545,7 @@ finally
   iniFile.Free;
 end;
 
+refreshSelectedBandEdges();
 setFreqStartAndMode();
 End;
 
@@ -612,7 +620,7 @@ try
 finally
   if Length(answerStr) = 0 then answerStr := '0';
   Synchronize(ProcessAnswerJSON);
-  DebugOutput(DateTimeToStrUs(now) + ' - ' + answerStr);
+  //DebugOutput(DateTimeToStrUs(now) + ' - ' + answerStr);
   IdUDPClient.Active := False;
   IdUDPClient.Free;
 end;
@@ -781,6 +789,7 @@ procedure TFrequencyVisualForm.bandSwitcherClick(Sender: TObject);
 begin
   //todo: make boundaries while tuning
 setFreqStartAndMode();
+refreshSelectedBandEdges();
 spotBandCount := 0;
 freqShifter := 0;
 
@@ -1013,6 +1022,33 @@ for j := 0 to spotList.Count-1 do begin
 end;
 End;
 
+function MoveDownByEdgeCheck(spotLabel : TSpotLabel) : boolean;
+var
+i, j, le, re, te : integer;
+spotArray : TArray<TSpot>;
+begin
+
+for j := 0 to spotList.Count-1 do begin
+  spotArray := spotList.Items[j].Value;
+  for i := low(spotArray) to high(spotArray) do begin
+    if (spotArray[i].Freq >= freqBandStart) and (spotArray[i].Freq <= freqBandEnd) and
+       (spotArray[i].spotLabel.Caption <> spotLabel.Caption) then begin
+      le := spotArray[i].spotLabel.Left;
+      re := le+spotArray[i].spotLabel.Width;
+      te := spotArray[i].spotLabel.Top;
+
+      if ((spotLabel.Left >= le) and (spotLabel.Left <= re) and (spotLabel.Top = te)) or
+      ((spotLabel.Left+spotLabel.Width >= le) and (spotLabel.Left+spotLabel.Width <= re) and (spotLabel.Top = te)) then begin
+        spotLabel.Tag := spotLabel.Tag + 1;
+        result := true;
+        exit;
+        DebugOutput('label tag - '+IntToStr(spotLabel.Tag) + ', ' + spotLabel.Caption);
+      end;
+    end;
+  end;
+end;
+result := false;
+End;
 
 procedure TFrequencyVisualForm.AddFrequencyPosition(textXPos : integer; freqValue : variant);
 var
@@ -1042,9 +1078,14 @@ if CheckSpotListContainsKey(freqValue) then begin
         spotLabel := spot.spotLabel;
 
         YPos := longLine+UnderFreqDPICorr+(EndYPosDPICorr*(spotCount+spotLabel.Tag));
+        spotLabel.Top := YPos;
 
         if bandSwitcher.ItemIndex < 4 then begin
         //LSB items
+          spotLabel.Left := textXPos-spotLabel.Width-textXPosDPICorr;
+          if MoveDownByEdgeCheck(spotLabel) then
+            YPos := longLine+UnderFreqDPICorr+(EndYPosDPICorr*(spotCount+spotLabel.Tag));
+
           MoveTo(textXPos, YPos+StartYPosDPICorr);
           LineTo(textXPos, YPos+EndYPosDPICorr);
           //Draw dotted line if spot is LoTW or EQSL.cc user
@@ -1055,10 +1096,12 @@ if CheckSpotListContainsKey(freqValue) then begin
             Pen.Handle := ExtCreatePen(BS_SOLID, PenWidthDPICorr, LogBrush, 0, nil);
           end;
 
-          spotLabel.Left := textXPos-spotLabel.Width-textXPosDPICorr;
-//          TextOut(textXPos-TextWidth(spot.DX)-6, YPos, spot.DX);
         end else begin
         //USB items
+          spotLabel.Left := textXPos+textXPosDPICorr;
+          if MoveDownByEdgeCheck(spotLabel) then
+            YPos := longLine+UnderFreqDPICorr+(EndYPosDPICorr*(spotCount+spotLabel.Tag));
+
           Pen.Width := PenWidthDPICorr;
           Pen.Color := clWhite;
           MoveTo(textXPos, YPos+StartYPosDPICorr);
@@ -1071,8 +1114,6 @@ if CheckSpotListContainsKey(freqValue) then begin
             Pen.Handle := ExtCreatePen(BS_SOLID, PenWidthDPICorr, LogBrush, 0, nil);
           end;
 
-          spotLabel.Left := textXPos+textXPosDPICorr;
-//          TextOut(textXPos+6, YPos, spot.DX);
         end;
 
         spotLabel.Top := YPos;

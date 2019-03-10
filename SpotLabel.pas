@@ -12,6 +12,7 @@ type
       isLotwEqsl : boolean;
       isInLog : boolean;
       receiveTime : TDateTime;
+      selected : boolean;
       constructor Create(AOwner: TComponent; spotDEStr : string; receiveTimeOrig : TDateTime);
   end;
 
@@ -21,6 +22,7 @@ constructor TSpotLabel.Create(AOwner: TComponent; spotDEStr : string; receiveTim
 begin
   spotDE := spotDEStr;
   receiveTime := receiveTimeOrig;
+  selected := false;
   inherited Create(AOwner);
 End;
 
