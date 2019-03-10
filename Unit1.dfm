@@ -64,7 +64,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       end
       object chkStayOnTop: TCheckBox
         Left = 11
-        Top = 15
+        Top = 4
         Width = 73
         Height = 17
         Caption = 'Stay on top'
@@ -75,7 +75,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       end
       object cbHiRes: TCheckBox
         Left = 11
-        Top = 38
+        Top = 27
         Width = 89
         Height = 17
         Caption = 'HighRes screen'
@@ -92,6 +92,16 @@ object FrequencyVisualForm: TFrequencyVisualForm
         Caption = 'Settings'
         TabOrder = 3
         OnClick = Button2Click
+      end
+      object chkAllowSpotSelect: TCheckBox
+        Left = 11
+        Top = 50
+        Width = 102
+        Height = 17
+        Caption = 'Allow spot select'
+        Checked = True
+        State = cbChecked
+        TabOrder = 4
       end
     end
     object bandSwitcher: TRadioGroup
@@ -344,15 +354,20 @@ object FrequencyVisualForm: TFrequencyVisualForm
     end
   end
   object spotLabelMenu: TPopupMenu
+    OnPopup = spotLabelMenuPopup
     Left = 24
     Top = 128
     object Viewonqrzcom1: TMenuItem
-      Caption = 'view on qrz.com'
+      Caption = 'View on qrz.com...'
       OnClick = Viewonqrzcom1Click
     end
     object Viewonqrzru1: TMenuItem
-      Caption = 'view on qrz.ru'
+      Caption = 'View on qrz.ru...'
       OnClick = Viewonqrzru1Click
+    end
+    object menuLabelOnHold: TMenuItem
+      Caption = 'Hold label'
+      OnClick = menuLabelOnHoldClick
     end
   end
   object refreshTimer: TTimer

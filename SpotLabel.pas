@@ -13,6 +13,7 @@ type
       isInLog : boolean;
       receiveTime : TDateTime;
       selected : boolean;
+      onHold : boolean;
       constructor Create(AOwner: TComponent; spotDEStr : string; receiveTimeOrig : TDateTime);
   end;
 
@@ -23,6 +24,7 @@ begin
   spotDE := spotDEStr;
   receiveTime := receiveTimeOrig;
   selected := false;
+  onHold := false;
   inherited Create(AOwner);
 End;
 

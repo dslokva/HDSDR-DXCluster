@@ -3,7 +3,7 @@ object settingsForm: TsettingsForm
   Top = 0
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 322
+  ClientHeight = 321
   ClientWidth = 457
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -205,7 +205,7 @@ object settingsForm: TsettingsForm
     Left = 215
     Top = 127
     Width = 234
-    Height = 186
+    Height = 187
     Caption = 'Spot colors'
     TabOrder = 5
     object Label4: TLabel
@@ -334,7 +334,7 @@ object settingsForm: TsettingsForm
     OnClick = btnGreennyFreqPanColorClick
   end
   object Button1: TButton
-    Left = 50
+    Left = 92
     Top = 240
     Width = 35
     Height = 20
@@ -343,7 +343,7 @@ object settingsForm: TsettingsForm
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 92
+    Left = 134
     Top = 240
     Width = 35
     Height = 20
@@ -352,7 +352,7 @@ object settingsForm: TsettingsForm
     OnClick = Button2Click
   end
   object Button3: TButton
-    Left = 134
+    Left = 50
     Top = 240
     Width = 35
     Height = 20

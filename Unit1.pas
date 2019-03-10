@@ -59,6 +59,8 @@ type
     Viewonqrzru1: TMenuItem;
     labelSpotHint: TLabel;
     refreshTimer: TTimer;
+    chkAllowSpotSelect: TCheckBox;
+    menuLabelOnHold: TMenuItem;
     procedure Button1Click(Sender: TObject);
     procedure frequencyPaintBoxDblClick(Sender: TObject);
     procedure frequencyPaintBoxPaint(Sender: TObject);
@@ -98,6 +100,8 @@ type
     procedure Viewonqrzcom1Click(Sender: TObject);
     procedure Viewonqrzru1Click(Sender: TObject);
     procedure refreshTimerTimer(Sender: TObject);
+    procedure menuLabelOnHoldClick(Sender: TObject);
+    procedure spotLabelMenuPopup(Sender: TObject);
   private
     procedure SpotLabelMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
@@ -196,6 +200,14 @@ for i := 0 to spotList.Count-1 do begin
   count := count + high(spotArray) + 1;
 end;
 result := count;
+End;
+
+procedure TFrequencyVisualForm.menuLabelOnHoldClick(Sender: TObject);
+begin
+
+menuLabelOnHold.Checked := not menuLabelOnHold.Checked;
+TSpotLabel(spotLabelMenu.PopupComponent).onHold := menuLabelOnHold.Checked;
+
 End;
 
 function TFrequencyVisualForm.getSpotMaxCount() : Integer;
@@ -364,13 +376,14 @@ if Button = mbLeft then begin
   if ssAlt in Shift then
     RemoveSelectedSpot(TSpotLabel(Sender).Caption);
   if ssShift in Shift then
-    TLabel(Sender).Tag := TLabel(Sender).Tag + 1;
-end else begin
-//label selected
-  if lastSelectedSpotLabel <> nil then
-     lastSelectedSpotLabel.selected := false;
-  TSpotLabel(Sender).selected := true;
-  lastSelectedSpotLabel := TSpotLabel(Sender);
+    TLabel(Sender).Tag := TLabel(Sender).Tag + 1
+  else begin
+    //label selected
+    if lastSelectedSpotLabel <> nil then
+       lastSelectedSpotLabel.selected := false;
+    TSpotLabel(Sender).selected := true;
+    lastSelectedSpotLabel := TSpotLabel(Sender);
+  end;
 end;
 
 if Button = mbRight then begin
@@ -471,6 +484,7 @@ try
      WriteInteger('MainSettings', 'SelectedBand', bandSwitcher.ItemIndex);
      WriteFloat('MainSettings', 'freqShift', freqShifter);
      WriteBool('MainSettings', 'HighResScreen', cbHiRes.Checked);
+     WriteBool('MainSettings', 'AllowSpotSelect', chkAllowSpotSelect.Checked);
      WriteInteger('Placement', 'MainFormTop', Top);
      WriteInteger('Placement', 'MainFormLeft', Left);
      WriteInteger('Placement', 'MainFormWidth', Width);
@@ -535,6 +549,7 @@ try
     spacerScroll.Position := ReadInteger('MainSettings', 'ScrollPosition', 1070);
     bandSwitcher.ItemIndex := ReadInteger('MainSettings', 'SelectedBand', 0);
     cbHiRes.Checked := ReadBool('MainSettings', 'HighResScreen', true);
+    chkAllowSpotSelect.Checked := ReadBool('MainSettings', 'AllowSpotSelect', true);
     freqShifter := ReadFloat('MainSettings', 'freqShift', 0);
     Top := iniFile.ReadInteger('Placement','MainFormTop', 0) ;
     Left := iniFile.ReadInteger('Placement','MainFormLeft', 0);
@@ -825,7 +840,7 @@ dxcAddress := trim(settingsForm.txtDXCHost.Text);
 dxcPort :=  StrToInt(trim(settingsForm.txtDXCPort.Text));
 dxcUsername := trim(settingsForm.txtDXCUsername.Text);
 
-if (Length(dxcAddress) < 7) or (Length(dxcUsername) < 4)  or (dxcPort < 10) or (dxcPort < 10) then begin
+if (Length(dxcAddress) < 7) or (Length(dxcUsername) < 4)  or (dxcPort < 1000) or (dxcPort > 65535) then begin
   ShowMessage('Please check telnet DXCluster settings!');
   exit;
 end;
@@ -1000,6 +1015,11 @@ end;
 
 
 
+procedure TFrequencyVisualForm.spotLabelMenuPopup(Sender: TObject);
+begin
+menuLabelOnHold.Checked := TSpotLabel(spotLabelMenu.PopupComponent).onHold;
+end;
+
 procedure TFrequencyVisualForm.frequencyPaintBoxDblClick(Sender: TObject);
 begin
 Panel1.Visible := not Panel1.Visible;
@@ -1042,7 +1062,7 @@ for j := 0 to spotList.Count-1 do begin
         spotLabel.Tag := spotLabel.Tag + 1;
         result := true;
         exit;
-        DebugOutput('label tag - '+IntToStr(spotLabel.Tag) + ', ' + spotLabel.Caption);
+        //DebugOutput('label tag - '+IntToStr(spotLabel.Tag) + ', ' + spotLabel.Caption);
       end;
     end;
   end;
@@ -1057,6 +1077,8 @@ spot : TSpot;
 spotCount, YPos : integer;
 spotLabel : TSpotLabel;
 LogBrush: TLogBrush;
+hBrush1 : HBRUSH;
+rect : TRect;
 
 begin
 if CheckSpotListContainsKey(freqValue) then begin
@@ -1093,6 +1115,33 @@ if CheckSpotListContainsKey(freqValue) then begin
             Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, PenWidthDPICorr, LogBrush, 0, nil);
             MoveTo(textXPos-spotLabel.Width-2, YPos+EndYPosDPICorr+3);
             LineTo(textXPos, YPos+EndYPosDPICorr+3);
+            Pen.Handle := ExtCreatePen(BS_SOLID, PenWidthDPICorr, LogBrush, 0, nil);
+          end;
+          if (spotLabel.selected) and (chkAllowSpotSelect.Checked) then begin
+            Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, PenWidthDPICorr, LogBrush, 0, nil);
+            //paint two vertical lines
+            MoveTo(textXPos-spotLabel.Width-textXPosDPICorr-4, longLine+UnderFreqDPICorr+2);
+            LineTo(textXPos-spotLabel.Width-textXPosDPICorr-4, frequencyPaintBox.Height-2);
+            MoveTo(textXPos+textXPosDPICorr, longLine+UnderFreqDPICorr+2);
+            LineTo(textXPos+textXPosDPICorr, frequencyPaintBox.Height-2);
+            //crate inner rectangle
+            rect := TRect.Create(textXPos-spotLabel.Width-textXPosDPICorr+2, YPos+UnderFreqDPICorr+8,
+            textXPos+textXPosDPICorr-5, frequencyPaintBox.Height-2);
+
+            Brush.Style := bsDiagCross;
+            Brush.Color := clWhite;
+            FillRect(rect);
+
+            //check if we need to fill rect on top of label
+            if spotLabel.Tag > 0 then begin
+              rect := TRect.Create(textXPos-spotLabel.Width-textXPosDPICorr+2, longLine+UnderFreqDPICorr+3,
+              textXPos+textXPosDPICorr-4, YPos-StartYPosDPICorr);
+              FillRect(rect);
+            end;
+
+            //return brush settings for other elements
+            Brush.Style := bsSolid;
+            Brush.Color := settingsForm.colBoxMainFreqPanel.Selected;
             Pen.Handle := ExtCreatePen(BS_SOLID, PenWidthDPICorr, LogBrush, 0, nil);
           end;
 
@@ -1317,7 +1366,7 @@ while Start <= Length(incomeStr) do begin
         spotLabel.Hint := spotFreqStr + ' de '+spot.DE+' @'+DateTimeToStr(spot.LocalTime)+' '+spot.Comment;
         spotLabel.ShowHint := false;
         spotLabel.Visible := false;
-        spotLabel.OnMouseDown := SpotLabelMouseDown;
+        spotLabel.OnMouseUp := SpotLabelMouseDown;
         spotLabel.OnMouseEnter := SpotLabelMouseEnter;
         spotLabel.OnContextPopup := SpotLabelContextPopup;
         spotLabel.OnMouseMove := SpotLabelMouseMove;
@@ -1380,7 +1429,7 @@ while Start <= Length(incomeStr) do begin
         spotLabel.Hint := spotFreqStr + ' de '+spot.DE+' @'+DateTimeToStr(spot.LocalTime)+' '+spot.Comment;
         spotLabel.ShowHint := false;
         spotLabel.Visible := false;
-        spotLabel.OnMouseDown := SpotLabelMouseDown;
+        spotLabel.OnMouseUp := SpotLabelMouseDown;
         spotLabel.OnMouseEnter := SpotLabelMouseEnter;
         spotLabel.OnContextPopup := SpotLabelContextPopup;
         spotLabel.OnMouseMove := SpotLabelMouseMove;
