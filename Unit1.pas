@@ -1033,8 +1033,8 @@ for j := 0 to spotList.Count-1 do begin
   for i := low(spotArray) to high(spotArray) do begin
     if (spotArray[i].Freq >= freqBandStart) and (spotArray[i].Freq <= freqBandEnd) and
        (spotArray[i].spotLabel.Caption <> spotLabel.Caption) then begin
-      le := spotArray[i].spotLabel.Left;
-      re := le+spotArray[i].spotLabel.Width;
+      le := spotArray[i].spotLabel.Left - textXPosDPICorr;
+      re := le+spotArray[i].spotLabel.Width + textXPosDPICorr;
       te := spotArray[i].spotLabel.Top;
 
       if ((spotLabel.Left >= le) and (spotLabel.Left <= re) and (spotLabel.Top = te)) or
