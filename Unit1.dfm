@@ -168,7 +168,9 @@ object FrequencyVisualForm: TFrequencyVisualForm
       Top = 0
       Width = 745
       Height = 184
-      Hint = 'Left click - spot down, right - up. Alt+Click - delete spot.'
+      Hint = 
+        'Shift+Left click - spot down, Shift+Right - up. Alt+Click - dele' +
+        'te spot. Ctrl + Click - additional menu.'
       Align = alClient
       Color = clSkyBlue
       ParentColor = False
@@ -356,7 +358,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
   object refreshTimer: TTimer
     Interval = 50000
     OnTimer = refreshTimerTimer
-    Left = 80
-    Top = 16
+    Left = 96
+    Top = 128
   end
 end

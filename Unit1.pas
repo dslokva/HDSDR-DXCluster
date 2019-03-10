@@ -358,21 +358,28 @@ End;
 procedure TFrequencyVisualForm.SpotLabelMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
 //Tag value is used for vertical alignment of spotLabels
+
 if Button = mbLeft then begin
-  if ssAlt in Shift then begin
+  if ssAlt in Shift then
     RemoveSelectedSpot(TLabel(Sender).Caption);
-  end else TLabel(Sender).Tag := TLabel(Sender).Tag + 1;
+  if ssShift in Shift then
+    TLabel(Sender).Tag := TLabel(Sender).Tag + 1;
+end else begin
+//label selected
+
 end;
 
 if Button = mbRight then begin
-  if ssCtrl in Shift then begin
+  if ssCtrl in Shift then
     notNeedToShowPopupForSpotLabel := false;
-  end else begin
+
+  if ssShift in Shift then begin
     notNeedToShowPopupForSpotLabel := true;
     notNeedToShowPopupForFreqPanel := true;
     if TLabel(Sender).Top >= longLine+UnderFreqDPICorr+EndYPosDPICorr then
       TLabel(Sender).Tag := TLabel(Sender).Tag - 1;
   end;
+
 end;
 
 HideAllLabels(true);
@@ -506,7 +513,7 @@ spotList := TList<TPair<variant, TArray<TSpot>>>.Create();
 callsingDataFromAALog := TDictionary<String, TSimpleCallsignAnswer>.Create;
 
 notNeedToShowPopupForFreqPanel := false;
-notNeedToShowPopupForSpotLabel := false;
+notNeedToShowPopupForSpotLabel := true;
 
 Application.OnShowHint := MyShowHint;
 Application.HintColor := clCream;
