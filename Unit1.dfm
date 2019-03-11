@@ -2,11 +2,11 @@ object FrequencyVisualForm: TFrequencyVisualForm
   Left = 0
   Top = 0
   Caption = 'HDSDR-DXCluster-Helper'
-  ClientHeight = 313
-  ClientWidth = 745
+  ClientHeight = 307
+  ClientWidth = 950
   Color = clBtnFace
   Constraints.MinHeight = 220
-  Constraints.MinWidth = 745
+  Constraints.MinWidth = 768
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -22,161 +22,190 @@ object FrequencyVisualForm: TFrequencyVisualForm
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 205
-    Width = 745
-    Height = 108
+    Top = 207
+    Width = 950
+    Height = 100
     Align = alBottom
     BevelEdges = []
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 0
     OnMouseDown = Panel1MouseDown
-    object dxcStatusLabel: TLabel
-      Left = 332
-      Top = 21
-      Width = 113
-      Height = 13
-      Caption = 'DXCluster disconnected'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clRed
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
+    ExplicitTop = 299
+    object StatusBar1: TStatusBar
+      Left = 0
+      Top = 81
+      Width = 950
+      Height = 19
+      Panels = <
+        item
+          Text = 'DXCluster: disconnected'
+          Width = 300
+        end
+        item
+          Text = 'Last labels refresh: never'
+          Width = 220
+        end
+        item
+          Text = 'Last status: operating normal / spot rate from cluster incrased'
+          Width = 50
+        end>
+      OnMouseDown = StatusBar1MouseDown
+      ExplicitTop = 102
+      ExplicitWidth = 935
     end
     object Panel2: TPanel
-      Left = 567
+      Left = 686
       Top = 0
-      Width = 178
-      Height = 108
+      Width = 264
+      Height = 81
       Align = alRight
       BevelOuter = bvNone
-      TabOrder = 0
+      TabOrder = 1
       OnMouseDown = Panel2MouseDown
-      object Button1: TButton
-        Left = 104
-        Top = 71
-        Width = 65
-        Height = 25
-        Caption = 'Exit'
-        TabOrder = 0
-        OnClick = Button1Click
+      object Bevel1: TBevel
+        Left = 4
+        Top = 6
+        Width = 9
+        Height = 69
+        Shape = bsLeftLine
       end
       object chkStayOnTop: TCheckBox
-        Left = 11
-        Top = 4
+        Left = 158
+        Top = 12
         Width = 73
         Height = 17
         Caption = 'Stay on top'
         Checked = True
         State = cbChecked
-        TabOrder = 1
+        TabOrder = 0
         OnClick = chkStayOnTopClick
       end
+      object chkAllowSpotSelect: TCheckBox
+        Left = 158
+        Top = 33
+        Width = 102
+        Height = 17
+        Caption = 'Allow spot select'
+        Checked = True
+        State = cbChecked
+        TabOrder = 1
+      end
       object cbHiRes: TCheckBox
-        Left = 11
-        Top = 27
+        Left = 158
+        Top = 53
         Width = 89
         Height = 17
         Caption = 'HighRes screen'
         Checked = True
         State = cbChecked
         TabOrder = 2
-        OnClick = cbHiResClick
       end
       object Button2: TButton
-        Left = 10
-        Top = 71
-        Width = 88
+        Left = 19
+        Top = 13
+        Width = 123
         Height = 25
-        Caption = 'Settings'
+        Caption = 'Settings...'
         TabOrder = 3
         OnClick = Button2Click
       end
-      object chkAllowSpotSelect: TCheckBox
-        Left = 11
-        Top = 50
-        Width = 102
-        Height = 17
-        Caption = 'Allow spot select'
-        Checked = True
-        State = cbChecked
+      object Button1: TButton
+        Left = 19
+        Top = 45
+        Width = 123
+        Height = 25
+        Caption = 'Exit'
         TabOrder = 4
+        OnClick = Button1Click
       end
     end
-    object bandSwitcher: TRadioGroup
-      Left = 6
-      Top = 4
-      Width = 315
-      Height = 93
-      Caption = 'Band select:'
-      Columns = 3
-      ItemIndex = 0
-      Items.Strings = (
-        '160m (1,8 mHz)'
-        '80m (3,5 mHz) '
-        '40m (7 mHz)'
-        '30m (10 mHz)'
-        '20m (14 mHz)'
-        '17m (18 mHz)'
-        '15m (21 mHz)'
-        '12m (24 mHz)'
-        '10m (28 mHz)')
-      TabOrder = 1
-      OnClick = bandSwitcherClick
-    end
-    object btnDXCConnect: TButton
-      Left = 331
-      Top = 40
-      Width = 123
-      Height = 25
-      Caption = 'Connect to DXCluster'
-      ParentShowHint = False
-      ShowHint = True
+    object Panel8: TPanel
+      Left = 0
+      Top = 0
+      Width = 686
+      Height = 81
+      Align = alClient
+      BevelOuter = bvNone
       TabOrder = 2
-      OnClick = btnDXCConnectClick
-    end
-    object btnSpotClearAll: TButton
-      Left = 331
-      Top = 70
-      Width = 56
-      Height = 26
-      Caption = 'Clear all'
-      TabOrder = 3
-      OnClick = btnSpotClearAllClick
-    end
-    object btnSpotClearBand: TButton
-      Left = 387
-      Top = 70
-      Width = 67
-      Height = 26
-      Caption = 'Clear band'
-      TabOrder = 4
-      OnClick = btnSpotClearBandClick
-    end
-    object Button3: TButton
-      Left = 460
-      Top = 71
-      Width = 105
-      Height = 25
-      Caption = 'View DXCluster'
-      TabOrder = 5
-      OnClick = Button3Click
+      OnMouseDown = Panel8MouseDown
+      ExplicitLeft = -2
+      object btnSpotClearBand: TButton
+        Left = 487
+        Top = 13
+        Width = 120
+        Height = 25
+        Caption = 'Clear this band spots'
+        TabOrder = 0
+        OnClick = btnSpotClearBandClick
+      end
+      object btnSpotClearAll: TButton
+        Left = 487
+        Top = 45
+        Width = 120
+        Height = 25
+        Caption = 'Clear all spots (!)'
+        TabOrder = 1
+        OnClick = btnSpotClearAllClick
+      end
+      object Button3: TButton
+        Left = 351
+        Top = 44
+        Width = 123
+        Height = 25
+        Caption = 'View DXCluster...'
+        TabOrder = 2
+        OnClick = Button3Click
+      end
+      object btnDXCConnect: TButton
+        Left = 351
+        Top = 13
+        Width = 123
+        Height = 25
+        Caption = 'Connect to DXCluster'
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 3
+        OnClick = btnDXCConnectClick
+      end
+      object bandSwitcher: TRadioGroup
+        Left = 6
+        Top = 0
+        Width = 331
+        Height = 75
+        Caption = 'Band select:'
+        Columns = 3
+        ItemIndex = 0
+        Items.Strings = (
+          '160m (1,8 mHz)'
+          '80m (3,5 mHz) '
+          '40m (7 mHz)'
+          '30m (10 mHz)'
+          '20m (14 mHz)'
+          '17m (18 mHz)'
+          '15m (21 mHz)'
+          '12m (24 mHz)'
+          '10m (28 mHz)')
+        TabOrder = 4
+        OnClick = bandSwitcherClick
+      end
     end
   end
   object Panel5: TPanel
     Left = 0
     Top = 0
-    Width = 745
-    Height = 205
+    Width = 950
+    Height = 207
     Align = alClient
     BevelEdges = []
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitWidth = 935
+    ExplicitHeight = 270
     object frequencyPaintBox: TPaintBox
       Left = 0
       Top = 0
-      Width = 745
+      Width = 950
       Height = 184
       Hint = 
         'Shift+Left click - spot down, Shift+Right - up. Alt+Click - dele' +
@@ -192,7 +221,8 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnMouseLeave = frequencyPaintBoxMouseLeave
       OnMouseMove = frequencyPaintBoxMouseMove
       OnPaint = frequencyPaintBoxPaint
-      ExplicitTop = -2
+      ExplicitWidth = 935
+      ExplicitHeight = 352
     end
     object labelSpotHint: TLabel
       Left = 664
@@ -211,22 +241,25 @@ object FrequencyVisualForm: TFrequencyVisualForm
     object Panel3: TPanel
       Left = 0
       Top = 184
-      Width = 745
-      Height = 21
+      Width = 950
+      Height = 23
       Align = alBottom
       BevelEdges = [beTop, beBottom]
       BevelKind = bkSoft
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitTop = 354
+      ExplicitWidth = 935
       object Panel4: TPanel
         Left = 0
         Top = 0
         Width = 137
-        Height = 17
+        Height = 19
         Align = alLeft
         BevelOuter = bvNone
         TabOrder = 0
         OnMouseDown = Panel4MouseDown
+        ExplicitHeight = 17
         object Label1: TLabel
           Left = 6
           Top = 2
@@ -256,28 +289,57 @@ object FrequencyVisualForm: TFrequencyVisualForm
       object spacerScroll: TScrollBar
         Left = 209
         Top = 0
-        Width = 384
-        Height = 17
+        Width = 575
+        Height = 19
         Align = alClient
-        Max = 2900
-        Min = 700
+        Max = 3000
+        Min = 500
         PageSize = 0
         Position = 1070
         TabOrder = 1
         OnChange = spacerScrollChange
+        ExplicitWidth = 384
+        ExplicitHeight = 17
+      end
+      object Panel7: TPanel
+        Left = 137
+        Top = 0
+        Width = 72
+        Height = 19
+        Align = alLeft
+        BevelEdges = [beLeft, beRight]
+        BevelKind = bkFlat
+        BevelOuter = bvNone
+        TabOrder = 2
+        ExplicitHeight = 17
+        object labPanelMode: TLabel
+          Left = 3
+          Top = 2
+          Width = 62
+          Height = 13
+          Alignment = taCenter
+          Caption = 'Normal mode'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          OnDblClick = labPanelModeDblClick
+        end
       end
       object Panel6: TPanel
-        Left = 593
+        Left = 784
         Top = 0
-        Width = 152
-        Height = 17
+        Width = 166
+        Height = 19
         Align = alRight
         BevelEdges = [beLeft]
         BevelKind = bkFlat
         BevelOuter = bvNone
-        TabOrder = 2
+        TabOrder = 3
         object lbSpotTotal: TLabel
-          Left = 98
+          Left = 122
           Top = 2
           Width = 26
           Height = 13
@@ -294,42 +356,16 @@ object FrequencyVisualForm: TFrequencyVisualForm
         object Label2: TLabel
           Left = 4
           Top = 2
-          Width = 93
+          Width = 118
           Height = 13
           Hint = 'Double click to get last 50 spots (SH/DX 50)'
-          Caption = 'Spots total / band: '
+          Caption = 'Spot count total / band: '
           Color = clBlack
           ParentColor = False
           ParentShowHint = False
           ShowHint = True
           OnDblClick = Label2DblClick
           OnMouseDown = Label2MouseDown
-        end
-      end
-      object Panel7: TPanel
-        Left = 137
-        Top = 0
-        Width = 72
-        Height = 17
-        Align = alLeft
-        BevelEdges = [beLeft, beRight]
-        BevelKind = bkFlat
-        BevelOuter = bvNone
-        TabOrder = 3
-        object labPanelMode: TLabel
-          Left = 3
-          Top = 2
-          Width = 62
-          Height = 13
-          Alignment = taCenter
-          Caption = 'Normal mode'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          OnDblClick = labPanelModeDblClick
         end
       end
     end
@@ -371,7 +407,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
     end
   end
   object refreshTimer: TTimer
-    Interval = 50000
+    Interval = 5000
     OnTimer = refreshTimerTimer
     Left = 96
     Top = 128

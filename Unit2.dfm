@@ -66,13 +66,13 @@ object settingsForm: TsettingsForm
   object GroupBox1: TGroupBox
     Left = 8
     Top = 7
-    Width = 442
+    Width = 441
     Height = 113
-    Caption = 'DX Cluster '
+    Caption = ' DX Cluster: '
     TabOrder = 2
     object Label2: TLabel
       Left = 114
-      Top = 81
+      Top = 82
       Width = 129
       Height = 13
       Caption = 'Maximum number of spots:'
@@ -111,8 +111,8 @@ object settingsForm: TsettingsForm
       OnKeyPress = txtDXCPortKeyPress
     end
     object chkDXCAutoConnect: TCheckBox
-      Left = 304
-      Top = 34
+      Left = 318
+      Top = 31
       Width = 82
       Height = 17
       Caption = 'Auto connect'
@@ -206,7 +206,7 @@ object settingsForm: TsettingsForm
     Top = 127
     Width = 234
     Height = 187
-    Caption = 'Spot colors'
+    Caption = ' Spot colors: '
     TabOrder = 5
     object Label4: TLabel
       Left = 9

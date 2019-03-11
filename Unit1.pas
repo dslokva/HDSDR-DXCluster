@@ -7,7 +7,8 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, JSons, uLkJSON, IdURI, SpotLabel,
   Vcl.ButtonGroup, Vcl.WinXCtrls, IdBaseComponent, IdComponent, IdTCPConnection, UDPServerJSONObjects,
   IdTCPClient, IdTelnet, RegExpr, IdGlobal, System.Generics.Collections, IdUDPClient, DateUtils,
-  Vcl.Buttons, inifiles, Vcl.Menus, IdUDPBase, IdUDPServer, IdSocketHandle, Winapi.ShellAPI, AALogClientJSONObjects;
+  Vcl.Buttons, inifiles, Vcl.Menus, IdUDPBase, IdUDPServer, IdSocketHandle, Winapi.ShellAPI, AALogClientJSONObjects,
+  Vcl.ComCtrls;
 
 type
   TSpot = class(TObject)
@@ -28,9 +29,6 @@ type
 type
   TFrequencyVisualForm = class(TForm)
     Panel1: TPanel;
-    Panel2: TPanel;
-    Button1: TButton;
-    bandSwitcher: TRadioGroup;
     Panel5: TPanel;
     frequencyPaintBox: TPaintBox;
     Panel3: TPanel;
@@ -38,18 +36,7 @@ type
     Label1: TLabel;
     spacerScroll: TScrollBar;
     IdTelnet1: TIdTelnet;
-    btnDXCConnect: TButton;
-    dxcStatusLabel: TLabel;
     lbScaleFactor: TLabel;
-    chkStayOnTop: TCheckBox;
-    cbHiRes: TCheckBox;
-    Panel6: TPanel;
-    lbSpotTotal: TLabel;
-    Label2: TLabel;
-    btnSpotClearAll: TButton;
-    btnSpotClearBand: TButton;
-    Button2: TButton;
-    Button3: TButton;
     freqPanelMenu: TPopupMenu;
     isPanelHoldActive: TMenuItem;
     Panel7: TPanel;
@@ -59,9 +46,24 @@ type
     Viewonqrzru1: TMenuItem;
     labelSpotHint: TLabel;
     refreshTimer: TTimer;
-    chkAllowSpotSelect: TCheckBox;
     menuLabelOnHold: TMenuItem;
-    procedure Button1Click(Sender: TObject);
+    StatusBar1: TStatusBar;
+    Panel6: TPanel;
+    lbSpotTotal: TLabel;
+    Label2: TLabel;
+    Panel2: TPanel;
+    Panel8: TPanel;
+    btnSpotClearBand: TButton;
+    btnSpotClearAll: TButton;
+    Button3: TButton;
+    btnDXCConnect: TButton;
+    bandSwitcher: TRadioGroup;
+    chkStayOnTop: TCheckBox;
+    chkAllowSpotSelect: TCheckBox;
+    cbHiRes: TCheckBox;
+    Button2: TButton;
+    Bevel1: TBevel;
+    Button1: TButton;
     procedure frequencyPaintBoxDblClick(Sender: TObject);
     procedure frequencyPaintBoxPaint(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -102,6 +104,11 @@ type
     procedure refreshTimerTimer(Sender: TObject);
     procedure menuLabelOnHoldClick(Sender: TObject);
     procedure spotLabelMenuPopup(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure Panel8MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure StatusBar1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
   private
     procedure SpotLabelMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
@@ -169,6 +176,7 @@ var
   callsingDataFromAALog: TDictionary<String, TSimpleCallsignAnswer>;
   spotHintOldX, spotHintOldY : integer;
   lastSelectedSpotLabel : TSpotLabel;
+  frequencyPositionArr : array[0..8] of variant;
 
 implementation
 
@@ -410,6 +418,12 @@ HideAllLabels(true);
 RepaintFrequencySpan();
 End;
 
+procedure TFrequencyVisualForm.StatusBar1MouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  AllowDrag;
+end;
+
 procedure TFrequencyVisualForm.SpotLabelMouseEnter(Sender: TObject);
 begin
 if (settingsForm.cbOwnSpotColorize.Checked) then
@@ -489,7 +503,15 @@ try
   with iniFile, FrequencyVisualForm do begin
      WriteInteger('MainSettings', 'ScrollPosition', spacerScroll.Position);
      WriteInteger('MainSettings', 'SelectedBand', bandSwitcher.ItemIndex);
-     WriteFloat('MainSettings', 'freqShift', freqShifter);
+     WriteFloat('MainSettings', 'freqShift160', frequencyPositionArr[0]);
+     WriteFloat('MainSettings', 'freqShift80', frequencyPositionArr[1]);
+     WriteFloat('MainSettings', 'freqShift40', frequencyPositionArr[2]);
+     WriteFloat('MainSettings', 'freqShift30', frequencyPositionArr[3]);
+     WriteFloat('MainSettings', 'freqShift20', frequencyPositionArr[4]);
+     WriteFloat('MainSettings', 'freqShift17', frequencyPositionArr[5]);
+     WriteFloat('MainSettings', 'freqShift15', frequencyPositionArr[6]);
+     WriteFloat('MainSettings', 'freqShift12', frequencyPositionArr[7]);
+     WriteFloat('MainSettings', 'freqShift10', frequencyPositionArr[8]);
      WriteBool('MainSettings', 'HighResScreen', cbHiRes.Checked);
      WriteBool('MainSettings', 'AllowSpotSelect', chkAllowSpotSelect.Checked);
      WriteInteger('Placement', 'MainFormTop', Top);
@@ -515,6 +537,16 @@ iniFile : TIniFile;
 
 begin
 // Initialize all nesessary things
+frequencyPositionArr[0] := 0;
+frequencyPositionArr[1] := 0;
+frequencyPositionArr[2] := 0;
+frequencyPositionArr[3] := 0;
+frequencyPositionArr[4] := 0;
+frequencyPositionArr[5] := 0;
+frequencyPositionArr[6] := 0;
+frequencyPositionArr[7] := 0;
+frequencyPositionArr[8] := 0;
+
 spaceAdjustValue := 50;
 longLine := 39;
 shortLine := 26;
@@ -557,7 +589,16 @@ try
     bandSwitcher.ItemIndex := ReadInteger('MainSettings', 'SelectedBand', 0);
     cbHiRes.Checked := ReadBool('MainSettings', 'HighResScreen', true);
     chkAllowSpotSelect.Checked := ReadBool('MainSettings', 'AllowSpotSelect', true);
-    freqShifter := ReadFloat('MainSettings', 'freqShift', 0);
+    frequencyPositionArr[0] := ReadFloat('MainSettings', 'freqShift160', 0);
+    frequencyPositionArr[1] := ReadFloat('MainSettings', 'freqShift80', 0);
+    frequencyPositionArr[2] := ReadFloat('MainSettings', 'freqShift40', 0);
+    frequencyPositionArr[3] := ReadFloat('MainSettings', 'freqShift30', 0);
+    frequencyPositionArr[4] := ReadFloat('MainSettings', 'freqShift20', 0);
+    frequencyPositionArr[5] := ReadFloat('MainSettings', 'freqShift17', 0);
+    frequencyPositionArr[6] := ReadFloat('MainSettings', 'freqShift15', 0);
+    frequencyPositionArr[7] := ReadFloat('MainSettings', 'freqShift12', 0);
+    frequencyPositionArr[8] := ReadFloat('MainSettings', 'freqShift10', 0);
+
     Top := iniFile.ReadInteger('Placement','MainFormTop', 0) ;
     Left := iniFile.ReadInteger('Placement','MainFormLeft', 0);
     Width := iniFile.ReadInteger('Placement','MainFormWidth', 745);
@@ -566,6 +607,8 @@ try
 finally
   iniFile.Free;
 end;
+
+freqShifter := frequencyPositionArr[bandSwitcher.ItemIndex];
 
 refreshSelectedBandEdges();
 setFreqStartAndMode();
@@ -713,8 +756,8 @@ End;
 
 procedure TFrequencyVisualForm.IdTelnet1Connected(Sender: TObject);
 begin
-dxcStatusLabel.Caption := 'DXCluster connected';
-dxcStatusLabel.Font.Color := clGreen;
+StatusBar1.Panels[0].Text := 'DXCluster: connected to ' + settingsForm.txtDXCHost.Text + 'at '+ TimeToStr(now);
+//StatusBar1.Panels[0].Font.Color := clGreen;
 btnDXCConnect.Caption := 'Disconnect DXCluster';
 Beep;
 End;
@@ -745,9 +788,9 @@ end;
 procedure TFrequencyVisualForm.IdTelnet1Disconnected(Sender: TObject);
 begin
 if FrequencyVisualForm.Visible then begin
-  dxcStatusLabel.Caption := 'DXCluster disconnected';
-  dxcStatusLabel.Font.Color := clRed;
-  btnDXCConnect.Caption := 'Connect DXCluster';
+  StatusBar1.Panels[0].Text := 'DXCluster: disconnected at ' + TimeToStr(now);
+  //dxcStatusLabel.Font.Color := clRed;
+  btnDXCConnect.Caption := 'Connect to DXCluster';
 end;
 
 End;
@@ -813,7 +856,7 @@ begin
 setFreqStartAndMode();
 refreshSelectedBandEdges();
 spotBandCount := 0;
-freqShifter := 0;
+freqShifter := frequencyPositionArr[bandSwitcher.ItemIndex];
 
 HideAllLabels(true);
 RepaintFrequencySpan();
@@ -823,7 +866,7 @@ End;
 procedure TFrequencyVisualForm.Button1Click(Sender: TObject);
 begin
 FrequencyVisualForm.Close;
-End;
+end;
 
 procedure TFrequencyVisualForm.Button2Click(Sender: TObject);
 begin
@@ -848,7 +891,7 @@ dxcPort :=  StrToInt(trim(settingsForm.txtDXCPort.Text));
 dxcUsername := trim(settingsForm.txtDXCUsername.Text);
 
 if (Length(dxcAddress) < 7) or (Length(dxcUsername) < 4)  or (dxcPort < 1000) or (dxcPort > 65535) then begin
-  ShowMessage('Please check telnet DXCluster settings!');
+  StatusBar1.Panels[0].Text := 'DXCluster: please check telnet  settings!';
   exit;
 end;
 
@@ -861,9 +904,9 @@ IdTelnet1.Port := dxcPort;
     IdTelnet1.Connect;
 except
   on E : Exception do begin
-    ShowMessage('Error: ' + E.Message);
-    dxcStatusLabel.Caption := 'DXCluster disconnected';
-    dxcStatusLabel.Font.Color := clRed;
+    StatusBar1.Panels[0].Text := 'DXCluster: error, ' + E.Message;
+    StatusBar1.Panels[0].Text := 'DXCluster: disconnected at ' + TimeToStr(now);
+   // dxcStatusLabel.Font.Color := clRed;
   end;
 end;
 
@@ -1227,25 +1270,30 @@ deleted := false;
 while not deleted do begin
   spotArray := spotList.Items[nextSpotElement].Value;
   if Length(spotArray) = 1 then begin
+
     if not spotArray[nextSpotElement].spotLabel.onHold then begin
       spotArray[nextSpotElement].spotLabel.Destroy;
       DebugOutput('deleting spot :'+FloatToStr(spotList.Items[nextSpotElement].Key) + ' - ' + spotArray[nextSpotElement].DX + ' time: '+DateTimeToStr(spotArray[nextSpotElement].LocalTime));
       spotList.Delete(nextSpotElement);
       deleted := true;
       break;
-    end;
-  end else
+    end else
+      inc(nextSpotElement);
+
+  end else begin
+
     for i := low(spotArray) to high(spotArray) do begin
       if not spotArray[i].spotLabel.onHold then begin
         spotArray[i].spotLabel.Destroy;
         DeleteElement(spotArray, i);
         spotList.Items[0] := TPair<variant, TArray<TSpot>>.Create(spotList.Items[0].Key, spotArray);
         deleted := true;
+        inc(nextSpotElement);
         break;
-      end;
+      end else inc(nextSpotElement);
     end;
 
-inc(nextSpotElement);
+  end;
 end;
 
 End;
@@ -1274,7 +1322,12 @@ for j := 0 to spotList.Count-1 do begin
   for i := low(spotArray) to high(spotArray) do
      ColorizeSpotLabel(spotArray[i].spotLabel);
 end;
-//todo: destroy all only when band changed, change visibility only for one band
+
+if spotList.Count > 0 then
+  StatusBar1.Panels[1].Text := 'Last labels refresh: ' + TimeToStr(now)
+else
+  StatusBar1.Panels[1].Text := 'Last labels refresh: nothing to refresh';
+
 End;
 
 procedure TFrequencyVisualForm.ColorizeSpotLabel(spotLabel: TSpotLabel);
@@ -1424,10 +1477,6 @@ while Start <= Length(incomeStr) do begin
           spotList.Add(TPair<variant, TArray<TSpot>>.Create(spot.Freq, TArray<TSpot>.Create(spot)));
           DebugOutput('spot incoming (add):'+FloatToStr(spot.Freq) + ' - ' + spot.DX + ' time: '+DateTimeToStr(spot.LocalTime));
         end;
-        if getSpotMaxCount < getSpotTotalCount then begin
-           //delete first (most early by time) spot in list on same band//
-           deleteFirstSpot();
-        end;
     end;
 
     //sh/dx spot processing
@@ -1489,12 +1538,11 @@ while Start <= Length(incomeStr) do begin
           spotList.Insert(0, TPair<variant, TArray<TSpot>>.Create(spot.Freq, TArray<TSpot>.Create(spot)));
           DebugOutput('spot incoming (sh/dx):'+FloatToStr(spot.Freq) + ' - ' + spot.DX + ' time: '+DateTimeToStr(spot.LocalTime));
         end;
+    end;
 
-        if getSpotMaxCount < getSpotTotalCount then begin
-           //delete first (most early by time) spot in list on same band//
-           deleteFirstSpot();
-        end;
-
+    if getSpotMaxCount < getSpotTotalCount then begin
+      //delete first (most early by time) spot in list on same band//
+      deleteFirstSpot();
     end;
 
   finally
@@ -1533,6 +1581,7 @@ if (ssRight in Shift) and (not isPanelHoldActive.Checked) then begin
     end;
 
     HideAllLabels(true);
+    frequencyPositionArr[bandSwitcher.ItemIndex] := freqShifter;
     RepaintFrequencySpan();
 
     notNeedToShowPopupForFreqPanel := true;
@@ -1652,6 +1701,12 @@ begin
   AllowDrag;
 End;
 
+procedure TFrequencyVisualForm.Panel8MouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  AllowDrag;
+end;
+
 procedure TFrequencyVisualForm.Label2MouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
@@ -1666,8 +1721,8 @@ end;
 
 procedure TFrequencyVisualForm.spacerScrollChange(Sender: TObject);
 begin
+frequencyPositionArr[bandSwitcher.ItemIndex] := freqShifter;
 RefreshLineSpacer();
-
 HideAllLabels(true);
 RepaintFrequencySpan();
 
