@@ -33,10 +33,10 @@ type
     frequencyPaintBox: TPaintBox;
     Panel3: TPanel;
     Panel4: TPanel;
-    Label1: TLabel;
+    Label4: TLabel;
     spacerScroll: TScrollBar;
     IdTelnet1: TIdTelnet;
-    lbScaleFactor: TLabel;
+    labLabelsRefresh: TLabel;
     freqPanelMenu: TPopupMenu;
     isPanelHoldActive: TMenuItem;
     Panel7: TPanel;
@@ -45,7 +45,7 @@ type
     Viewonqrzcom1: TMenuItem;
     Viewonqrzru1: TMenuItem;
     labelSpotHint: TLabel;
-    refreshTimer: TTimer;
+    refreshLabelColorTimer: TTimer;
     menuLabelOnHold: TMenuItem;
     StatusBar1: TStatusBar;
     Panel6: TPanel;
@@ -64,6 +64,8 @@ type
     Button2: TButton;
     Bevel1: TBevel;
     Button1: TButton;
+    spotCountResetTimer: TTimer;
+    statusRefreshTimer: TTimer;
     procedure frequencyPaintBoxDblClick(Sender: TObject);
     procedure frequencyPaintBoxPaint(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -75,7 +77,7 @@ type
     procedure bandSwitcherClick(Sender: TObject);
     procedure Panel4MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure Label1MouseDown(Sender: TObject; Button: TMouseButton;
+    procedure Label4MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure frequencyPaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
@@ -101,7 +103,7 @@ type
     procedure CreateParams(var Params: TCreateParams); override;
     procedure Viewonqrzcom1Click(Sender: TObject);
     procedure Viewonqrzru1Click(Sender: TObject);
-    procedure refreshTimerTimer(Sender: TObject);
+    procedure refreshLabelColorTimerTimer(Sender: TObject);
     procedure menuLabelOnHoldClick(Sender: TObject);
     procedure spotLabelMenuPopup(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -109,9 +111,12 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure StatusBar1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure spotCountResetTimerTimer(Sender: TObject);
+    procedure statusRefreshTimerTimer(Sender: TObject);
   private
     procedure SpotLabelMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
+    function Get15MinSpotCountApprox : variant;
     procedure RepaintFrequencySpan();
     procedure RefreshLineSpacer();
     procedure AddFrequencyPosition(textXPos : integer; freqValue : variant);
@@ -177,6 +182,9 @@ var
   spotHintOldX, spotHintOldY : integer;
   lastSelectedSpotLabel : TSpotLabel;
   frequencyPositionArr : array[0..8] of variant;
+
+  spotCountMinuteRate : integer;
+  spotCount15MinutesRateList : TList<integer>;
 
 implementation
 
@@ -424,6 +432,41 @@ begin
   AllowDrag;
 end;
 
+function TFrequencyVisualForm.Get15MinSpotCountApprox : variant;
+var
+  i, sum : integer;
+begin
+sum := 0;
+
+for i := 0 to spotCount15MinutesRateList.Count-1 do
+  sum := sum + spotCount15MinutesRateList[i];
+
+if (sum = 0) or (spotCount15MinutesRateList.Count = 0) then begin
+  result := 0;
+  exit;
+end;
+
+result := sum / spotCount15MinutesRateList.Count;
+end;
+
+procedure TFrequencyVisualForm.statusRefreshTimerTimer(Sender: TObject);
+var
+spotRateCalc : string;
+begin
+if not IdTelnet1.Connected then
+  spotRateCalc := 'none'
+else begin
+
+  spotRateCalc := 'operating normal';
+  if Get15MinSpotCountApprox > 10 then
+    spotRateCalc := 'income spot rate increased! Don''t forget to hold intresting spots!';
+
+end;
+
+StatusBar1.Panels[2].Text := 'Last status: ' + spotRateCalc + ' (' + IntToStr(Get15MinSpotCountApprox)+ ' spots per min)';
+
+end;
+
 procedure TFrequencyVisualForm.SpotLabelMouseEnter(Sender: TObject);
 begin
 if (settingsForm.cbOwnSpotColorize.Checked) then
@@ -490,7 +533,7 @@ End;
 procedure TFrequencyVisualForm.RefreshLineSpacer();
 begin
 lineSpacer := spacerScroll.Position div spaceAdjustValue;
-lbScaleFactor.Caption := IntToStr(lineSpacer);
+StatusBar1.Panels[1].Text := 'Scale factor: ' + IntToStr(lineSpacer);
 End;
 
 procedure TFrequencyVisualForm.FormClose(Sender: TObject;
@@ -570,6 +613,7 @@ regex2 := '([0-9.,]+)\s+([a-zA-Z0-9\\\/]+)\s.*([0-9]{4})Z\s(.*)\s<([a-zA-Z0-9\\\
 
 spotList := TList<TPair<variant, TArray<TSpot>>>.Create();
 callsingDataFromAALog := TDictionary<String, TSimpleCallsignAnswer>.Create;
+spotCount15MinutesRateList := TList<integer>.Create();
 
 notNeedToShowPopupForFreqPanel := false;
 notNeedToShowPopupForSpotLabel := true;
@@ -756,10 +800,10 @@ End;
 
 procedure TFrequencyVisualForm.IdTelnet1Connected(Sender: TObject);
 begin
-StatusBar1.Panels[0].Text := 'DXCluster: connected to ' + settingsForm.txtDXCHost.Text + 'at '+ TimeToStr(now);
+StatusBar1.Panels[0].Text := 'DXCluster: connected to "' + settingsForm.txtDXCHost.Text + '", at: '+ TimeToStr(now);
 //StatusBar1.Panels[0].Font.Color := clGreen;
 btnDXCConnect.Caption := 'Disconnect DXCluster';
-Beep;
+spotCountMinuteRate := 0;
 End;
 
 function LocalDateTimeFromUTCDateTime(const UTCDateTime: TDateTime): TDateTime;
@@ -795,7 +839,7 @@ end;
 
 End;
 
-procedure TFrequencyVisualForm.Label1MouseDown(Sender: TObject; Button: TMouseButton;
+procedure TFrequencyVisualForm.Label4MouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   AllowDrag;
@@ -891,7 +935,7 @@ dxcPort :=  StrToInt(trim(settingsForm.txtDXCPort.Text));
 dxcUsername := trim(settingsForm.txtDXCUsername.Text);
 
 if (Length(dxcAddress) < 7) or (Length(dxcUsername) < 4)  or (dxcPort < 1000) or (dxcPort > 65535) then begin
-  StatusBar1.Panels[0].Text := 'DXCluster: please check telnet  settings!';
+  StatusBar1.Panels[0].Text := 'DXCluster: please check telnet settings!';
   exit;
 end;
 
@@ -902,6 +946,9 @@ IdTelnet1.Port := dxcPort;
     IdTelnet1.Disconnect
   else
     IdTelnet1.Connect;
+
+
+
 except
   on E : Exception do begin
     StatusBar1.Panels[0].Text := 'DXCluster: error, ' + E.Message;
@@ -965,7 +1012,7 @@ case bandSwitcher.ItemIndex of
 end;
 End;
 
-procedure TFrequencyVisualForm.refreshTimerTimer(Sender: TObject);
+procedure TFrequencyVisualForm.refreshLabelColorTimerTimer(Sender: TObject);
 begin
 ReColorizeAllLabels();
 End;
@@ -1184,7 +1231,7 @@ if CheckSpotListContainsKey(freqValue) then begin
             MoveTo(textXPos+textXPosDPICorr, longLine+UnderFreqDPICorr+2);
             LineTo(textXPos+textXPosDPICorr, frequencyPaintBox.Height-2);
             //crate inner rectangle
-            rect := TRect.Create(textXPos-spotLabel.Width-textXPosDPICorr+2, YPos+UnderFreqDPICorr+8,
+            rect := TRect.Create(textXPos-spotLabel.Width-textXPosDPICorr+2, YPos+UnderFreqDPICorr+5,
             textXPos+textXPosDPICorr-5, frequencyPaintBox.Height-2);
 
             Brush.Style := bsDiagCross;
@@ -1194,7 +1241,7 @@ if CheckSpotListContainsKey(freqValue) then begin
             //check if we need to fill rect on top of label
             if spotLabel.Tag > 0 then begin
               rect := TRect.Create(textXPos-spotLabel.Width-textXPosDPICorr+2, longLine+UnderFreqDPICorr+3,
-              textXPos+textXPosDPICorr-4, YPos-StartYPosDPICorr);
+              textXPos+textXPosDPICorr-5, YPos-StartYPosDPICorr);
               FillRect(rect);
             end;
 
@@ -1219,6 +1266,34 @@ if CheckSpotListContainsKey(freqValue) then begin
             Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, PenWidthDPICorr, LogBrush, 0, nil);
             MoveTo(textXPos, YPos+EndYPosDPICorr+3);
             LineTo(textXPos+spotLabel.Width+2, YPos+EndYPosDPICorr+3);
+            Pen.Handle := ExtCreatePen(BS_SOLID, PenWidthDPICorr, LogBrush, 0, nil);
+          end;
+
+          if (spotLabel.selected) and (chkAllowSpotSelect.Checked) then begin
+            Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, PenWidthDPICorr, LogBrush, 0, nil);
+            //paint two vertical lines
+            MoveTo(textXPos+spotLabel.Width+textXPosDPICorr+4, longLine+UnderFreqDPICorr+2);
+            LineTo(textXPos+spotLabel.Width+textXPosDPICorr+4, frequencyPaintBox.Height-2);
+            MoveTo(textXPos-textXPosDPICorr, longLine+UnderFreqDPICorr+2);
+            LineTo(textXPos-textXPosDPICorr, frequencyPaintBox.Height-2);
+            //crate inner rectangle
+            rect := TRect.Create(textXPos-textXPosDPICorr+5, frequencyPaintBox.Height-2,
+            textXPos+spotLabel.Width+textXPosDPICorr, YPos+UnderFreqDPICorr+5);
+
+            Brush.Style := bsDiagCross;
+            Brush.Color := clWhite;
+            FillRect(rect);
+
+            //check if we need to fill rect on top of label
+            if spotLabel.Tag > 0 then begin
+              rect := TRect.Create(textXPos-textXPosDPICorr+5, longLine+UnderFreqDPICorr+3,
+              textXPos+spotLabel.Width+textXPosDPICorr, YPos-StartYPosDPICorr);
+              FillRect(rect);
+            end;
+
+            //return brush settings for other elements
+            Brush.Style := bsSolid;
+            Brush.Color := settingsForm.colBoxMainFreqPanel.Selected;
             Pen.Handle := ExtCreatePen(BS_SOLID, PenWidthDPICorr, LogBrush, 0, nil);
           end;
 
@@ -1324,9 +1399,9 @@ for j := 0 to spotList.Count-1 do begin
 end;
 
 if spotList.Count > 0 then
-  StatusBar1.Panels[1].Text := 'Last labels refresh: ' + TimeToStr(now)
+  labLabelsRefresh.Caption := TimeToStr(now)
 else
-  StatusBar1.Panels[1].Text := 'Last labels refresh: nothing to refresh';
+  labLabelsRefresh.Caption := 'nothing to refresh';
 
 End;
 
@@ -1465,6 +1540,7 @@ while Start <= Length(incomeStr) do begin
           ColorizeSpotLabel(spotLabel);
 
         lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
+        inc(spotCountMinuteRate);
 
         if CheckSpotListContainsKey(spot.Freq) then begin
           localSpotArray := GetSpotArrayFromList(spot.Freq);
@@ -1710,7 +1786,7 @@ end;
 procedure TFrequencyVisualForm.Label2MouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-AllowDrag;
+  AllowDrag;
 End;
 
 procedure TFrequencyVisualForm.labPanelModeDblClick(Sender: TObject);
@@ -1727,5 +1803,14 @@ HideAllLabels(true);
 RepaintFrequencySpan();
 
 End;
+
+procedure TFrequencyVisualForm.spotCountResetTimerTimer(Sender: TObject);
+begin
+spotCount15MinutesRateList.Add(spotCountMinuteRate);
+spotCountMinuteRate := 0;
+
+if spotCount15MinutesRateList.Count > 15 then
+  spotCount15MinutesRateList.Delete(0);
+end;
 
 END.

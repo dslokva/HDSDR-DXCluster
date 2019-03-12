@@ -2,11 +2,11 @@ object FrequencyVisualForm: TFrequencyVisualForm
   Left = 0
   Top = 0
   Caption = 'HDSDR-DXCluster-Helper'
-  ClientHeight = 307
-  ClientWidth = 950
+  ClientHeight = 320
+  ClientWidth = 882
   Color = clBtnFace
   Constraints.MinHeight = 220
-  Constraints.MinWidth = 768
+  Constraints.MinWidth = 898
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -22,8 +22,8 @@ object FrequencyVisualForm: TFrequencyVisualForm
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 207
-    Width = 950
+    Top = 220
+    Width = 882
     Height = 100
     Align = alBottom
     BevelEdges = []
@@ -31,11 +31,12 @@ object FrequencyVisualForm: TFrequencyVisualForm
     BevelOuter = bvNone
     TabOrder = 0
     OnMouseDown = Panel1MouseDown
-    ExplicitTop = 299
+    ExplicitTop = 207
+    ExplicitWidth = 950
     object StatusBar1: TStatusBar
       Left = 0
       Top = 81
-      Width = 950
+      Width = 882
       Height = 19
       Panels = <
         item
@@ -43,19 +44,18 @@ object FrequencyVisualForm: TFrequencyVisualForm
           Width = 300
         end
         item
-          Text = 'Last labels refresh: never'
-          Width = 220
+          Text = 'Scale factor: 0'
+          Width = 100
         end
         item
-          Text = 'Last status: operating normal / spot rate from cluster incrased'
-          Width = 50
+          Text = 'Last status: none'
+          Width = 200
         end>
       OnMouseDown = StatusBar1MouseDown
-      ExplicitTop = 102
-      ExplicitWidth = 935
+      ExplicitWidth = 950
     end
     object Panel2: TPanel
-      Left = 686
+      Left = 618
       Top = 0
       Width = 264
       Height = 81
@@ -63,6 +63,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       BevelOuter = bvNone
       TabOrder = 1
       OnMouseDown = Panel2MouseDown
+      ExplicitLeft = 686
       object Bevel1: TBevel
         Left = 4
         Top = 6
@@ -123,19 +124,23 @@ object FrequencyVisualForm: TFrequencyVisualForm
     object Panel8: TPanel
       Left = 0
       Top = 0
-      Width = 686
+      Width = 618
       Height = 81
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 2
       OnMouseDown = Panel8MouseDown
       ExplicitLeft = -2
+      ExplicitWidth = 686
       object btnSpotClearBand: TButton
         Left = 487
         Top = 13
         Width = 120
         Height = 25
+        Hint = 'Exclude holded labels'
         Caption = 'Clear this band spots'
+        ParentShowHint = False
+        ShowHint = True
         TabOrder = 0
         OnClick = btnSpotClearBandClick
       end
@@ -194,19 +199,19 @@ object FrequencyVisualForm: TFrequencyVisualForm
   object Panel5: TPanel
     Left = 0
     Top = 0
-    Width = 950
-    Height = 207
+    Width = 882
+    Height = 220
     Align = alClient
     BevelEdges = []
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 935
-    ExplicitHeight = 270
+    ExplicitWidth = 950
+    ExplicitHeight = 207
     object frequencyPaintBox: TPaintBox
       Left = 0
       Top = 0
-      Width = 950
-      Height = 184
+      Width = 882
+      Height = 197
       Hint = 
         'Shift+Left click - spot down, Shift+Right - up. Alt+Click - dele' +
         'te spot. Ctrl + Click - additional menu.'
@@ -221,8 +226,9 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnMouseLeave = frequencyPaintBoxMouseLeave
       OnMouseMove = frequencyPaintBoxMouseMove
       OnPaint = frequencyPaintBoxPaint
-      ExplicitWidth = 935
-      ExplicitHeight = 352
+      ExplicitTop = -2
+      ExplicitWidth = 950
+      ExplicitHeight = 184
     end
     object labelSpotHint: TLabel
       Left = 664
@@ -240,42 +246,41 @@ object FrequencyVisualForm: TFrequencyVisualForm
     end
     object Panel3: TPanel
       Left = 0
-      Top = 184
-      Width = 950
+      Top = 197
+      Width = 882
       Height = 23
       Align = alBottom
       BevelEdges = [beTop, beBottom]
       BevelKind = bkSoft
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitTop = 354
-      ExplicitWidth = 935
+      ExplicitTop = 184
+      ExplicitWidth = 950
       object Panel4: TPanel
         Left = 0
         Top = 0
-        Width = 137
+        Width = 161
         Height = 19
         Align = alLeft
         BevelOuter = bvNone
         TabOrder = 0
         OnMouseDown = Panel4MouseDown
-        ExplicitHeight = 17
-        object Label1: TLabel
+        object Label4: TLabel
           Left = 6
           Top = 2
-          Width = 104
+          Width = 95
           Height = 13
-          Caption = 'Scale factor min/max:'
+          Caption = 'Last labels refresh: '
           Color = clBlack
           ParentColor = False
-          OnMouseDown = Label1MouseDown
+          OnMouseDown = Label4MouseDown
         end
-        object lbScaleFactor: TLabel
-          Left = 116
+        object labLabelsRefresh: TLabel
+          Left = 103
           Top = 2
-          Width = 7
+          Width = 28
           Height = 13
-          Caption = '0'
+          Caption = 'none'
           Color = clBlack
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clNavy
@@ -287,9 +292,9 @@ object FrequencyVisualForm: TFrequencyVisualForm
         end
       end
       object spacerScroll: TScrollBar
-        Left = 209
+        Left = 233
         Top = 0
-        Width = 575
+        Width = 483
         Height = 19
         Align = alClient
         Max = 3000
@@ -298,11 +303,11 @@ object FrequencyVisualForm: TFrequencyVisualForm
         Position = 1070
         TabOrder = 1
         OnChange = spacerScrollChange
-        ExplicitWidth = 384
-        ExplicitHeight = 17
+        ExplicitLeft = 209
+        ExplicitWidth = 575
       end
       object Panel7: TPanel
-        Left = 137
+        Left = 161
         Top = 0
         Width = 72
         Height = 19
@@ -311,7 +316,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
         BevelKind = bkFlat
         BevelOuter = bvNone
         TabOrder = 2
-        ExplicitHeight = 17
+        ExplicitLeft = 137
         object labPanelMode: TLabel
           Left = 3
           Top = 2
@@ -329,7 +334,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
         end
       end
       object Panel6: TPanel
-        Left = 784
+        Left = 716
         Top = 0
         Width = 166
         Height = 19
@@ -338,6 +343,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
         BevelKind = bkFlat
         BevelOuter = bvNone
         TabOrder = 3
+        ExplicitLeft = 784
         object lbSpotTotal: TLabel
           Left = 122
           Top = 2
@@ -382,7 +388,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
   end
   object freqPanelMenu: TPopupMenu
     Left = 24
-    Top = 72
+    Top = 80
     object isPanelHoldActive: TMenuItem
       AutoCheck = True
       Caption = 'Hold frequency panel'
@@ -406,10 +412,22 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnClick = menuLabelOnHoldClick
     end
   end
-  object refreshTimer: TTimer
-    Interval = 5000
-    OnTimer = refreshTimerTimer
-    Left = 96
-    Top = 128
+  object refreshLabelColorTimer: TTimer
+    Interval = 50000
+    OnTimer = refreshLabelColorTimerTimer
+    Left = 256
+    Top = 136
+  end
+  object spotCountResetTimer: TTimer
+    Interval = 60000
+    OnTimer = spotCountResetTimerTimer
+    Left = 144
+    Top = 80
+  end
+  object statusRefreshTimer: TTimer
+    Interval = 61000
+    OnTimer = statusRefreshTimerTimer
+    Left = 144
+    Top = 32
   end
 end
