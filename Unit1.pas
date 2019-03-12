@@ -404,7 +404,12 @@ if Button = mbLeft then begin
     //label selected
     if lastSelectedSpotLabel <> nil then
        lastSelectedSpotLabel.selected := false;
-    TSpotLabel(Sender).selected := true;
+
+    if (lastSelectedSpotLabel.Caption <> TSpotLabel(Sender).Caption) then
+      TSpotLabel(Sender).selected := true
+    else
+      TSpotLabel(Sender).selected := false;
+
     lastSelectedSpotLabel := TSpotLabel(Sender);
   end;
 end;

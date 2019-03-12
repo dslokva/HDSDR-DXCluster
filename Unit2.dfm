@@ -316,7 +316,7 @@ object settingsForm: TsettingsForm
     OnChange = colBoxMainFreqPanelChange
   end
   object btnDefaultFreqPanColor: TButton
-    Left = 176
+    Left = 132
     Top = 240
     Width = 35
     Height = 20
@@ -334,7 +334,7 @@ object settingsForm: TsettingsForm
     OnClick = btnGreennyFreqPanColorClick
   end
   object Button1: TButton
-    Left = 92
+    Left = 49
     Top = 240
     Width = 35
     Height = 20
@@ -343,7 +343,7 @@ object settingsForm: TsettingsForm
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 134
+    Left = 91
     Top = 240
     Width = 35
     Height = 20
@@ -352,11 +352,11 @@ object settingsForm: TsettingsForm
     OnClick = Button2Click
   end
   object Button3: TButton
-    Left = 50
+    Left = 174
     Top = 240
     Width = 35
     Height = 20
-    Caption = 'Grn'
+    Caption = 'Def2'
     TabOrder = 11
     OnClick = Button3Click
   end

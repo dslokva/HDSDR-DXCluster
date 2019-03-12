@@ -149,7 +149,7 @@ end;
 
 procedure TsettingsForm.Button3Click(Sender: TObject);
 begin
-colBoxMainFreqPanel.Selected := $00404000;
+colBoxMainFreqPanel.Selected := $005B241C;
 colBoxMainFreqPanelChange(self);
 end;
 
