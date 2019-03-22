@@ -48,6 +48,7 @@ type
     Button4: TButton;
     colBoxRegularSpot: TColorBox;
     Label6: TLabel;
+    cbSendCallFreqToAALog: TCheckBox;
     procedure btnCloseClick(Sender: TObject);
     procedure txtDXCPortKeyPress(Sender: TObject; var Key: Char);
     procedure btnSaveClick(Sender: TObject);
@@ -64,6 +65,7 @@ type
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure chkAllowSpotSelectClick(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -127,6 +129,7 @@ try
     WriteString('DXCluster', 'AALogAddr', txtAalAddr.Text);
     WriteString('DXCluster', 'AALogPort', txtAalPort.Text);
 
+    WriteBool('DXCluster', 'SendSpotDataToAALog', cbSendCallFreqToAALog.Checked);
     WriteBool('DXCluster', 'DXCAutoConnect', chkDXCAutoConnect.Checked);
     WriteBool('DXCluster', 'AALogIntegrationEnabled', cbAALogIntegrationEnabled.Checked);
     WriteBool('DXCluster', 'OwnSpotColorize', cbOwnSpotColorize.Checked);
@@ -169,6 +172,12 @@ colBoxMainFreqPanel.Selected := $005B241C;
 colBoxMainFreqPanelChange(self);
 end;
 
+procedure TsettingsForm.Button4Click(Sender: TObject);
+begin
+colBoxMainFreqPanel.Selected := $00000040;
+colBoxMainFreqPanelChange(self);
+end;
+
 procedure TsettingsForm.cbAALogIntegrationEnabledClick(Sender: TObject);
 begin
 gbAALogIntegration.Enabled := cbAALogIntegrationEnabled.Checked;
@@ -178,6 +187,7 @@ Label4.Enabled := cbAALogIntegrationEnabled.Checked;
 cbSpotInLog.Enabled := cbAALogIntegrationEnabled.Checked;
 cbSpotLotwEqsl.Enabled := cbAALogIntegrationEnabled.Checked;
 colBoxSpotInLog.Enabled := cbAALogIntegrationEnabled.Checked;
+cbSendCallFreqToAALog.Enabled := cbAALogIntegrationEnabled.Checked;
 End;
 
 procedure TsettingsForm.cbOwnSpotColorizeClick(Sender: TObject);
@@ -220,6 +230,7 @@ try
     cbAALogIntegrationEnabled.Checked := ReadBool('DXCluster', 'AALogIntegrationEnabled', false);
     cbEarlySpot.Checked := ReadBool('DXCluster', 'EarlySpotColorize', false);
     chkAllowSpotSelect.Checked := ReadBool('MainSettings', 'AllowSpotSelect', true);
+    cbSendCallFreqToAALog.Checked := ReadBool('MainSettings', 'SendSpotDataToAALog', true);
 
     txtDXCPort.Text := IntToStr(ReadInteger('DXCluster', 'DXCPort', 8000));
     txtAalPort.Text := IntToStr(ReadInteger('DXCluster', 'AALogPort', 3541));

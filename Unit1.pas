@@ -1260,6 +1260,7 @@ if CheckSpotListContainsKey(freqValue) then begin
 
             Brush.Style := bsDiagCross;
             Brush.Color := clWhite;
+            SetBkColor(Handle, ColorToRGB(frequencyPaintBox.Color));
             FillRect(rect);
 
             //check if we need to fill rect on top of label
@@ -1306,6 +1307,7 @@ if CheckSpotListContainsKey(freqValue) then begin
 
             Brush.Style := bsDiagCross;
             Brush.Color := clWhite;
+            SetBkColor(Handle, ColorToRGB(frequencyPaintBox.Color));
             FillRect(rect);
 
             //check if we need to fill rect on top of label

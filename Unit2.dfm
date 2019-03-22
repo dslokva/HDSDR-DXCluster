@@ -4,7 +4,7 @@ object settingsForm: TsettingsForm
   BorderStyle = bsSingle
   Caption = 'Settings'
   ClientHeight = 348
-  ClientWidth = 457
+  ClientWidth = 476
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,21 +18,21 @@ object settingsForm: TsettingsForm
   TextHeight = 13
   object Label1: TLabel
     Left = 8
-    Top = 215
+    Top = 221
     Width = 81
     Height = 13
     Caption = 'Freq panel color:'
   end
   object Label5: TLabel
     Left = 9
-    Top = 298
-    Width = 200
+    Top = 300
+    Width = 220
     Height = 13
-    Caption = '--------------------------------------------------'
+    Caption = '-------------------------------------------------------'
   end
   object labSaveInfo: TLabel
-    Left = 101
-    Top = 322
+    Left = 112
+    Top = 323
     Width = 15
     Height = 13
     Caption = 'OK'
@@ -55,7 +55,7 @@ object settingsForm: TsettingsForm
     OnClick = btnSaveClick
   end
   object btnClose: TButton
-    Left = 134
+    Left = 153
     Top = 317
     Width = 75
     Height = 25
@@ -66,8 +66,8 @@ object settingsForm: TsettingsForm
   object GroupBox1: TGroupBox
     Left = 8
     Top = 7
-    Width = 441
-    Height = 113
+    Width = 460
+    Height = 112
     Caption = ' DX Cluster: '
     TabOrder = 2
     object Label2: TLabel
@@ -170,14 +170,14 @@ object settingsForm: TsettingsForm
   object gbAALogIntegration: TGroupBox
     Left = 8
     Top = 127
-    Width = 201
-    Height = 77
+    Width = 220
+    Height = 85
     Caption = '       AALog integration '
     Enabled = False
     TabOrder = 3
     object txtAalAddr: TLabeledEdit
-      Left = 12
-      Top = 42
+      Left = 8
+      Top = 34
       Width = 95
       Height = 21
       EditLabel.Width = 77
@@ -189,8 +189,8 @@ object settingsForm: TsettingsForm
       Text = '127.0.0.1'
     end
     object txtAalPort: TLabeledEdit
-      Left = 122
-      Top = 42
+      Left = 118
+      Top = 34
       Width = 63
       Height = 21
       EditLabel.Width = 59
@@ -202,6 +202,15 @@ object settingsForm: TsettingsForm
       Text = '3541'
       OnKeyPress = txtDXCPortKeyPress
     end
+    object cbSendCallFreqToAALog: TCheckBox
+      Left = 8
+      Top = 61
+      Width = 209
+      Height = 17
+      Caption = 'Send info to AALog New QSO window'
+      Enabled = False
+      TabOrder = 2
+    end
   end
   object cbAALogIntegrationEnabled: TCheckBox
     Left = 20
@@ -212,8 +221,8 @@ object settingsForm: TsettingsForm
     OnClick = cbAALogIntegrationEnabledClick
   end
   object GroupBox2: TGroupBox
-    Left = 215
-    Top = 127
+    Left = 234
+    Top = 126
     Width = 234
     Height = 215
     Caption = ' Spot colors: '
@@ -333,8 +342,8 @@ object settingsForm: TsettingsForm
   end
   object colBoxMainFreqPanel: TColorBox
     Left = 95
-    Top = 212
-    Width = 114
+    Top = 218
+    Width = 133
     Height = 22
     Selected = 4659989
     Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
@@ -342,17 +351,17 @@ object settingsForm: TsettingsForm
     OnChange = colBoxMainFreqPanelChange
   end
   object btnDefaultFreqPanColor: TButton
-    Left = 79
-    Top = 272
+    Left = 88
+    Top = 274
     Width = 60
     Height = 20
-    Caption = 'Default'
+    Caption = 'Dark Blue'
     TabOrder = 7
     OnClick = btnDefaultFreqPanColorClick
   end
   object btnGreennyFreqPanColor: TButton
     Left = 8
-    Top = 246
+    Top = 248
     Width = 60
     Height = 20
     Caption = 'Green'
@@ -361,7 +370,7 @@ object settingsForm: TsettingsForm
   end
   object Button1: TButton
     Left = 8
-    Top = 272
+    Top = 274
     Width = 60
     Height = 20
     Caption = 'Grey'
@@ -369,8 +378,8 @@ object settingsForm: TsettingsForm
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 79
-    Top = 246
+    Left = 88
+    Top = 248
     Width = 60
     Height = 20
     Caption = 'Black'
@@ -378,8 +387,8 @@ object settingsForm: TsettingsForm
     OnClick = Button2Click
   end
   object Button3: TButton
-    Left = 149
-    Top = 272
+    Left = 168
+    Top = 274
     Width = 60
     Height = 20
     Caption = 'Default 2'
@@ -387,12 +396,12 @@ object settingsForm: TsettingsForm
     OnClick = Button3Click
   end
   object Button4: TButton
-    Left = 149
-    Top = 246
+    Left = 168
+    Top = 248
     Width = 60
     Height = 20
-    Caption = 'rrr'
+    Caption = 'Brick'
     TabOrder = 12
-    OnClick = Button2Click
+    OnClick = Button4Click
   end
 end

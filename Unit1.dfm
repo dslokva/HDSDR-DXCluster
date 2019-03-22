@@ -89,6 +89,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
         Checked = True
         State = cbChecked
         TabOrder = 1
+        OnClick = cbHiResClick
       end
       object Button2: TButton
         Left = 19
@@ -296,7 +297,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
         Position = 1070
         TabOrder = 1
         OnChange = spacerScrollChange
-        ExplicitWidth = 454
       end
       object Panel7: TPanel
         Left = 161
