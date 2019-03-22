@@ -3,7 +3,7 @@ object settingsForm: TsettingsForm
   Top = 0
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 321
+  ClientHeight = 348
   ClientWidth = 457
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,21 +18,21 @@ object settingsForm: TsettingsForm
   TextHeight = 13
   object Label1: TLabel
     Left = 8
-    Top = 213
+    Top = 215
     Width = 81
     Height = 13
     Caption = 'Freq panel color:'
   end
   object Label5: TLabel
     Left = 9
-    Top = 270
+    Top = 298
     Width = 200
     Height = 13
     Caption = '--------------------------------------------------'
   end
   object labSaveInfo: TLabel
     Left = 101
-    Top = 294
+    Top = 322
     Width = 15
     Height = 13
     Caption = 'OK'
@@ -47,7 +47,7 @@ object settingsForm: TsettingsForm
   end
   object btnSave: TButton
     Left = 8
-    Top = 289
+    Top = 317
     Width = 75
     Height = 25
     Caption = 'Save'
@@ -56,7 +56,7 @@ object settingsForm: TsettingsForm
   end
   object btnClose: TButton
     Left = 134
-    Top = 289
+    Top = 317
     Width = 75
     Height = 25
     Caption = 'Close'
@@ -156,6 +156,16 @@ object settingsForm: TsettingsForm
         'dxfun.com'
         'odxc.ru')
     end
+    object chkAllowSpotSelect: TCheckBox
+      Left = 318
+      Top = 80
+      Width = 102
+      Height = 17
+      Caption = 'Allow spot select'
+      Checked = True
+      State = cbChecked
+      TabOrder = 6
+    end
   end
   object gbAALogIntegration: TGroupBox
     Left = 8
@@ -205,15 +215,22 @@ object settingsForm: TsettingsForm
     Left = 215
     Top = 127
     Width = 234
-    Height = 187
+    Height = 215
     Caption = ' Spot colors: '
     TabOrder = 5
     object Label4: TLabel
       Left = 9
-      Top = 107
+      Top = 139
       Width = 216
       Height = 13
       Caption = '--------------------AALog data--------------------'
+    end
+    object Label6: TLabel
+      Left = 9
+      Top = 109
+      Width = 65
+      Height = 13
+      Caption = 'Regular spot:'
     end
     object cbOwnSpotColorize: TCheckBox
       Left = 8
@@ -257,7 +274,7 @@ object settingsForm: TsettingsForm
     end
     object cbSpotInLog: TCheckBox
       Left = 8
-      Top = 130
+      Top = 162
       Width = 98
       Height = 17
       Caption = 'Already in Log:'
@@ -268,7 +285,7 @@ object settingsForm: TsettingsForm
     end
     object colBoxSpotInLog: TColorBox
       Left = 127
-      Top = 128
+      Top = 160
       Width = 97
       Height = 22
       Selected = clGray
@@ -277,7 +294,7 @@ object settingsForm: TsettingsForm
     end
     object cbSpotLotwEqsl: TCheckBox
       Left = 8
-      Top = 156
+      Top = 188
       Width = 161
       Height = 17
       Caption = 'Underline if LoTW or EQSL.cc'
@@ -287,7 +304,7 @@ object settingsForm: TsettingsForm
     end
     object cbEarlySpot: TCheckBox
       Left = 8
-      Top = 75
+      Top = 77
       Width = 113
       Height = 17
       Caption = 'Early spot (2 min):'
@@ -297,17 +314,26 @@ object settingsForm: TsettingsForm
     end
     object colBoxEarlySpot: TColorBox
       Left = 127
-      Top = 73
+      Top = 75
       Width = 97
       Height = 22
       Selected = clRed
       Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
       TabOrder = 8
     end
+    object colBoxRegularSpot: TColorBox
+      Left = 80
+      Top = 105
+      Width = 144
+      Height = 22
+      Selected = clWhite
+      Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
+      TabOrder = 9
+    end
   end
   object colBoxMainFreqPanel: TColorBox
     Left = 95
-    Top = 210
+    Top = 212
     Width = 114
     Height = 22
     Selected = 4659989
@@ -316,48 +342,57 @@ object settingsForm: TsettingsForm
     OnChange = colBoxMainFreqPanelChange
   end
   object btnDefaultFreqPanColor: TButton
-    Left = 132
-    Top = 240
-    Width = 35
+    Left = 79
+    Top = 272
+    Width = 60
     Height = 20
-    Caption = 'Def'
+    Caption = 'Default'
     TabOrder = 7
     OnClick = btnDefaultFreqPanColorClick
   end
   object btnGreennyFreqPanColor: TButton
     Left = 8
-    Top = 240
-    Width = 35
+    Top = 246
+    Width = 60
     Height = 20
-    Caption = 'Grn'
+    Caption = 'Green'
     TabOrder = 8
     OnClick = btnGreennyFreqPanColorClick
   end
   object Button1: TButton
-    Left = 49
-    Top = 240
-    Width = 35
+    Left = 8
+    Top = 272
+    Width = 60
     Height = 20
-    Caption = 'Gre'
+    Caption = 'Grey'
     TabOrder = 9
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 91
-    Top = 240
-    Width = 35
+    Left = 79
+    Top = 246
+    Width = 60
     Height = 20
-    Caption = 'Blk'
+    Caption = 'Black'
     TabOrder = 10
     OnClick = Button2Click
   end
   object Button3: TButton
-    Left = 174
-    Top = 240
-    Width = 35
+    Left = 149
+    Top = 272
+    Width = 60
     Height = 20
-    Caption = 'Def2'
+    Caption = 'Default 2'
     TabOrder = 11
     OnClick = Button3Click
+  end
+  object Button4: TButton
+    Left = 149
+    Top = 246
+    Width = 60
+    Height = 20
+    Caption = 'rrr'
+    TabOrder = 12
+    OnClick = Button2Click
   end
 end

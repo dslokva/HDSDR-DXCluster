@@ -44,6 +44,10 @@ type
     Button1: TButton;
     Button2: TButton;
     Button3: TButton;
+    chkAllowSpotSelect: TCheckBox;
+    Button4: TButton;
+    colBoxRegularSpot: TColorBox;
+    Label6: TLabel;
     procedure btnCloseClick(Sender: TObject);
     procedure txtDXCPortKeyPress(Sender: TObject; var Key: Char);
     procedure btnSaveClick(Sender: TObject);
@@ -59,6 +63,7 @@ type
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+    procedure chkAllowSpotSelectClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -75,6 +80,13 @@ implementation
 uses Unit1;
 
 {$R *.dfm}
+
+procedure TsettingsForm.chkAllowSpotSelectClick(Sender: TObject);
+begin
+if not settingsForm.chkAllowSpotSelect.Checked then
+  if lastSelectedSpotLabel <> nil then
+    lastSelectedSpotLabel.selected := false;
+end;
 
 procedure TsettingsForm.btnCloseClick(Sender: TObject);
 begin
@@ -107,11 +119,14 @@ try
     WriteInteger('DXCluster', 'MouseMoveSpotColor', colBoxSpotMouseMove.Selected);
     WriteInteger('DXCluster', 'EarlySpotColor', colBoxEarlySpot.Selected);
     WriteInteger('DXCluster', 'MainFreqPanColor', colBoxMainFreqPanel.Selected);
+    WriteInteger('DXCluster', 'RegularSpotColor', colBoxRegularSpot.Selected);
+
     WriteString('DXCluster', 'DXCHost', txtDXCHost.Text);
     WriteString('DXCluster', 'DXCUsername', txtDXCUsername.Text);
     WriteString('DXCluster', 'StationCallsign', txtStationCallsign.Text);
     WriteString('DXCluster', 'AALogAddr', txtAalAddr.Text);
     WriteString('DXCluster', 'AALogPort', txtAalPort.Text);
+
     WriteBool('DXCluster', 'DXCAutoConnect', chkDXCAutoConnect.Checked);
     WriteBool('DXCluster', 'AALogIntegrationEnabled', cbAALogIntegrationEnabled.Checked);
     WriteBool('DXCluster', 'OwnSpotColorize', cbOwnSpotColorize.Checked);
@@ -119,6 +134,7 @@ try
     WriteBool('DXCluster', 'SpotInLogColorize', cbSpotInLog.Checked);
     WriteBool('DXCluster', 'SpotLotwEqslColorize', cbSpotLotwEqsl.Checked);
     WriteBool('DXCluster', 'EarlySpotColorize', cbEarlySpot.Checked);
+    WriteBool('MainSettings', 'AllowSpotSelect', chkAllowSpotSelect.Checked);
   end;
 
   labSaveInfo.Visible := true;
@@ -182,6 +198,7 @@ end;
 procedure TsettingsForm.colBoxMainFreqPanelChange(Sender: TObject);
 begin
 FrequencyVisualForm.frequencyPaintBox.Color := colBoxMainFreqPanel.Selected;
+FrequencyVisualForm.TransparentColorValue := colBoxMainFreqPanel.Selected;
 end;
 
 procedure TsettingsForm.FormCreate(Sender: TObject);
@@ -191,29 +208,40 @@ begin
 iniFile := TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
 try
   with iniFile, settingsForm do begin
-    txtDXCPort.Text := IntToStr(ReadInteger('DXCluster', 'DXCPort', 8000));
-    txtAalPort.Text := IntToStr(ReadInteger('DXCluster', 'AALogPort', 3541));
     spSpotMaxNumber.Value := ReadInteger('DXCluster', 'MaxSpots', 250);
     txtAalAddr.Text := ReadString('DXCluster', 'AALogAddr', '127.0.0.1');
     txtDXCHost.Text := ReadString('DXCluster', 'DXCHost', 'dxc.kfrr.kz');
     txtDXCUsername.Text := ReadString('DXCluster', 'DXCUsername', '');
     txtStationCallsign.Text := ReadString('DXCluster', 'StationCallsign', '');
+
     chkDXCAutoConnect.Checked := ReadBool('DXCluster', 'DXCAutoConnect', false);
     cbOwnSpotColorize.Checked := ReadBool('DXCluster', 'OwnSpotColorize', true);
     cbSpotMouseMoveColorize.Checked := ReadBool('DXCluster', 'SpotMouseMoveColorize', true);
     cbAALogIntegrationEnabled.Checked := ReadBool('DXCluster', 'AALogIntegrationEnabled', false);
     cbEarlySpot.Checked := ReadBool('DXCluster', 'EarlySpotColorize', false);
+    chkAllowSpotSelect.Checked := ReadBool('MainSettings', 'AllowSpotSelect', true);
+
+    txtDXCPort.Text := IntToStr(ReadInteger('DXCluster', 'DXCPort', 8000));
+    txtAalPort.Text := IntToStr(ReadInteger('DXCluster', 'AALogPort', 3541));
     colBoxOwnSpot.Selected := ReadInteger('DXCluster', 'OwnSpotColor', clYellow);
     colBoxSpotMouseMove.Selected := ReadInteger('DXCluster', 'MouseMoveSpotColor', clLime);
     colBoxEarlySpot.Selected := ReadInteger('DXCluster', 'EarlySpotColor', clRed);
     colBoxMainFreqPanel.Selected := ReadInteger('DXCluster', 'MainFreqPanColor', $00471B15);
-    colBoxMainFreqPanelChange(self);
+    colBoxRegularSpot.Selected := ReadInteger('DXCluster', 'RegularSpotColor', clWhite);
   end;
+
+  colBoxMainFreqPanelChange(self);
+
   FrequencyVisualForm.btnDXCConnect.Hint := txtDXCHost.Text;
   FrequencyVisualForm.stationCallsign := trim(txtStationCallsign.Text);
   maxSpotsNumber := spSpotMaxNumber.Value;
+
+  if FrequencyVisualForm.chkTransparentForm.Checked then
+    FrequencyVisualForm.TransparentColorValue := colBoxMainFreqPanel.Selected;
+
   if chkDXCAutoConnect.Checked then
     FrequencyVisualForm.btnDXCConnect.OnClick(self);
+
   cbAALogIntegrationEnabledClick(self);
 finally
   iniFile.Free;
