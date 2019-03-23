@@ -137,7 +137,7 @@ object settingsForm: TsettingsForm
       Width = 47
       Height = 22
       Increment = 5
-      MaxValue = 400
+      MaxValue = 350
       MinValue = 50
       TabOrder = 4
       Value = 120

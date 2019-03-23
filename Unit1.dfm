@@ -291,10 +291,10 @@ object FrequencyVisualForm: TFrequencyVisualForm
         Width = 438
         Height = 19
         Align = alClient
-        Max = 3000
-        Min = 500
+        Max = 4000
+        Min = 1200
         PageSize = 0
-        Position = 1070
+        Position = 2500
         TabOrder = 1
         OnChange = spacerScrollChange
       end
