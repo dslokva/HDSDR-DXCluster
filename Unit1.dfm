@@ -221,6 +221,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnDblClick = frequencyPaintBoxDblClick
       OnMouseLeave = frequencyPaintBoxMouseLeave
       OnMouseMove = frequencyPaintBoxMouseMove
+      OnMouseUp = frequencyPaintBoxMouseUp
       OnPaint = frequencyPaintBoxPaint
       ExplicitTop = -2
       ExplicitWidth = 950

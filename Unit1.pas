@@ -117,11 +117,13 @@ type
 
     procedure chkTransparentFormClick(Sender: TObject);
     procedure MainRefreshTimer1Timer(Sender: TObject);
+    procedure frequencyPaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
   private
     procedure SpotLabelMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     function Get15MinSpotCountApprox : variant;
-    procedure RepaintFrequencySpan();
+    procedure RepaintFrequencySpan(showLabels : boolean);
     procedure RefreshLineSpacer();
     procedure AddFrequencyPosition(textXPos : integer; freqValue : variant);
     procedure AllowDrag;
@@ -429,7 +431,7 @@ if Button = mbRight then begin
 end;
 
 HideAllLabels(true);
-RepaintFrequencySpan();
+RepaintFrequencySpan(true);
 End;
 
 procedure TFrequencyVisualForm.StatusBar1MouseDown(Sender: TObject;
@@ -928,7 +930,7 @@ spotBandCount := 0;
 freqShifter := frequencyPositionArr[bandSwitcher.ItemIndex];
 
 HideAllLabels(true);
-RepaintFrequencySpan();
+RepaintFrequencySpan(true);
 
 End;
 
@@ -992,7 +994,7 @@ spotList.Clear;
 callsingDataFromAALog.Clear;
 spotBandCount := 0;
 oldSpotCount := 0;
-RepaintFrequencySpan();
+RepaintFrequencySpan(true);
 End;
 
 procedure TFrequencyVisualForm.refreshSelectedBandEdges();
@@ -1091,7 +1093,7 @@ end;
 
 spotBandCount := 0;
 HideAllLabels(true);
-RepaintFrequencySpan();
+RepaintFrequencySpan(true);
 End;
 
 procedure TFrequencyVisualForm.RemoveSelectedSpot(dx : string);
@@ -1129,7 +1131,7 @@ end;
 
 spotBandCount := spotBandCount-1;
 HideAllLabels(true);
-RepaintFrequencySpan();
+RepaintFrequencySpan(true);
 End;
 
 procedure TFrequencyVisualForm.frequencyPaintBoxContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
@@ -1658,8 +1660,8 @@ while Start <= Length(incomeStr) do begin
 
   finally
     regExp.Free;
-    HideAllLabels(true);
-    RepaintFrequencySpan();
+    //HideAllLabels(true);
+    //RepaintFrequencySpan(true);
   end;
  end;
 
@@ -1691,16 +1693,24 @@ if (ssRight in Shift) and (not isPanelHoldActive.Checked) then begin
       freqShifter := freqShifter  + 0.5;
     end;
 
-    HideAllLabels(true);
     frequencyPositionArr[bandSwitcher.ItemIndex] := freqShifter;
-    RepaintFrequencySpan();
+    HideAllLabels(true);
+    RepaintFrequencySpan(false);
+
     notNeedToShowPopupForFreqPanel := true;
     exit;
   end;
   notNeedToShowPopupForFreqPanel := false;
 End;
 
-procedure TFrequencyVisualForm.RepaintFrequencySpan();
+procedure TFrequencyVisualForm.frequencyPaintBoxMouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+    HideAllLabels(true);
+    RepaintFrequencySpan(true);
+end;
+
+procedure TFrequencyVisualForm.RepaintFrequencySpan(showLabels : boolean);
 var
 textShift, lineHeigth, lineStart, i : integer;
 freqValueStr : String;
@@ -1735,31 +1745,36 @@ with frequencyPaintBox.Canvas do begin
        lineHeigth := shortLine;
        MoveTo(lineStart, 1);
        LineTo(lineStart, lineHeigth);
-       AddFrequencyPosition(lineStart, freqStart);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
 
        MoveTo(lineStart, 1);
        LineTo(lineStart, 2);
-       AddFrequencyPosition(lineStart, freqStart);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
 
        MoveTo(lineStart, 1);
        LineTo(lineStart, 2);
-       AddFrequencyPosition(lineStart, freqStart);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
 
        MoveTo(lineStart, 1);
        LineTo(lineStart, 2);
-       AddFrequencyPosition(lineStart, freqStart);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
 
        MoveTo(lineStart, 1);
        LineTo(lineStart, 2);
-       AddFrequencyPosition(lineStart, freqStart);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
 
@@ -1767,37 +1782,41 @@ with frequencyPaintBox.Canvas do begin
        lineHeigth := shortLine div 2;
        MoveTo(lineStart, 1);
        LineTo(lineStart, lineHeigth);
-       AddFrequencyPosition(lineStart, freqStart);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
 
        MoveTo(lineStart, 1);
        LineTo(lineStart, 2);
-       AddFrequencyPosition(lineStart, freqStart);
-       freqStart := freqStart + freqAddKhz;
-       lineStart := lineStart + lineSpacer div 10;
-
-
-       MoveTo(lineStart, 1);
-       LineTo(lineStart, 2);
-       AddFrequencyPosition(lineStart, freqStart);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
 
 
        MoveTo(lineStart, 1);
        LineTo(lineStart, 2);
-       AddFrequencyPosition(lineStart, freqStart);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
 
 
        MoveTo(lineStart, 1);
        LineTo(lineStart, 2);
-       AddFrequencyPosition(lineStart, freqStart);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
 
+
+       MoveTo(lineStart, 1);
+       LineTo(lineStart, 2);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
+       freqStart := freqStart + freqAddKhz;
+       lineStart := lineStart + lineSpacer div 10;
 
 
        lineHeigth := longLine;
@@ -1810,68 +1829,78 @@ with frequencyPaintBox.Canvas do begin
 
        MoveTo(lineStart, 1);
        LineTo(lineStart, lineHeigth);
-       AddFrequencyPosition(lineStart, freqStart);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
 
        MoveTo(lineStart, 1);
        LineTo(lineStart, 2);
-       AddFrequencyPosition(lineStart, freqStart);
-       freqStart := freqStart + freqAddKhz;
-       lineStart := lineStart + lineSpacer div 10;
-
-
-       MoveTo(lineStart, 1);
-       LineTo(lineStart, 2);
-       AddFrequencyPosition(lineStart, freqStart);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
 
 
        MoveTo(lineStart, 1);
        LineTo(lineStart, 2);
-       AddFrequencyPosition(lineStart, freqStart);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
 
 
        MoveTo(lineStart, 1);
        LineTo(lineStart, 2);
-       AddFrequencyPosition(lineStart, freqStart);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
+       freqStart := freqStart + freqAddKhz;
+       lineStart := lineStart + lineSpacer div 10;
+
+
+       MoveTo(lineStart, 1);
+       LineTo(lineStart, 2);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
 
        lineHeigth := shortLine div 2;
        MoveTo(lineStart, 1);
        LineTo(lineStart, lineHeigth);
-       AddFrequencyPosition(lineStart, freqStart);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
 
        MoveTo(lineStart, 1);
        LineTo(lineStart, 2);
-       AddFrequencyPosition(lineStart, freqStart);
-       freqStart := freqStart + freqAddKhz;
-       lineStart := lineStart + lineSpacer div 10;
-
-
-       MoveTo(lineStart, 1);
-       LineTo(lineStart, 2);
-       AddFrequencyPosition(lineStart, freqStart);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
 
 
        MoveTo(lineStart, 1);
        LineTo(lineStart, 2);
-       AddFrequencyPosition(lineStart, freqStart);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
 
 
        MoveTo(lineStart, 1);
        LineTo(lineStart, 2);
-       AddFrequencyPosition(lineStart, freqStart);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
+       freqStart := freqStart + freqAddKhz;
+       lineStart := lineStart + lineSpacer div 10;
+
+
+       MoveTo(lineStart, 1);
+       LineTo(lineStart, 2);
+       if showLabels then
+         AddFrequencyPosition(lineStart, freqStart);
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
 
@@ -1880,12 +1909,14 @@ with frequencyPaintBox.Canvas do begin
          lineHeigth := shortLine;
          MoveTo(lineStart, 1);
          LineTo(lineStart, lineHeigth);
+       if showLabels then
          AddFrequencyPosition(lineStart, freqStart);
          freqStart := freqStart + freqAddKhz;
          lineStart := lineStart + lineSpacer div 10;
 
          MoveTo(lineStart, 1);
          LineTo(lineStart, 2);
+       if showLabels then
          AddFrequencyPosition(lineStart, freqStart);
          freqStart := freqStart + freqAddKhz;
          lineStart := lineStart + lineSpacer div 10;
@@ -1893,18 +1924,21 @@ with frequencyPaintBox.Canvas do begin
 
          MoveTo(lineStart, 1);
          LineTo(lineStart, 2);
+       if showLabels then
          AddFrequencyPosition(lineStart, freqStart);
          freqStart := freqStart + freqAddKhz;
          lineStart := lineStart + lineSpacer div 10;
 
          MoveTo(lineStart, 1);
          LineTo(lineStart, 2);
+       if showLabels then
          AddFrequencyPosition(lineStart, freqStart);
          freqStart := freqStart + freqAddKhz;
          lineStart := lineStart + lineSpacer div 10;
 
          MoveTo(lineStart, 1);
          LineTo(lineStart, 2);
+       if showLabels then
          AddFrequencyPosition(lineStart, freqStart);
          freqStart := freqStart + freqAddKhz;
          lineStart := lineStart + lineSpacer div 10;
@@ -1912,30 +1946,35 @@ with frequencyPaintBox.Canvas do begin
          lineHeigth := shortLine div 2;
          MoveTo(lineStart, 1);
          LineTo(lineStart, lineHeigth);
+       if showLabels then
          AddFrequencyPosition(lineStart, freqStart);
          freqStart := freqStart + freqAddKhz;
          lineStart := lineStart + lineSpacer div 10;
 
          MoveTo(lineStart, 1);
          LineTo(lineStart, 2);
+       if showLabels then
          AddFrequencyPosition(lineStart, freqStart);
          freqStart := freqStart + freqAddKhz;
          lineStart := lineStart + lineSpacer div 10;
 
          MoveTo(lineStart, 1);
          LineTo(lineStart, 2);
+       if showLabels then
          AddFrequencyPosition(lineStart, freqStart);
          freqStart := freqStart + freqAddKhz;
          lineStart := lineStart + lineSpacer div 10;
 
          MoveTo(lineStart, 1);
          LineTo(lineStart, 2);
+       if showLabels then
          AddFrequencyPosition(lineStart, freqStart);
          freqStart := freqStart + freqAddKhz;
          lineStart := lineStart + lineSpacer div 10;
 
          MoveTo(lineStart, 1);
          LineTo(lineStart, 2);
+       if showLabels then
          AddFrequencyPosition(lineStart, freqStart);
          freqStart := freqStart + freqAddKhz;
          lineStart := lineStart + lineSpacer div 10;
@@ -1949,7 +1988,7 @@ End;
 
 procedure TFrequencyVisualForm.frequencyPaintBoxPaint(Sender: TObject);
 begin
-RepaintFrequencySpan();
+RepaintFrequencySpan(false);
 End;
 
 procedure TFrequencyVisualForm.Panel1MouseDown(Sender: TObject; Button: TMouseButton;
@@ -1994,7 +2033,7 @@ begin
 if (oldSpotCount < getSpotTotalCount()) then begin
   DebugOutput('Old spot count: '+IntToStr(oldSpotCount) + ', new spot count: ' + IntToStr(getSpotTotalCount()));
   oldSpotCount := getSpotTotalCount();
-  RepaintFrequencySpan();
+  RepaintFrequencySpan(true);
 end;
 
 end;
@@ -2004,7 +2043,7 @@ begin
 frequencyPositionArr[bandSwitcher.ItemIndex] := freqShifter;
 RefreshLineSpacer();
 HideAllLabels(true);
-RepaintFrequencySpan();
+RepaintFrequencySpan(true);
 
 End;
 
