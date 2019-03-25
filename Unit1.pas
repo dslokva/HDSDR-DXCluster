@@ -124,7 +124,7 @@ type
     procedure SpotLabelMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     function Get15MinSpotCountApprox : variant;
-    procedure RepaintFrequencySpan();
+    procedure RepaintFrequencySpan(showLabels : boolean);
     procedure RefreshLineSpacer();
     procedure AddFrequencyPosition(textXPos : integer; freqValue : variant);
     procedure AllowDrag;
@@ -434,8 +434,7 @@ if Button = mbRight then begin
 end;
 
 //HideLabels(false);
-showLabelsDuringPaint := true;
-RepaintFrequencySpan();
+RepaintFrequencySpan(true);
 End;
 
 procedure TFrequencyVisualForm.StatusBar1MouseDown(Sender: TObject;
@@ -515,7 +514,7 @@ if cbHiRes.Checked then begin
   PenWidthDPICorr := 3;
   frequencyPaintBoxTop.Height := 55;
 end else begin
-  spaceAdjustValue := 75;
+  spaceAdjustValue := 65;
   longLine := 24;
   shortLine := 14;
   freqMarkerFontSize := 8;
@@ -947,8 +946,7 @@ spotBandCount := 0;
 freqShifter := frequencyPositionArr[bandSwitcher.ItemIndex];
 
 HideLabels(true);
-showLabelsDuringPaint := true;
-RepaintFrequencySpan();
+RepaintFrequencySpan(true);
 
 End;
 
@@ -1012,7 +1010,7 @@ spotList.Clear;
 callsingDataFromAALog.Clear;
 spotBandCount := 0;
 oldSpotCount := 0;
-RepaintFrequencySpan();
+RepaintFrequencySpan(false);
 End;
 
 procedure TFrequencyVisualForm.refreshSelectedBandEdges();
@@ -1111,8 +1109,7 @@ end;
 
 spotBandCount := 0;
 HideLabels(false);
-showLabelsDuringPaint := true;
-RepaintFrequencySpan();
+RepaintFrequencySpan(true);
 End;
 
 procedure TFrequencyVisualForm.RemoveSelectedSpot(dx : string);
@@ -1150,8 +1147,7 @@ end;
 
 spotBandCount := spotBandCount-1;
 HideLabels(false);
-showLabelsDuringPaint := true;
-RepaintFrequencySpan();
+RepaintFrequencySpan(true);
 End;
 
 procedure TFrequencyVisualForm.frequencyPaintBoxContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
@@ -1261,8 +1257,10 @@ if CheckSpotListContainsKey(freqValue) then begin
         if bandSwitcher.ItemIndex < 4 then begin
         //LSB items
           spotLabel.Left := textXPos-spotLabel.Width-textXPosDPICorr;
-          if MoveDownByEdgeCheck(spotLabel) then
+          if MoveDownByEdgeCheck(spotLabel) then begin
             YPos := UnderFreqDPICorr+(EndYPosDPICorr*(spotCount+spotLabel.Tag));
+            spotLabel.Top := frequencyPaintBoxTop.Height+YPos;
+          end;
 
           MoveTo(textXPos, YPos+StartYPosDPICorr);
           LineTo(textXPos, YPos+EndYPosDPICorr);
@@ -1306,8 +1304,10 @@ if CheckSpotListContainsKey(freqValue) then begin
         end else begin
         //USB items
           spotLabel.Left := textXPos+textXPosDPICorr;
-          if MoveDownByEdgeCheck(spotLabel) then
+          if MoveDownByEdgeCheck(spotLabel) then begin
             YPos := UnderFreqDPICorr+(EndYPosDPICorr*(spotCount+spotLabel.Tag));
+            spotLabel.Top := frequencyPaintBoxTop.Height+YPos;
+          end;
 
           Pen.Width := PenWidthDPICorr;
           Pen.Color := clWhite;
@@ -1679,9 +1679,8 @@ while Start <= Length(incomeStr) do begin
 
   finally
     regExp.Free;
-    //HideLabels(false);
-    showLabelsDuringPaint := true;
-    RepaintFrequencySpan();
+    HideLabels(false);
+    RepaintFrequencySpan(true);
   end;
  end;
 
@@ -1715,8 +1714,7 @@ if (ssRight in Shift) and (not isPanelHoldActive.Checked) then begin
 
   HideLabels(false);
   frequencyPositionArr[bandSwitcher.ItemIndex] := freqShifter;
-  showLabelsDuringPaint := false;
-  RepaintFrequencySpan();
+  RepaintFrequencySpan(false);
 
   notNeedToShowPopupForFreqPanel := true;
   exit;
@@ -1728,8 +1726,7 @@ End;
 procedure TFrequencyVisualForm.frequencyPaintBoxMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  showLabelsDuringPaint := true;
-  RepaintFrequencySpan();
+  RepaintFrequencySpan(true);
 end;
 
 procedure Add100HzPositionToFreqSpan(paintBoxCanvas : TCanvas; var lineStartX, lineHeigthY : integer);
@@ -1742,18 +1739,17 @@ begin
   end;
 End;
 
-procedure TFrequencyVisualForm.RepaintFrequencySpan();
+procedure TFrequencyVisualForm.RepaintFrequencySpan(showLabels : boolean);
 begin
+showLabelsDuringPaint := showLabels;
 frequencyPaintBox.Refresh;
 frequencyPaintBoxTop.Refresh;
-
 lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
 End;
 
 procedure TFrequencyVisualForm.frequencyPaintBoxPaint(Sender: TObject);
 var
-textShift, lineHeigth, lineStart, i : integer;
-freqValueStr : String;
+lineHeigth, lineStart : integer;
 
 begin
 spotBandCount := 0;
@@ -1781,78 +1777,14 @@ with frequencyPaintBox.Canvas do begin
      Font.Size := freqMarkerFontSize;
 
      while lineStart < boxWidth do begin
-       if textShift < 0 then textShift := 0;
 
        if showLabelsDuringPaint then
          AddFrequencyPosition(lineStart, freqStart);
+
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
-
-       lineHeigth := 2; //small dot
-       Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-       Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-       Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-       Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-
-       if showLabelsDuringPaint then
-         AddFrequencyPosition(lineStart, freqStart);
-       freqStart := freqStart + freqAddKhz;
-       lineStart := lineStart + lineSpacer div 10;
-
-       lineHeigth := 2; //small dot
-       Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-       Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-       Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-       Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-
-       lineHeigth := longLine;
-       if showLabelsDuringPaint then
-         AddFrequencyPosition(lineStart, freqStart);
-       freqStart := freqStart + freqAddKhz;
-       lineStart := lineStart + lineSpacer div 10;
-
-       lineHeigth := 2; //small dot
-       Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-       Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-       Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-       Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-
-       lineHeigth := shortLine div 2;
-       if showLabelsDuringPaint then
-         AddFrequencyPosition(lineStart, freqStart);
-       freqStart := freqStart + freqAddKhz;
-       lineStart := lineStart + lineSpacer div 10;
-
-       lineHeigth := 2; //small dot
-       Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-       Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-       Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-       Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-
-       for i := 1 to 3 do begin
-         if showLabelsDuringPaint then
-           AddFrequencyPosition(lineStart, freqStart);
-         freqStart := freqStart + freqAddKhz;
-         lineStart := lineStart + lineSpacer div 10;
-
-         lineHeigth := 2; //small dot
-         Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-         Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-         Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-         Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-
-         if showLabelsDuringPaint then
-           AddFrequencyPosition(lineStart, freqStart);
-         freqStart := freqStart + freqAddKhz;
-         lineStart := lineStart + lineSpacer div 10;
-
-         lineHeigth := 2; //small dot
-         Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-         Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-         Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-         Add100HzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
-       end;
      end;
+
 end;
 
 End;
@@ -1996,7 +1928,7 @@ begin
 frequencyPositionArr[bandSwitcher.ItemIndex] := freqShifter;
 RefreshLineSpacer();
 HideLabels(false);
-RepaintFrequencySpan();
+RepaintFrequencySpan(true);
 
 End;
 
