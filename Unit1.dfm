@@ -212,7 +212,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
         'Shift+Left click - spot down, Shift+Right - up. Alt+Click - dele' +
         'te spot. Ctrl + Click - additional menu.'
       Align = alClient
-      Color = clSkyBlue
+      Color = clFuchsia
       ParentColor = False
       ParentShowHint = False
       PopupMenu = freqPanelMenu
@@ -221,7 +221,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnDblClick = frequencyPaintBoxDblClick
       OnMouseLeave = frequencyPaintBoxMouseLeave
       OnMouseMove = frequencyPaintBoxMouseMove
-      OnMouseUp = frequencyPaintBoxMouseUp
       OnPaint = frequencyPaintBoxPaint
       ExplicitTop = -2
       ExplicitWidth = 950
@@ -393,7 +392,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
     OnDataAvailable = IdTelnet1DataAvailable
     Terminal = 'dumb'
     Left = 24
-    Top = 13
+    Top = 37
   end
   object freqPanelMenu: TPopupMenu
     Left = 24
@@ -424,8 +423,8 @@ object FrequencyVisualForm: TFrequencyVisualForm
   object refreshLabelColorTimer: TTimer
     Interval = 50000
     OnTimer = refreshLabelColorTimerTimer
-    Left = 256
-    Top = 136
+    Left = 144
+    Top = 128
   end
   object spotCountResetTimer: TTimer
     Interval = 60000

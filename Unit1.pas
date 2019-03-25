@@ -44,7 +44,6 @@ type
     spotLabelMenu : TPopupMenu;
     Viewonqrzcom1: TMenuItem;
     Viewonqrzru1: TMenuItem;
-    labelSpotHint: TLabel;
     refreshLabelColorTimer: TTimer;
     menuLabelOnHold: TMenuItem;
     StatusBar1: TStatusBar;
@@ -67,6 +66,7 @@ type
     statusRefreshTimer: TTimer;
     chkTransparentForm: TCheckBox;
     Button4: TButton;
+    labelSpotHint: TLabel;
     procedure frequencyPaintBoxDblClick(Sender: TObject);
     procedure frequencyPaintBoxPaint(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -116,9 +116,6 @@ type
     procedure statusRefreshTimerTimer(Sender: TObject);
 
     procedure chkTransparentFormClick(Sender: TObject);
-    procedure MainRefreshTimer1Timer(Sender: TObject);
-    procedure frequencyPaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
   private
     procedure SpotLabelMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
@@ -255,7 +252,7 @@ begin
 result := spotList;
 end;
 
-procedure HideAllLabels(labelVisible : boolean);
+procedure HideLabels(isAllLabels : boolean);
 var
 j, i : integer;
 spotArray : TArray<TSpot>;
@@ -263,8 +260,9 @@ spotArray : TArray<TSpot>;
 begin
 for j := 0 to spotList.Count-1 do begin
   spotArray := spotList.Items[j].Value;
+  if ((spotList.Items[j].Key >= freqBandStart) and (spotList.Items[j].Key <= freqBandEnd)) or (isAllLabels) then
   for i := low(spotArray) to high(spotArray) do
-    spotArray[i].spotLabel.Visible := not labelVisible;
+    spotArray[i].spotLabel.Visible := false;
 end;
 
 End;
@@ -430,7 +428,7 @@ if Button = mbRight then begin
 
 end;
 
-HideAllLabels(true);
+HideLabels(false);
 RepaintFrequencySpan(true);
 End;
 
@@ -929,7 +927,7 @@ refreshSelectedBandEdges();
 spotBandCount := 0;
 freqShifter := frequencyPositionArr[bandSwitcher.ItemIndex];
 
-HideAllLabels(true);
+HideLabels(true);
 RepaintFrequencySpan(true);
 
 End;
@@ -1092,7 +1090,7 @@ for j := spotList.Count-1 downto 0 do begin
 end;
 
 spotBandCount := 0;
-HideAllLabels(true);
+HideLabels(false);
 RepaintFrequencySpan(true);
 End;
 
@@ -1130,7 +1128,7 @@ for j := 0 to spotList.Count-1 do begin
 end;
 
 spotBandCount := spotBandCount-1;
-HideAllLabels(true);
+HideLabels(false);
 RepaintFrequencySpan(true);
 End;
 
@@ -1248,8 +1246,8 @@ if CheckSpotListContainsKey(freqValue) then begin
           //Draw dotted line if spot is LoTW or EQSL.cc user
           if (spotLabel.isLotwEqsl) and (settingsForm.cbSpotLotwEqsl.Checked) then begin
             Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, PenWidthDPICorr, LogBrush, 0, nil);
-            MoveTo(textXPos-spotLabel.Width-2, YPos+EndYPosDPICorr+3);
-            LineTo(textXPos, YPos+EndYPosDPICorr+3);
+            MoveTo(textXPos-spotLabel.Width-2, YPos+EndYPosDPICorr+6);
+            LineTo(textXPos, YPos+EndYPosDPICorr+6);
             Pen.Handle := ExtCreatePen(BS_SOLID, PenWidthDPICorr, LogBrush, 0, nil);
           end;
           if (spotLabel.selected) and (settingsForm.chkAllowSpotSelect.Checked) then begin
@@ -1295,8 +1293,8 @@ if CheckSpotListContainsKey(freqValue) then begin
           //Draw dotted line if spot is LoTW or EQSL.cc user
           if (spotLabel.isLotwEqsl) and (settingsForm.cbSpotLotwEqsl.Checked) then begin
             Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, PenWidthDPICorr, LogBrush, 0, nil);
-            MoveTo(textXPos, YPos+EndYPosDPICorr+3);
-            LineTo(textXPos+spotLabel.Width+2, YPos+EndYPosDPICorr+3);
+            MoveTo(textXPos, YPos+EndYPosDPICorr+6);
+            LineTo(textXPos+spotLabel.Width+2, YPos+EndYPosDPICorr+6);
             Pen.Handle := ExtCreatePen(BS_SOLID, PenWidthDPICorr, LogBrush, 0, nil);
           end;
 
@@ -1330,7 +1328,7 @@ if CheckSpotListContainsKey(freqValue) then begin
           end;
 
         end;
-        spotLabel.Color := frequencyPaintBox.Color+1;
+        spotLabel.Color := frequencyPaintBox.Color+2;
         spotLabel.Top := YPos;
         spotLabel.Visible := true;
         inc(spotCount);
@@ -1458,8 +1456,7 @@ for i := 0 to spotList.Count-1 do
     spotList.Items[i] := TPair<variant, TArray<TSpot>>.Create(spotFreq, spotArray);
     break;
   end;
-end;
-
+End;
 
 procedure TFrequencyVisualForm.Viewonqrzcom1Click(Sender: TObject);
 begin
@@ -1639,12 +1636,12 @@ while Start <= Length(incomeStr) do begin
         lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
 
         if CheckSpotListContainsKey(spot.Freq) then begin
-        localSpotArray := GetSpotArrayFromList(spot.Freq);
-        if localSpotArray <> nil then  //maybe this check is not needed?
-          if not FindCallInArray(localSpotArray, spot.DX) then begin
-            TAppender<TSpot>.Append(localSpotArray, spot);
-            updateSpotListArray(spot.Freq, localSpotArray);
-          end;
+          localSpotArray := GetSpotArrayFromList(spot.Freq);
+          if localSpotArray <> nil then  //maybe this check is not needed?
+            if not FindCallInArray(localSpotArray, spot.DX) then begin
+              TAppender<TSpot>.Append(localSpotArray, spot);
+              updateSpotListArray(spot.Freq, localSpotArray);
+            end;
         end else begin
           //need to revert all list, because DXCluster shows spots in descending time manner
           //so, we simple insert every spot to begin of the list
@@ -1660,8 +1657,8 @@ while Start <= Length(incomeStr) do begin
 
   finally
     regExp.Free;
-    //HideAllLabels(true);
-    //RepaintFrequencySpan(true);
+    HideLabels(false);
+    RepaintFrequencySpan(true);
   end;
  end;
 
@@ -1693,22 +1690,15 @@ if (ssRight in Shift) and (not isPanelHoldActive.Checked) then begin
       freqShifter := freqShifter  + 0.5;
     end;
 
+    HideLabels(false);
     frequencyPositionArr[bandSwitcher.ItemIndex] := freqShifter;
-    HideAllLabels(true);
-    RepaintFrequencySpan(false);
+    RepaintFrequencySpan(true);
 
     notNeedToShowPopupForFreqPanel := true;
     exit;
   end;
   notNeedToShowPopupForFreqPanel := false;
 End;
-
-procedure TFrequencyVisualForm.frequencyPaintBoxMouseUp(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin
-    HideAllLabels(true);
-    RepaintFrequencySpan(true);
-end;
 
 procedure TFrequencyVisualForm.RepaintFrequencySpan(showLabels : boolean);
 var
@@ -1988,7 +1978,7 @@ End;
 
 procedure TFrequencyVisualForm.frequencyPaintBoxPaint(Sender: TObject);
 begin
-RepaintFrequencySpan(false);
+RepaintFrequencySpan(true);
 End;
 
 procedure TFrequencyVisualForm.Panel1MouseDown(Sender: TObject; Button: TMouseButton;
@@ -2027,22 +2017,11 @@ isPanelHoldActive.Checked := not isPanelHoldActive.Checked;
 isPanelHoldActiveClick(FrequencyVisualForm);
 end;
 
-procedure TFrequencyVisualForm.MainRefreshTimer1Timer(Sender: TObject);
-begin
-
-if (oldSpotCount < getSpotTotalCount()) then begin
-  DebugOutput('Old spot count: '+IntToStr(oldSpotCount) + ', new spot count: ' + IntToStr(getSpotTotalCount()));
-  oldSpotCount := getSpotTotalCount();
-  RepaintFrequencySpan(true);
-end;
-
-end;
-
 procedure TFrequencyVisualForm.spacerScrollChange(Sender: TObject);
 begin
 frequencyPositionArr[bandSwitcher.ItemIndex] := freqShifter;
 RefreshLineSpacer();
-HideAllLabels(true);
+HideLabels(false);
 RepaintFrequencySpan(true);
 
 End;
