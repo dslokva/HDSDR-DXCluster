@@ -207,6 +207,8 @@ end;
 
 procedure TsettingsForm.colBoxMainFreqPanelChange(Sender: TObject);
 begin
+//FrequencyVisualForm.Panel5.Color := colBoxMainFreqPanel.Selected;
+FrequencyVisualForm.frequencyPaintBoxTop.Color := colBoxMainFreqPanel.Selected;
 FrequencyVisualForm.frequencyPaintBox.Color := colBoxMainFreqPanel.Selected;
 FrequencyVisualForm.TransparentColorValue := colBoxMainFreqPanel.Selected;
 end;

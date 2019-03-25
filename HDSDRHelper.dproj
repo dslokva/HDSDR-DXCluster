@@ -115,6 +115,7 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="SpotLabel.pas"/>
+        <None Include="Win32\Debug\HDSDRHelper.ini"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -145,6 +146,12 @@
                 <DeployFile LocalName="Win32\Debug\HDSDRHelper.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>HDSDRHelper.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win32\Debug\HDSDRHelper.ini" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

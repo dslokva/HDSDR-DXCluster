@@ -202,17 +202,19 @@ object FrequencyVisualForm: TFrequencyVisualForm
     Align = alClient
     BevelEdges = []
     BevelOuter = bvNone
+    DoubleBuffered = True
+    ParentDoubleBuffered = False
     TabOrder = 1
     object frequencyPaintBox: TPaintBox
       Left = 0
-      Top = 0
+      Top = 40
       Width = 882
-      Height = 197
+      Height = 157
       Hint = 
         'Shift+Left click - spot down, Shift+Right - up. Alt+Click - dele' +
         'te spot. Ctrl + Click - additional menu.'
       Align = alClient
-      Color = clFuchsia
+      Color = clNavy
       ParentColor = False
       ParentShowHint = False
       PopupMenu = freqPanelMenu
@@ -221,10 +223,9 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnDblClick = frequencyPaintBoxDblClick
       OnMouseLeave = frequencyPaintBoxMouseLeave
       OnMouseMove = frequencyPaintBoxMouseMove
+      OnMouseUp = frequencyPaintBoxMouseUp
       OnPaint = frequencyPaintBoxPaint
-      ExplicitTop = -2
-      ExplicitWidth = 950
-      ExplicitHeight = 184
+      ExplicitTop = 38
     end
     object labelSpotHint: TLabel
       Left = 664
@@ -239,6 +240,21 @@ object FrequencyVisualForm: TFrequencyVisualForm
       Font.Style = []
       ParentFont = False
       Visible = False
+    end
+    object frequencyPaintBoxTop: TPaintBox
+      Left = 0
+      Top = 0
+      Width = 882
+      Height = 40
+      Hint = 
+        'Shift+Left click - spot down, Shift+Right - up. Alt+Click - dele' +
+        'te spot. Ctrl + Click - additional menu.'
+      Align = alTop
+      Color = clNavy
+      ParentColor = False
+      ParentShowHint = False
+      ShowHint = True
+      OnPaint = frequencyPaintBoxTopPaint
     end
     object Panel3: TPanel
       Left = 0
@@ -392,7 +408,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
     OnDataAvailable = IdTelnet1DataAvailable
     Terminal = 'dumb'
     Left = 24
-    Top = 37
+    Top = 33
   end
   object freqPanelMenu: TPopupMenu
     Left = 24
