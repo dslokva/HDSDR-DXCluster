@@ -512,7 +512,7 @@ if cbHiRes.Checked then begin
   textXPosDPICorr := 5;
 
   StartYPosDPICorr := 4;
-  EndYPosDPICorr := 25;
+  EndYPosDPICorr := 26;
 
   UnderFreqDPICorr := 1;
   PenWidthDPICorr := 3;
@@ -528,7 +528,7 @@ end else begin
   textXPosDPICorr := 2;
 
   StartYPosDPICorr := 2;
-  EndYPosDPICorr := 13;
+  EndYPosDPICorr := 15;
 
   UnderFreqDPICorr := 1;
   PenWidthDPICorr := 1;
@@ -1258,9 +1258,10 @@ if CheckSpotListContainsKey(freqValue) then begin
           LineTo(textXPos, YPos+EndYPosDPICorr);
           //Draw dotted line if spot is LoTW or EQSL.cc user
           if (spotLabel.isLotwEqsl) and (settingsForm.cbSpotLotwEqsl.Checked) then begin
+//            spotLabel.Font.Style := [fsBold] + [fsUnderline];
             Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, PenWidthDPICorr, LogBrush, 0, nil);
-            MoveTo(textXPos-spotLabel.Width-2, YPos+EndYPosDPICorr+6);
-            LineTo(textXPos, YPos+EndYPosDPICorr+6);
+            MoveTo(textXPos-spotLabel.Width-2, YPos+EndYPosDPICorr-1);
+            LineTo(textXPos, YPos+EndYPosDPICorr-1);
             Pen.Handle := ExtCreatePen(BS_SOLID, PenWidthDPICorr, LogBrush, 0, nil);
           end;
           if (spotLabel.selected) and (settingsForm.chkAllowSpotSelect.Checked) then begin
@@ -1307,9 +1308,10 @@ if CheckSpotListContainsKey(freqValue) then begin
           LineTo(textXPos, YPos+EndYPosDPICorr);
           //Draw dotted line if spot is LoTW or EQSL.cc user
           if (spotLabel.isLotwEqsl) and (settingsForm.cbSpotLotwEqsl.Checked) then begin
+//            spotLabel.Font.Style := [fsBold] + [fsUnderline];
             Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, PenWidthDPICorr, LogBrush, 0, nil);
-            MoveTo(textXPos, YPos+EndYPosDPICorr+6);
-            LineTo(textXPos+spotLabel.Width+2, YPos+EndYPosDPICorr+6);
+            MoveTo(textXPos, YPos+EndYPosDPICorr-1);
+            LineTo(textXPos+spotLabel.Width+2, YPos+EndYPosDPICorr-1);
             Pen.Handle := ExtCreatePen(BS_SOLID, PenWidthDPICorr, LogBrush, 0, nil);
           end;
 
@@ -1565,7 +1567,7 @@ while Start <= Length(incomeStr) do begin
 
         spotLabel := TSpotLabel.Create(Panel5, spot.DE, spot.LocalTime);
         spotLabel.Transparent := false;
-        spotLabel.Color := frequencyPaintBox.Color+2;
+        spotLabel.Color := frequencyPaintBox.Color+1;
         spotLabel.Parent := Panel5;
         spotLabel.Left := 0;
         spotLabel.Top := 0;
@@ -1629,7 +1631,7 @@ while Start <= Length(incomeStr) do begin
 
         spotLabel := TSpotLabel.Create(Panel5, spot.DE, spot.LocalTime);
         spotLabel.Transparent := false;
-        spotLabel.Color := frequencyPaintBox.Color+2;
+        spotLabel.Color := frequencyPaintBox.Color+1;
         spotLabel.Parent := Panel5;
         spotLabel.Left := 0;
         spotLabel.Top := 0;

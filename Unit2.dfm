@@ -127,10 +127,10 @@ object settingsForm: TsettingsForm
           Width = 47
           Height = 22
           Increment = 5
-          MaxValue = 350
+          MaxValue = 400
           MinValue = 50
           TabOrder = 3
-          Value = 120
+          Value = 200
           OnChange = spSpotMaxNumberChange
         end
         object txtDXCHost: TComboBox

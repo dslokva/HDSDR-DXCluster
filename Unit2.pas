@@ -234,7 +234,7 @@ begin
 iniFile := TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
 try
   with iniFile, settingsForm do begin
-    spSpotMaxNumber.Value := ReadInteger('DXCluster', 'MaxSpots', 250);
+    spSpotMaxNumber.Value := ReadInteger('DXCluster', 'MaxSpots', 200);
     txtAalAddr.Text := ReadString('DXCluster', 'AALogAddr', '127.0.0.1');
     txtDXCHost.Text := ReadString('DXCluster', 'DXCHost', 'dxc.kfrr.kz');
     txtDXCUsername.Text := ReadString('DXCluster', 'DXCUsername', '');
