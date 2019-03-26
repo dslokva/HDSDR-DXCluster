@@ -5,26 +5,20 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, inifiles, Vcl.Samples.Spin,
-  Vcl.ActnMan, Vcl.ActnColorMaps, VCLTee.TeCanvas;
+  Vcl.ActnMan, Vcl.ActnColorMaps, VCLTee.TeCanvas, Vcl.ComCtrls;
 
 type
   TsettingsForm = class(TForm)
     btnSave: TButton;
     btnClose: TButton;
-    GroupBox1: TGroupBox;
-    txtDXCUsername: TLabeledEdit;
-    txtDXCPort: TLabeledEdit;
-    chkDXCAutoConnect: TCheckBox;
-    txtStationCallsign: TLabeledEdit;
-    Label2: TLabel;
-    spSpotMaxNumber: TSpinEdit;
-    Label3: TLabel;
-    txtDXCHost: TComboBox;
-    gbAALogIntegration: TGroupBox;
-    txtAalAddr: TLabeledEdit;
-    txtAalPort: TLabeledEdit;
-    cbAALogIntegrationEnabled: TCheckBox;
+    labSaveInfo: TLabel;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    Colors: TTabSheet;
     GroupBox2: TGroupBox;
+    Label4: TLabel;
+    Label6: TLabel;
     cbOwnSpotColorize: TCheckBox;
     colBoxOwnSpot: TColorBox;
     colBoxSpotMouseMove: TColorBox;
@@ -34,21 +28,34 @@ type
     cbSpotLotwEqsl: TCheckBox;
     cbEarlySpot: TCheckBox;
     colBoxEarlySpot: TColorBox;
-    colBoxMainFreqPanel: TColorBox;
+    colBoxRegularSpot: TColorBox;
+    GroupBox3: TGroupBox;
     Label1: TLabel;
-    Label4: TLabel;
+    colBoxMainFreqPanel: TColorBox;
     btnDefaultFreqPanColor: TButton;
     btnGreennyFreqPanColor: TButton;
-    Label5: TLabel;
-    labSaveInfo: TLabel;
     Button1: TButton;
     Button2: TButton;
     Button3: TButton;
-    chkAllowSpotSelect: TCheckBox;
     Button4: TButton;
-    colBoxRegularSpot: TColorBox;
-    Label6: TLabel;
+    gbAALogIntegration: TGroupBox;
+    txtAalAddr: TLabeledEdit;
+    txtAalPort: TLabeledEdit;
     cbSendCallFreqToAALog: TCheckBox;
+    cbAALogIntegrationEnabled: TCheckBox;
+    GroupBox1: TGroupBox;
+    Label2: TLabel;
+    Label3: TLabel;
+    txtDXCUsername: TLabeledEdit;
+    txtDXCPort: TLabeledEdit;
+    txtStationCallsign: TLabeledEdit;
+    spSpotMaxNumber: TSpinEdit;
+    txtDXCHost: TComboBox;
+    chkAllowSpotSelect: TCheckBox;
+    chkDXCAutoConnect: TCheckBox;
+    Label8: TLabel;
+    Label5: TLabel;
+    colBoxScale: TColorBox;
     procedure btnCloseClick(Sender: TObject);
     procedure txtDXCPortKeyPress(Sender: TObject; var Key: Char);
     procedure btnSaveClick(Sender: TObject);
@@ -66,6 +73,7 @@ type
     procedure Button3Click(Sender: TObject);
     procedure chkAllowSpotSelectClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
+    procedure colBoxScaleChange(Sender: TObject);
   private
     { Private declarations }
   public
@@ -120,8 +128,9 @@ try
     WriteInteger('DXCluster', 'OwnSpotColor', colBoxOwnSpot.Selected);
     WriteInteger('DXCluster', 'MouseMoveSpotColor', colBoxSpotMouseMove.Selected);
     WriteInteger('DXCluster', 'EarlySpotColor', colBoxEarlySpot.Selected);
-    WriteInteger('DXCluster', 'MainFreqPanColor', colBoxMainFreqPanel.Selected);
+    WriteInteger('MainSettings', 'MainFreqPanColor', colBoxMainFreqPanel.Selected);
     WriteInteger('DXCluster', 'RegularSpotColor', colBoxRegularSpot.Selected);
+    WriteInteger('MainSettings', 'ScaleColor', colBoxScale.Selected);
 
     WriteString('DXCluster', 'DXCHost', txtDXCHost.Text);
     WriteString('DXCluster', 'DXCUsername', txtDXCUsername.Text);
@@ -213,6 +222,11 @@ FrequencyVisualForm.frequencyPaintBox.Color := colBoxMainFreqPanel.Selected;
 FrequencyVisualForm.TransparentColorValue := colBoxMainFreqPanel.Selected;
 end;
 
+procedure TsettingsForm.colBoxScaleChange(Sender: TObject);
+begin
+FrequencyVisualForm.frequencyPaintBoxTop.Refresh;
+end;
+
 procedure TsettingsForm.FormCreate(Sender: TObject);
 var
 iniFile : TIniFile;
@@ -239,11 +253,13 @@ try
     colBoxOwnSpot.Selected := ReadInteger('DXCluster', 'OwnSpotColor', clYellow);
     colBoxSpotMouseMove.Selected := ReadInteger('DXCluster', 'MouseMoveSpotColor', clLime);
     colBoxEarlySpot.Selected := ReadInteger('DXCluster', 'EarlySpotColor', clRed);
-    colBoxMainFreqPanel.Selected := ReadInteger('DXCluster', 'MainFreqPanColor', $00471B15);
+    colBoxMainFreqPanel.Selected := ReadInteger('MainSettings', 'MainFreqPanColor', $00471B15);
     colBoxRegularSpot.Selected := ReadInteger('DXCluster', 'RegularSpotColor', clWhite);
+    colBoxScale.Selected := ReadInteger('MainSettings', 'ScaleColor', clWhite);
   end;
 
   colBoxMainFreqPanelChange(self);
+  colBoxScaleChange(self);
 
   FrequencyVisualForm.btnDXCConnect.Hint := txtDXCHost.Text;
   FrequencyVisualForm.stationCallsign := trim(txtStationCallsign.Text);

@@ -1814,9 +1814,9 @@ end;
   with frequencyPaintBoxTop.Canvas do begin
     FillRect(Rect(0, 0, frequencyPaintBoxTop.Width, frequencyPaintBoxTop.Height));
     Pen.Width := 1;
-    Pen.Color := clWhite;
+    Pen.Color := settingsForm.colBoxScale.Selected;
     Pen.Style := psSolid;
-    Font.Color := clWhite;
+    Font.Color := settingsForm.colBoxScale.Selected;
     Font.Size := freqMarkerFontSize;
 
     while lineStart < boxWidth do begin
