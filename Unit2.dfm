@@ -132,7 +132,7 @@ object settingsForm: TsettingsForm
       Text = 'UN7ZAF'
     end
     object spSpotMaxNumber: TSpinEdit
-      Left = 249
+      Left = 250
       Top = 78
       Width = 47
       Height = 22
@@ -391,7 +391,7 @@ object settingsForm: TsettingsForm
     Top = 274
     Width = 60
     Height = 20
-    Caption = 'Default 2'
+    Caption = 'Blue'
     TabOrder = 11
     OnClick = Button3Click
   end

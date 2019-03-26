@@ -1,14 +1,14 @@
 object FrequencyVisualForm: TFrequencyVisualForm
   Left = 0
   Top = 0
-  Caption = 'HDSDR-DXCluster-Helper'
-  ClientHeight = 320
-  ClientWidth = 882
+  Caption = 'SDR-DXCluster-Helper'
+  ClientHeight = 292
+  ClientWidth = 888
   Color = clBtnFace
   TransparentColor = True
   TransparentColorValue = 4659989
   Constraints.MinHeight = 220
-  Constraints.MinWidth = 898
+  Constraints.MinWidth = 904
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -24,8 +24,8 @@ object FrequencyVisualForm: TFrequencyVisualForm
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 220
-    Width = 882
+    Top = 192
+    Width = 888
     Height = 100
     Align = alBottom
     BevelEdges = []
@@ -33,10 +33,12 @@ object FrequencyVisualForm: TFrequencyVisualForm
     BevelOuter = bvNone
     TabOrder = 0
     OnMouseDown = Panel1MouseDown
+    ExplicitTop = 220
+    ExplicitWidth = 882
     object StatusBar1: TStatusBar
       Left = 0
       Top = 81
-      Width = 882
+      Width = 888
       Height = 19
       Panels = <
         item
@@ -52,18 +54,20 @@ object FrequencyVisualForm: TFrequencyVisualForm
           Width = 200
         end>
       OnMouseDown = StatusBar1MouseDown
+      ExplicitWidth = 882
     end
     object Panel2: TPanel
-      Left = 618
+      Left = 624
       Top = 0
       Width = 264
       Height = 81
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
-      OnMouseDown = Panel2MouseDown
+      OnMouseDown = Panel4MouseDown
+      ExplicitLeft = 618
       object Bevel1: TBevel
-        Left = 4
+        Left = 2
         Top = 6
         Width = 9
         Height = 69
@@ -102,7 +106,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       end
       object Button1: TButton
         Left = 19
-        Top = 45
+        Top = 44
         Width = 111
         Height = 25
         Caption = 'Exit'
@@ -124,48 +128,50 @@ object FrequencyVisualForm: TFrequencyVisualForm
     object Panel8: TPanel
       Left = 0
       Top = 0
-      Width = 618
+      Width = 624
       Height = 81
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 2
       OnMouseDown = Panel8MouseDown
+      ExplicitLeft = -2
+      ExplicitWidth = 628
       object btnSpotClearBand: TButton
-        Left = 487
-        Top = 13
-        Width = 120
+        Left = 351
+        Top = 44
+        Width = 98
         Height = 25
         Hint = 'Exclude holded labels'
-        Caption = 'Clear this band spots'
+        Caption = 'Clear band'
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
         OnClick = btnSpotClearBandClick
       end
       object btnSpotClearAll: TButton
-        Left = 487
-        Top = 45
-        Width = 120
+        Left = 455
+        Top = 44
+        Width = 74
         Height = 25
-        Caption = 'Clear all spots (!)'
+        Caption = 'Clear all (!)'
         TabOrder = 1
         OnClick = btnSpotClearAllClick
       end
       object Button3: TButton
-        Left = 351
-        Top = 44
-        Width = 123
+        Left = 455
+        Top = 13
+        Width = 74
         Height = 25
-        Caption = 'View DXCluster...'
+        Caption = 'View DXC...'
         TabOrder = 2
         OnClick = Button3Click
       end
       object btnDXCConnect: TButton
         Left = 351
         Top = 13
-        Width = 123
+        Width = 98
         Height = 25
-        Caption = 'Connect to DXCluster'
+        Caption = 'Connect to DXC'
         ParentShowHint = False
         ShowHint = True
         TabOrder = 3
@@ -197,19 +203,21 @@ object FrequencyVisualForm: TFrequencyVisualForm
   object Panel5: TPanel
     Left = 0
     Top = 0
-    Width = 882
-    Height = 220
+    Width = 888
+    Height = 192
     Align = alClient
     BevelEdges = []
     BevelOuter = bvNone
     DoubleBuffered = True
     ParentDoubleBuffered = False
     TabOrder = 1
+    ExplicitWidth = 882
+    ExplicitHeight = 220
     object frequencyPaintBox: TPaintBox
       Left = 0
       Top = 40
-      Width = 882
-      Height = 157
+      Width = 888
+      Height = 129
       Hint = 
         'Shift+Left click - spot down, Shift+Right - up. Alt+Click - dele' +
         'te spot. Ctrl + Click - additional menu.'
@@ -220,12 +228,11 @@ object FrequencyVisualForm: TFrequencyVisualForm
       PopupMenu = freqPanelMenu
       ShowHint = True
       OnContextPopup = frequencyPaintBoxContextPopup
-      OnDblClick = frequencyPaintBoxDblClick
       OnMouseLeave = frequencyPaintBoxMouseLeave
       OnMouseMove = frequencyPaintBoxMouseMove
       OnMouseUp = frequencyPaintBoxMouseUp
       OnPaint = frequencyPaintBoxPaint
-      ExplicitTop = 38
+      ExplicitTop = 39
     end
     object labelSpotHint: TLabel
       Left = 664
@@ -244,7 +251,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
     object frequencyPaintBoxTop: TPaintBox
       Left = 0
       Top = 0
-      Width = 882
+      Width = 888
       Height = 40
       Hint = 
         'Shift+Left click - spot down, Shift+Right - up. Alt+Click - dele' +
@@ -255,17 +262,20 @@ object FrequencyVisualForm: TFrequencyVisualForm
       ParentShowHint = False
       ShowHint = True
       OnPaint = frequencyPaintBoxTopPaint
+      ExplicitWidth = 882
     end
     object Panel3: TPanel
       Left = 0
-      Top = 197
-      Width = 882
+      Top = 169
+      Width = 888
       Height = 23
       Align = alBottom
       BevelEdges = [beTop, beBottom]
       BevelKind = bkSoft
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitTop = 197
+      ExplicitWidth = 882
       object Panel4: TPanel
         Left = 0
         Top = 0
@@ -299,12 +309,13 @@ object FrequencyVisualForm: TFrequencyVisualForm
           Font.Style = [fsBold]
           ParentColor = False
           ParentFont = False
+          OnMouseDown = Label4MouseDown
         end
       end
       object spacerScroll: TScrollBar
         Left = 234
         Top = 0
-        Width = 438
+        Width = 381
         Height = 19
         Align = alClient
         Max = 4000
@@ -313,6 +324,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
         Position = 2500
         TabOrder = 1
         OnChange = spacerScrollChange
+        ExplicitWidth = 438
       end
       object Panel7: TPanel
         Left = 161
@@ -338,36 +350,23 @@ object FrequencyVisualForm: TFrequencyVisualForm
           Font.Style = []
           ParentFont = False
           OnDblClick = labPanelModeDblClick
+          OnMouseDown = Label4MouseDown
         end
       end
       object Panel6: TPanel
-        Left = 672
+        Left = 615
         Top = 0
-        Width = 210
+        Width = 273
         Height = 19
         Align = alRight
         BevelEdges = [beLeft]
         BevelKind = bkFlat
         BevelOuter = bvNone
         TabOrder = 3
-        object lbSpotTotal: TLabel
-          Left = 146
-          Top = 2
-          Width = 26
-          Height = 13
-          Caption = '0 / 0'
-          Color = clBlack
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clNavy
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentColor = False
-          ParentFont = False
-        end
+        OnMouseDown = Panel4MouseDown
         object Label2: TLabel
-          Left = 28
-          Top = 2
+          Left = 105
+          Top = 3
           Width = 118
           Height = 13
           Hint = 'Double click to get last 50 spots (SH/DX 50)'
@@ -377,25 +376,101 @@ object FrequencyVisualForm: TFrequencyVisualForm
           ParentShowHint = False
           ShowHint = True
           OnDblClick = Label2DblClick
-          OnMouseDown = Label2MouseDown
+          OnMouseDown = Label4MouseDown
         end
-        object Button4: TButton
-          Left = 2
-          Top = 2
-          Width = 22
-          Height = 15
-          Hint = 'Show \ Hide bottom panel'
-          Caption = '^^'
+        object SpeedButton1: TSpeedButton
+          Left = 76
+          Top = 1
+          Width = 23
+          Height = 17
+          Hint = '10 Khz forward -->'
+          Caption = '8'
           Font.Charset = SYMBOL_CHARSET
           Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = '@Arial Unicode MS'
-          Font.Style = [fsBold, fsStrikeOut]
+          Font.Height = -15
+          Font.Name = 'Webdings'
+          Font.Style = []
           ParentFont = False
           ParentShowHint = False
           ShowHint = True
+          OnClick = SpeedButton1Click
+        end
+        object SpeedButton2: TSpeedButton
+          Left = 1
+          Top = 1
+          Width = 23
+          Height = 17
+          Hint = '<-- Band begin'
+          Caption = '9'
+          Font.Charset = SYMBOL_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -15
+          Font.Name = 'Webdings'
+          Font.Style = []
+          ParentFont = False
+          ParentShowHint = False
+          ShowHint = True
+          OnClick = SpeedButton2Click
+        end
+        object SpeedButton3: TSpeedButton
+          Left = 51
+          Top = 1
+          Width = 23
+          Height = 17
+          Hint = 'Near center freq'
+          Caption = ';'
+          Font.Charset = SYMBOL_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -15
+          Font.Name = 'Webdings'
+          Font.Style = []
+          ParentFont = False
+          ParentShowHint = False
+          ShowHint = True
+          OnClick = SpeedButton3Click
+        end
+        object SpeedButton4: TSpeedButton
+          Left = 26
+          Top = 1
+          Width = 23
+          Height = 17
+          Hint = '<-- 10 Khz back'
+          Caption = '7'
+          Font.Charset = SYMBOL_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -15
+          Font.Name = 'Webdings'
+          Font.Style = []
+          ParentFont = False
+          ParentShowHint = False
+          ShowHint = True
+          OnClick = SpeedButton4Click
+        end
+        object Panel9: TPanel
+          Left = 221
+          Top = 0
+          Width = 50
+          Height = 19
+          Align = alRight
+          BevelOuter = bvNone
           TabOrder = 0
-          OnClick = frequencyPaintBoxDblClick
+          ExplicitLeft = 174
+          object lbSpotTotal: TLabel
+            Left = 1
+            Top = 3
+            Width = 26
+            Height = 13
+            Caption = '0 / 0'
+            Color = clBlack
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clNavy
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentColor = False
+            ParentFont = False
+            OnMouseDown = Label4MouseDown
+          end
         end
       end
     end

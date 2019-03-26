@@ -48,7 +48,6 @@ type
     menuLabelOnHold: TMenuItem;
     StatusBar1: TStatusBar;
     Panel6: TPanel;
-    lbSpotTotal: TLabel;
     Label2: TLabel;
     Panel2: TPanel;
     Panel8: TPanel;
@@ -65,10 +64,14 @@ type
     spotCountResetTimer: TTimer;
     statusRefreshTimer: TTimer;
     chkTransparentForm: TCheckBox;
-    Button4: TButton;
     labelSpotHint: TLabel;
     frequencyPaintBoxTop: TPaintBox;
-    procedure frequencyPaintBoxDblClick(Sender: TObject);
+    Panel9: TPanel;
+    lbSpotTotal: TLabel;
+    SpeedButton1: TSpeedButton;
+    SpeedButton2: TSpeedButton;
+    SpeedButton3: TSpeedButton;
+    SpeedButton4: TSpeedButton;
     procedure frequencyPaintBoxPaint(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure chkStayOnTopClick(Sender: TObject);
@@ -89,12 +92,8 @@ type
     procedure IdTelnet1Connected(Sender: TObject);
     procedure IdTelnet1Disconnected(Sender: TObject);
     procedure IdTelnet1DataAvailable(Sender: TIdTelnet; const Buffer: TIdBytes);
-    procedure Panel2MouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
     procedure Label2DblClick(Sender: TObject);
     procedure btnSpotClearAllClick(Sender: TObject);
-    procedure Label2MouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
     procedure btnSpotClearBandClick(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -120,6 +119,10 @@ type
     procedure frequencyPaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure frequencyPaintBoxTopPaint(Sender: TObject);
+    procedure SpeedButton3Click(Sender: TObject);
+    procedure SpeedButton2Click(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure SpeedButton4Click(Sender: TObject);
   private
     procedure SpotLabelMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
@@ -140,6 +143,7 @@ type
     procedure MyShowHint(var HintStr: string; var CanShow: Boolean; var HintInfo: THintInfo);
     procedure ColorizeSpotLabel(spotLabel: TSpotLabel);
     procedure ReColorizeAllLabels();
+    procedure ChandeBandPosition(freqShift : integer);
     { Private declarations }
 
   public
@@ -514,7 +518,7 @@ if cbHiRes.Checked then begin
   PenWidthDPICorr := 3;
   frequencyPaintBoxTop.Height := 55;
 end else begin
-  spaceAdjustValue := 65;
+  spaceAdjustValue := 80;
   longLine := 24;
   shortLine := 14;
   freqMarkerFontSize := 8;
@@ -845,7 +849,7 @@ procedure TFrequencyVisualForm.IdTelnet1Connected(Sender: TObject);
 begin
 StatusBar1.Panels[0].Text := 'DXCluster: connected to "' + settingsForm.txtDXCHost.Text + '", at: '+ TimeToStr(now);
 //StatusBar1.Panels[0].Font.Color := clGreen;
-btnDXCConnect.Caption := 'Disconnect DXCluster';
+btnDXCConnect.Caption := 'Disconnect DXC';
 spotCountMinuteRate := 0;
 End;
 
@@ -864,20 +868,20 @@ begin
   end else begin
     Result := UTCDateTime;  // Default to UTC if any conversion function fails.
   end;
-end;
+End;
 
 class procedure TAppender<T>.Append;
 begin
   SetLength(Arr, Length(Arr)+1);
   Arr[High(Arr)] := Value;
-end;
+End;
 
 procedure TFrequencyVisualForm.IdTelnet1Disconnected(Sender: TObject);
 begin
 if FrequencyVisualForm.Visible then begin
   StatusBar1.Panels[0].Text := 'DXCluster: disconnected at ' + TimeToStr(now);
   //dxcStatusLabel.Font.Color := clRed;
-  btnDXCConnect.Caption := 'Connect to DXCluster';
+  btnDXCConnect.Caption := 'Connect to DXC';
 end;
 
 End;
@@ -898,31 +902,31 @@ procedure TFrequencyVisualForm.setFreqStartAndMode();
 begin
 case frequencyVisualForm.bandSwitcher.ItemIndex of
  0: begin
-   freqStart := 1809.00;
+   freqStart := 1810.00;
    freqText := '160m';
  end;
  1: begin
-    freqStart := 3599.00;
+    freqStart := 3500.00;
     freqText := '80m';
  end;
  2: begin
-    freqStart := 7049.00;
+    freqStart := 7000.00;
     freqText := '40m';
  end;
  3: begin
-    freqStart := 10099.00;
+    freqStart := 10100.00;
     freqText := '30m';
  end;
  4: begin
-    freqStart := 14104.00;
+    freqStart := 14000.00;
     freqText := '20m';
  end;
  5: begin
-    freqStart := 18109.00;
+    freqStart := 18068.00;
     freqText := '17m';
  end;
  6: begin
-    freqStart := 21109.00;
+    freqStart := 21100.00;
     freqText := '15m';
  end;
  7: begin
@@ -930,24 +934,17 @@ case frequencyVisualForm.bandSwitcher.ItemIndex of
     freqText := '12m';
  end;
  8: begin
-    freqStart := 28294.00;
+    freqStart := 28000.00;
     freqText := '10m';
  end;
 end;
 
-end;
+End;
 
 procedure TFrequencyVisualForm.bandSwitcherClick(Sender: TObject);
 begin
   //todo: make boundaries while tuning
-setFreqStartAndMode();
-refreshSelectedBandEdges();
-spotBandCount := 0;
-freqShifter := frequencyPositionArr[bandSwitcher.ItemIndex];
-
-HideLabels(true);
-RepaintFrequencySpan(true);
-
+ChandeBandPosition(frequencyPositionArr[bandSwitcher.ItemIndex]);
 End;
 
 procedure TFrequencyVisualForm.Button1Click(Sender: TObject);
@@ -1169,11 +1166,6 @@ begin
 menuLabelOnHold.Checked := TSpotLabel(spotLabelMenu.PopupComponent).onHold;
 end;
 
-procedure TFrequencyVisualForm.frequencyPaintBoxDblClick(Sender: TObject);
-begin
-Panel1.Visible := not Panel1.Visible;
-End;
-
 function TFrequencyVisualForm.CheckSpotListContainsKey(spotFreq : variant) : boolean;
 var
 i,j : integer;
@@ -1208,10 +1200,10 @@ for j := 0 to spotList.Count-1 do begin
 
       if ((spotLabel.Left >= le) and (spotLabel.Left <= re) and (spotLabel.Top = te)) or
       ((spotLabel.Left+spotLabel.Width >= le) and (spotLabel.Left+spotLabel.Width <= re) and (spotLabel.Top = te)) then begin
-        spotLabel.Tag := spotLabel.Tag + 1;
-        result := true;
-        exit;
-        //DebugOutput('label tag - '+IntToStr(spotLabel.Tag) + ', ' + spotLabel.Caption);
+          spotLabel.Tag := spotLabel.Tag + 1;
+          result := true;
+          DebugOutput('label tag - '+IntToStr(spotLabel.Tag) + ', ' + spotLabel.Caption);
+          exit;
       end;
     end;
   end;
@@ -1437,6 +1429,15 @@ for i := 0 to spotList.Count-1 do
   end;
 
 End;
+
+procedure TFrequencyVisualForm.ChandeBandPosition(freqShift : integer);
+begin
+  setFreqStartAndMode;
+  refreshSelectedBandEdges;
+  freqShifter := freqShift;
+  HideLabels(true);
+  RepaintFrequencySpan(true);
+end;
 
 procedure TFrequencyVisualForm.ReColorizeAllLabels();
 var
@@ -1756,15 +1757,15 @@ spotBandCount := 0;
 lineStart := 1;
 
 case bandSwitcher.ItemIndex of
- 0: freqStart := 1809.00 + freqShifter;
- 1: freqStart := 3599.00 + freqShifter;
- 2: freqStart := 7049.00 + freqShifter;
- 3: freqStart := 10099.00 + freqShifter;
- 4: freqStart := 14104.00 + freqShifter;
- 5: freqStart := 18109.00 + freqShifter;
- 6: freqStart := 21109.00 + freqShifter;
+ 0: freqStart := 1810.00 + freqShifter;
+ 1: freqStart := 3600.00 + freqShifter;
+ 2: freqStart := 7000.00 + freqShifter;
+ 3: freqStart := 10100.00 + freqShifter;
+ 4: freqStart := 14000.00 + freqShifter;
+ 5: freqStart := 18068.00 + freqShifter;
+ 6: freqStart := 21000.00 + freqShifter;
  7: freqStart := 24890.00 + freqShifter;
- 8: freqStart := 28294.00 + freqShifter;
+ 8: freqStart := 28000.00 + freqShifter;
 end;
 
 
@@ -1799,15 +1800,15 @@ lineStart := 1;
 boxWidth := frequencyPaintBox.Width-40;
 
 case bandSwitcher.ItemIndex of
- 0: freqStart := 1809.00 + freqShifter;
- 1: freqStart := 3599.00 + freqShifter;
- 2: freqStart := 7049.00 + freqShifter;
- 3: freqStart := 10099.00 + freqShifter;
- 4: freqStart := 14104.00 + freqShifter;
- 5: freqStart := 18109.00 + freqShifter;
- 6: freqStart := 21109.00 + freqShifter;
+ 0: freqStart := 1810.00 + freqShifter;
+ 1: freqStart := 3600.00 + freqShifter;
+ 2: freqStart := 7000.00 + freqShifter;
+ 3: freqStart := 10100.00 + freqShifter;
+ 4: freqStart := 14000.00 + freqShifter;
+ 5: freqStart := 18068.00 + freqShifter;
+ 6: freqStart := 21000.00 + freqShifter;
  7: freqStart := 24890.00 + freqShifter;
- 8: freqStart := 28294.00 + freqShifter;
+ 8: freqStart := 28000.00 + freqShifter;
 end;
 
   with frequencyPaintBoxTop.Canvas do begin
@@ -1893,12 +1894,6 @@ begin
   AllowDrag;
 End;
 
-procedure TFrequencyVisualForm.Panel2MouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
-begin
-  AllowDrag;
-End;
-
 procedure TFrequencyVisualForm.Panel4MouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
@@ -1911,12 +1906,6 @@ begin
   AllowDrag;
 end;
 
-procedure TFrequencyVisualForm.Label2MouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin
-  AllowDrag;
-End;
-
 procedure TFrequencyVisualForm.labPanelModeDblClick(Sender: TObject);
 begin
 isPanelHoldActive.Checked := not isPanelHoldActive.Checked;
@@ -1927,9 +1916,29 @@ procedure TFrequencyVisualForm.spacerScrollChange(Sender: TObject);
 begin
 frequencyPositionArr[bandSwitcher.ItemIndex] := freqShifter;
 RefreshLineSpacer();
-HideLabels(false);
-RepaintFrequencySpan(true);
 
+HideLabels(true);
+RepaintFrequencySpan(true);
+End;
+
+procedure TFrequencyVisualForm.SpeedButton1Click(Sender: TObject);
+begin
+ChandeBandPosition(freqShifter+10);
+end;
+
+procedure TFrequencyVisualForm.SpeedButton2Click(Sender: TObject);
+begin
+ChandeBandPosition(0);
+end;
+
+procedure TFrequencyVisualForm.SpeedButton3Click(Sender: TObject);
+begin
+ChandeBandPosition((freqBandEnd - freqBandStart) div 2);
+End;
+
+procedure TFrequencyVisualForm.SpeedButton4Click(Sender: TObject);
+begin
+ChandeBandPosition(freqShifter-10);
 End;
 
 procedure TFrequencyVisualForm.spotCountResetTimerTimer(Sender: TObject);
@@ -1939,6 +1948,6 @@ spotCountMinuteRate := 0;
 
 if spotCount15MinutesRateList.Count > 15 then
   spotCount15MinutesRateList.Delete(0);
-end;
+End;
 
 END.
