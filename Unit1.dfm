@@ -66,15 +66,17 @@ object FrequencyVisualForm: TFrequencyVisualForm
       BevelOuter = bvNone
       TabOrder = 1
       OnMouseDown = Panel4MouseDown
+      ExplicitLeft = 630
+      ExplicitTop = 1
       object Bevel1: TBevel
-        Left = 2
+        Left = 1
         Top = 6
         Width = 9
         Height = 69
         Shape = bsLeftLine
       end
       object chkStayOnTop: TCheckBox
-        Left = 17
+        Left = 14
         Top = 48
         Width = 116
         Height = 17
@@ -103,11 +105,11 @@ object FrequencyVisualForm: TFrequencyVisualForm
         OnClick = Button1Click
       end
       object chkTransparentForm: TCheckBox
-        Left = 17
+        Left = 14
         Top = 17
-        Width = 99
+        Width = 116
         Height = 17
-        Caption = 'Transparent form'
+        Caption = 'Transparent window'
         Checked = True
         State = cbChecked
         TabOrder = 3
@@ -469,11 +471,11 @@ object FrequencyVisualForm: TFrequencyVisualForm
     OnDataAvailable = IdTelnet1DataAvailable
     Terminal = 'dumb'
     Left = 24
-    Top = 33
+    Top = 17
   end
   object freqPanelMenu: TPopupMenu
     Left = 24
-    Top = 80
+    Top = 64
     object isPanelHoldActive: TMenuItem
       AutoCheck = True
       Caption = 'Hold frequency panel'
@@ -483,7 +485,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
   object spotLabelMenu: TPopupMenu
     OnPopup = spotLabelMenuPopup
     Left = 24
-    Top = 128
+    Top = 112
     object Viewonqrzcom1: TMenuItem
       Caption = 'View on qrz.com...'
       OnClick = Viewonqrzcom1Click
@@ -501,18 +503,18 @@ object FrequencyVisualForm: TFrequencyVisualForm
     Interval = 50000
     OnTimer = refreshLabelColorTimerTimer
     Left = 144
-    Top = 128
+    Top = 112
   end
   object spotCountResetTimer: TTimer
     Interval = 60000
     OnTimer = spotCountResetTimerTimer
     Left = 144
-    Top = 80
+    Top = 64
   end
   object statusRefreshTimer: TTimer
     Interval = 61000
     OnTimer = statusRefreshTimerTimer
     Left = 144
-    Top = 32
+    Top = 16
   end
 end

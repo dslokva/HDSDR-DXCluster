@@ -13,9 +13,9 @@ type
     btnClose: TButton;
     labSaveInfo: TLabel;
     PageControl1: TPageControl;
-    TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
-    Colors: TTabSheet;
+    TabDXCluster: TTabSheet;
+    TabLogIntegration: TTabSheet;
+    TabColors: TTabSheet;
     GroupBox2: TGroupBox;
     Label4: TLabel;
     Label6: TLabel;
@@ -56,7 +56,7 @@ type
     Label8: TLabel;
     Label5: TLabel;
     colBoxScale: TColorBox;
-    TabSheet3: TTabSheet;
+    TabGeneralOptions: TTabSheet;
     GroupBox4: TGroupBox;
     cbOmniRigEnabled: TCheckBox;
     radGrpRigNum: TRadioGroup;
