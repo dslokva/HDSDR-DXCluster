@@ -306,6 +306,10 @@ Label11.Enabled := cbOmniRigEnabled.Checked;
 cbSetSpotFrequencyToTRX.Enabled := cbOmniRigEnabled.Checked;
 
 radGrpRigNumClick(settingsForm);
+
+if not cbOmniRigEnabled.Checked then
+  FrequencyVisualForm.StatusBar1.Panels[3].Text := 'TRX: disconnected';
+
 end;
 
 procedure TsettingsForm.cbOwnSpotColorizeClick(Sender: TObject);
@@ -328,6 +332,7 @@ begin
   try
     currentOmniRigFreq := 0;
     currentOmniRigFreqTxt := '0';
+    FrequencyVisualForm.StatusBar1.Panels[3].Text := 'TRX: disconnected';
     FreeAndNil(OmniRig);
   except end;
 End;
