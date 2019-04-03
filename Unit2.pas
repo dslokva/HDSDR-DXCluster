@@ -191,6 +191,10 @@ try
     WriteBool('DXCluster', 'SpotLotwEqslColorize', cbSpotLotwEqsl.Checked);
     WriteBool('DXCluster', 'EarlySpotColorize', cbEarlySpot.Checked);
     WriteBool('MainSettings', 'AllowSpotSelect', chkAllowSpotSelect.Checked);
+
+    WriteBool('OmniRigSettings', 'Enabled', cbOmniRigEnabled.Checked);
+    WriteBool('OmniRigSettings', 'SetSpotFrequencyToTRX', cbSetSpotFrequencyToTRX.Checked);
+    WriteInteger('OmniRigSettings', 'ActiveNum', radGrpRigNum.ItemIndex);
   end;
 
   labSaveInfo.Visible := true;
@@ -348,7 +352,7 @@ begin
 //        Label9.Caption := IntToStr(OmniRig.Rig1.GetRxFrequency);
           currentOmniRigFreq := OmniRig.Rig1.GetRxFrequency;
           currentOmniRigFreqTxt := FloatToStrF(currentOmniRigFreq/1000, ffFixed,9,2);
-          FrequencyVisualForm.StatusBar1.Panels[3].Text := 'TRX: '+OmniRig.Rig1.RigType+', '+ModeName(OmniRig.Rig1.Mode)+', '+currentOmniRigFreqTxt;
+          FrequencyVisualForm.StatusBar1.Panels[3].Text := 'TRX: '+OmniRig.Rig1.RigType+', '+ModeName(OmniRig.Rig1.Mode)+' - '+currentOmniRigFreqTxt;
           FrequencyVisualForm.frequencyPaintBox.Refresh;
 //        Label11.Caption := ModeName(OmniRig.Rig1.Mode);
       end;
@@ -358,7 +362,7 @@ begin
 //        Label9.Caption := IntToStr(OmniRig.Rig2.GetRxFrequency);
           currentOmniRigFreq := OmniRig.Rig2.GetRxFrequency;
           currentOmniRigFreqTxt := FloatToStrF(currentOmniRigFreq/1000, ffFixed,9,2);
-          FrequencyVisualForm.StatusBar1.Panels[3].Text := 'TRX: '+OmniRig.Rig2.RigType+', '+ModeName(OmniRig.Rig2.Mode)+', '+currentOmniRigFreqTxt;
+          FrequencyVisualForm.StatusBar1.Panels[3].Text := 'TRX: '+OmniRig.Rig2.RigType+', '+ModeName(OmniRig.Rig2.Mode)+' - '+currentOmniRigFreqTxt;
           FrequencyVisualForm.frequencyPaintBox.Refresh;
 //        Label11.Caption := ModeName(OmniRig.Rig2.Mode);
       end;
@@ -454,6 +458,11 @@ try
     chkAllowSpotSelect.Checked := ReadBool('MainSettings', 'AllowSpotSelect', true);
     cbSendCallFreqToAALog.Checked := ReadBool('MainSettings', 'SendSpotDataToAALog', true);
     cbHiRes.Checked := ReadBool('MainSettings', 'HighResScreen', true);
+
+    radGrpRigNum.ItemIndex := ReadInteger('OmniRigSettings', 'ActiveNum', 0);
+    cbOmniRigEnabled.Checked := ReadBool('OmniRigSettings', 'Enabled', false);
+    cbSetSpotFrequencyToTRX.Checked := ReadBool('OmniRigSettings', 'SetSpotFrequencyToTRX', false);
+
 
     txtDXCPort.Text := IntToStr(ReadInteger('DXCluster', 'DXCPort', 8000));
     txtAalPort.Text := IntToStr(ReadInteger('DXCluster', 'AALogPort', 3541));
