@@ -57,7 +57,6 @@ type
     Label5: TLabel;
     colBoxScale: TColorBox;
     TabSheet3: TTabSheet;
-    cbHiRes: TCheckBox;
     GroupBox4: TGroupBox;
     cbOmniRigEnabled: TCheckBox;
     radGrpRigNum: TRadioGroup;
@@ -67,6 +66,11 @@ type
     Label10: TLabel;
     Label11: TLabel;
     Label9: TLabel;
+    colBoxCATFreqColor: TColorBox;
+    Label12: TLabel;
+    Label13: TLabel;
+    GroupBox5: TGroupBox;
+    cbHiRes: TCheckBox;
     procedure btnCloseClick(Sender: TObject);
     procedure txtDXCPortKeyPress(Sender: TObject; var Key: Char);
     procedure btnSaveClick(Sender: TObject);
@@ -139,6 +143,10 @@ begin
 if not settingsForm.chkAllowSpotSelect.Checked then
   if lastSelectedSpotLabel <> nil then
     lastSelectedSpotLabel.selected := false;
+
+if (chkAllowSpotSelect.Checked) then
+  FrequencyVisualForm.frequencyPaintBox.Hint := 'Left click - select spot, Right click - deselect spot.'+#10#13+'Shift+Left click - spot down, Shift+Right - up. Alt+Click - delete spot. Ctrl + Click - additional menu.';
+
 end;
 
 procedure TsettingsForm.btnCloseClick(Sender: TObject);
@@ -174,6 +182,7 @@ try
     WriteInteger('MainSettings', 'MainFreqPanColor', colBoxMainFreqPanel.Selected);
     WriteInteger('DXCluster', 'RegularSpotColor', colBoxRegularSpot.Selected);
     WriteInteger('MainSettings', 'ScaleColor', colBoxScale.Selected);
+    WriteInteger('MainSettings', 'CATFreqColor', colBoxCATFreqColor.Selected);
 
     WriteString('DXCluster', 'DXCHost', txtDXCHost.Text);
     WriteString('DXCluster', 'DXCUsername', txtDXCUsername.Text);
@@ -463,7 +472,6 @@ try
     cbOmniRigEnabled.Checked := ReadBool('OmniRigSettings', 'Enabled', false);
     cbSetSpotFrequencyToTRX.Checked := ReadBool('OmniRigSettings', 'SetSpotFrequencyToTRX', false);
 
-
     txtDXCPort.Text := IntToStr(ReadInteger('DXCluster', 'DXCPort', 8000));
     txtAalPort.Text := IntToStr(ReadInteger('DXCluster', 'AALogPort', 3541));
     colBoxOwnSpot.Selected := ReadInteger('DXCluster', 'OwnSpotColor', clYellow);
@@ -472,6 +480,7 @@ try
     colBoxMainFreqPanel.Selected := ReadInteger('MainSettings', 'MainFreqPanColor', $00471B15);
     colBoxRegularSpot.Selected := ReadInteger('DXCluster', 'RegularSpotColor', clWhite);
     colBoxScale.Selected := ReadInteger('MainSettings', 'ScaleColor', clWhite);
+    colBoxCATFreqColor.Selected := ReadInteger('MainSettings', 'CATFreqColor', clRed);
   end;
 
   colBoxMainFreqPanelChange(self);
@@ -488,6 +497,7 @@ try
     FrequencyVisualForm.btnDXCConnect.OnClick(self);
 
   cbAALogIntegrationEnabledClick(self);
+  chkAllowSpotSelectClick(self);
 finally
   iniFile.Free;
 end;

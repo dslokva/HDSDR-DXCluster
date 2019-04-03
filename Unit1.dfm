@@ -203,9 +203,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
       Top = 40
       Width = 888
       Height = 129
-      Hint = 
-        'Shift+Left click - spot down, Shift+Right - up. Alt+Click - dele' +
-        'te spot. Ctrl + Click - additional menu.'
       Align = alClient
       Color = clNavy
       Font.Charset = DEFAULT_CHARSET

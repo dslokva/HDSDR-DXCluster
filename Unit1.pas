@@ -415,14 +415,13 @@ if Button = mbLeft then begin
   if ssShift in Shift then
     TLabel(Sender).Tag := TLabel(Sender).Tag + 1
   else begin
-    //label selected
+    //Left click - select label
 
     if (lastSelectedSpotLabel.Caption <> TSpotLabel(Sender).Caption) then begin
       if lastSelectedSpotLabel <> nil then
         lastSelectedSpotLabel.selected := false;
       TSpotLabel(Sender).selected := true;
-    end else
-      TSpotLabel(Sender).selected := not TSpotLabel(Sender).selected;
+    end;
 
     lastSelectedSpotLabel := TSpotLabel(Sender);
   end;
@@ -443,6 +442,15 @@ if Button = mbRight then begin
     notNeedToShowPopupForFreqPanel := true;
     if TLabel(Sender).Top >= longLine+UnderFreqDPICorr+EndYPosDPICorr then
       TLabel(Sender).Tag := TLabel(Sender).Tag - 1;
+
+  end else begin
+    //right Click - deselect label
+    if lastSelectedSpotLabel <> nil then
+      if (lastSelectedSpotLabel.Caption = TSpotLabel(Sender).Caption) then begin
+        lastSelectedSpotLabel := nil;
+        TSpotLabel(Sender).selected := false;
+      end;
+
   end;
 
 end;
@@ -591,6 +599,8 @@ frequencyPositionArr[5] := 0;
 frequencyPositionArr[6] := 0;
 frequencyPositionArr[7] := 0;
 frequencyPositionArr[8] := 0;
+
+frequencyPaintBox.Hint := 'Shift+Left click - spot down, Shift+Right - up. Alt+Click - delete spot. Ctrl + Click - additional menu.';
 
 spaceAdjustValue := 50;
 longLine := 39;
@@ -1780,7 +1790,7 @@ with frequencyPaintBox.Canvas do begin
 
       freqCAT := freqStart * 1000;
       if freqCAT = settingsForm.currentOmniRigFreq then begin
-          Pen.Color := clRed;
+          Pen.Color := settingsForm.colBoxCATFreqColor.Selected;
           Pen.Style := psDot;
           MoveTo(lineStart, StartYPosDPICorr);
           LineTo(lineStart, frequencyPaintBox.Height);

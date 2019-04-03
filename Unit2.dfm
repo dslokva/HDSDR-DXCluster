@@ -319,7 +319,7 @@ object settingsForm: TsettingsForm
           Top = 75
           Width = 97
           Height = 22
-          Selected = clRed
+          Selected = 35071
           Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
           TabOrder = 8
         end
@@ -337,7 +337,7 @@ object settingsForm: TsettingsForm
         Left = 243
         Top = 3
         Width = 224
-        Height = 179
+        Height = 215
         Caption = ' Frequency panel: '
         TabOrder = 1
         object Label1: TLabel
@@ -349,17 +349,31 @@ object settingsForm: TsettingsForm
         end
         object Label8: TLabel
           Left = 7
-          Top = 80
+          Top = 104
           Width = 208
           Height = 13
           Caption = '---------------------Presets----------------------'
         end
         object Label5: TLabel
           Left = 8
-          Top = 51
+          Top = 48
           Width = 55
           Height = 13
           Caption = 'Scale color:'
+        end
+        object Label12: TLabel
+          Left = 8
+          Top = 78
+          Width = 92
+          Height = 13
+          Caption = 'CAT freq line color:'
+        end
+        object Label13: TLabel
+          Left = 7
+          Top = 172
+          Width = 208
+          Height = 13
+          Caption = '----------------------------------------------------'
         end
         object colBoxMainFreqPanel: TColorBox
           Left = 95
@@ -372,8 +386,8 @@ object settingsForm: TsettingsForm
           OnChange = colBoxMainFreqPanelChange
         end
         object btnDefaultFreqPanColor: TButton
-          Left = 150
-          Top = 99
+          Left = 151
+          Top = 122
           Width = 64
           Height = 21
           Caption = 'Dark Blue'
@@ -381,8 +395,8 @@ object settingsForm: TsettingsForm
           OnClick = btnDefaultFreqPanColorClick
         end
         object btnGreennyFreqPanColor: TButton
-          Left = 79
-          Top = 99
+          Left = 80
+          Top = 122
           Width = 64
           Height = 21
           Caption = 'Green'
@@ -390,8 +404,8 @@ object settingsForm: TsettingsForm
           OnClick = btnGreennyFreqPanColorClick
         end
         object Button1: TButton
-          Left = 7
-          Top = 126
+          Left = 8
+          Top = 149
           Width = 65
           Height = 21
           Caption = 'Grey'
@@ -399,8 +413,8 @@ object settingsForm: TsettingsForm
           OnClick = Button1Click
         end
         object Button2: TButton
-          Left = 150
-          Top = 126
+          Left = 151
+          Top = 149
           Width = 64
           Height = 21
           Caption = 'Black'
@@ -408,8 +422,8 @@ object settingsForm: TsettingsForm
           OnClick = Button2Click
         end
         object Button3: TButton
-          Left = 7
-          Top = 99
+          Left = 8
+          Top = 122
           Width = 65
           Height = 21
           Caption = 'Blue'
@@ -417,8 +431,8 @@ object settingsForm: TsettingsForm
           OnClick = Button3Click
         end
         object Button4: TButton
-          Left = 79
-          Top = 126
+          Left = 80
+          Top = 149
           Width = 64
           Height = 21
           Caption = 'Brick'
@@ -426,14 +440,15 @@ object settingsForm: TsettingsForm
           OnClick = Button4Click
         end
         object chkAllowSpotSelect: TCheckBox
-          Left = 7
-          Top = 155
+          Left = 8
+          Top = 188
           Width = 102
           Height = 17
           Caption = 'Allow spot select'
           Checked = True
           State = cbChecked
           TabOrder = 7
+          OnClick = chkAllowSpotSelectClick
         end
         object colBoxScale: TColorBox
           Left = 95
@@ -445,30 +460,31 @@ object settingsForm: TsettingsForm
           TabOrder = 8
           OnChange = colBoxScaleChange
         end
+        object colBoxCATFreqColor: TColorBox
+          Left = 106
+          Top = 75
+          Width = 107
+          Height = 22
+          Selected = clRed
+          Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
+          TabOrder = 9
+          OnChange = colBoxScaleChange
+        end
       end
     end
     object TabSheet3: TTabSheet
       Caption = 'General options'
       ImageIndex = 3
-      object cbHiRes: TCheckBox
-        Left = 11
-        Top = 11
-        Width = 190
-        Height = 17
-        Caption = 'Try high resolution screen settings'
-        Checked = True
-        State = cbChecked
-        TabOrder = 0
-        OnClick = cbHiResClick
-      end
+      ExplicitLeft = 0
+      ExplicitTop = 33
       object GroupBox4: TGroupBox
-        Left = 11
-        Top = 34
+        Left = 7
+        Top = 3
         Width = 334
         Height = 107
         Caption = '       OmniRig enable '
         Enabled = False
-        TabOrder = 1
+        TabOrder = 0
         object radGrpRigNum: TRadioGroup
           Left = 9
           Top = 22
@@ -547,12 +563,31 @@ object settingsForm: TsettingsForm
         end
       end
       object cbOmniRigEnabled: TCheckBox
-        Left = 23
-        Top = 32
+        Left = 17
+        Top = 1
         Width = 17
         Height = 17
-        TabOrder = 2
+        TabOrder = 1
         OnClick = cbOmniRigEnabledClick
+      end
+      object GroupBox5: TGroupBox
+        Left = 7
+        Top = 114
+        Width = 334
+        Height = 105
+        Caption = 'Other options: '
+        TabOrder = 2
+        object cbHiRes: TCheckBox
+          Left = 13
+          Top = 22
+          Width = 190
+          Height = 17
+          Caption = 'Try high resolution screen settings'
+          Checked = True
+          State = cbChecked
+          TabOrder = 0
+          OnClick = cbHiResClick
+        end
       end
     end
   end
