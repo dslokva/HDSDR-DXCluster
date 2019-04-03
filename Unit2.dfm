@@ -17,7 +17,7 @@ object settingsForm: TsettingsForm
   PixelsPerInch = 96
   TextHeight = 13
   object labSaveInfo: TLabel
-    Left = 106
+    Left = 108
     Top = 271
     Width = 15
     Height = 13
@@ -54,13 +54,14 @@ object settingsForm: TsettingsForm
     Top = 8
     Width = 481
     Height = 252
-    ActivePage = Colors
+    ActivePage = TabSheet3
     TabOrder = 2
     object TabSheet1: TTabSheet
       Caption = 'DX Cluster'
-      ExplicitLeft = -28
-      ExplicitTop = 32
-      ExplicitWidth = 629
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 3
         Top = 3
@@ -159,8 +160,10 @@ object settingsForm: TsettingsForm
     object TabSheet2: TTabSheet
       Caption = 'Log integration'
       ImageIndex = 1
-      ExplicitWidth = 281
-      ExplicitHeight = 165
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object gbAALogIntegration: TGroupBox
         Left = 3
         Top = 9
@@ -218,10 +221,10 @@ object settingsForm: TsettingsForm
     object Colors: TTabSheet
       Caption = 'Colors'
       ImageIndex = 2
-      ExplicitLeft = 132
-      ExplicitTop = -16
-      ExplicitWidth = 281
-      ExplicitHeight = 165
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox2: TGroupBox
         Left = 3
         Top = 3
@@ -454,6 +457,114 @@ object settingsForm: TsettingsForm
           TabOrder = 8
           OnChange = colBoxScaleChange
         end
+      end
+    end
+    object TabSheet3: TTabSheet
+      Caption = 'General options'
+      ImageIndex = 3
+      object cbHiRes: TCheckBox
+        Left = 11
+        Top = 11
+        Width = 190
+        Height = 17
+        Caption = 'Try high resolution screen settings'
+        Checked = True
+        State = cbChecked
+        TabOrder = 0
+        OnClick = cbHiResClick
+      end
+      object GroupBox4: TGroupBox
+        Left = 11
+        Top = 34
+        Width = 334
+        Height = 107
+        Caption = '       OmniRig enable '
+        Enabled = False
+        TabOrder = 1
+        object radGrpRigNum: TRadioGroup
+          Left = 9
+          Top = 22
+          Width = 145
+          Height = 48
+          Caption = 'Rig select: '
+          Columns = 2
+          Enabled = False
+          ItemIndex = 0
+          Items.Strings = (
+            'Rig #1'
+            'Rig #2')
+          TabOrder = 0
+          OnClick = radGrpRigNumClick
+        end
+        object cbSetSpotFrequencyToTRX: TCheckBox
+          Left = 10
+          Top = 81
+          Width = 191
+          Height = 17
+          Caption = 'Set selected spot frequency to TRX'
+          Enabled = False
+          TabOrder = 1
+        end
+        object Panel1: TPanel
+          Left = 160
+          Top = 31
+          Width = 168
+          Height = 41
+          BevelOuter = bvNone
+          TabOrder = 2
+          object Label7: TLabel
+            Left = 0
+            Top = 0
+            Width = 32
+            Height = 13
+            Caption = 'Model:'
+            Enabled = False
+          end
+          object Label10: TLabel
+            Left = 0
+            Top = 22
+            Width = 35
+            Height = 13
+            Caption = 'Status:'
+            Enabled = False
+          end
+          object Label11: TLabel
+            Left = 41
+            Top = 22
+            Width = 12
+            Height = 13
+            Caption = '__'
+            Enabled = False
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label9: TLabel
+            Left = 41
+            Top = 0
+            Width = 12
+            Height = 13
+            Caption = '__'
+            Enabled = False
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+        end
+      end
+      object cbOmniRigEnabled: TCheckBox
+        Left = 23
+        Top = 32
+        Width = 17
+        Height = 17
+        TabOrder = 2
+        OnClick = cbOmniRigEnabledClick
       end
     end
   end

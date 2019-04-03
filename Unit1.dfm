@@ -1,7 +1,7 @@
 object FrequencyVisualForm: TFrequencyVisualForm
   Left = 0
   Top = 0
-  Caption = 'SDR-DXCluster-Helper'
+  Caption = 'SDR-DXCluster-Helper v0.32'
   ClientHeight = 292
   ClientWidth = 888
   Color = clBtnFace
@@ -33,8 +33,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
     BevelOuter = bvNone
     TabOrder = 0
     OnMouseDown = Panel1MouseDown
-    ExplicitTop = 220
-    ExplicitWidth = 882
     object StatusBar1: TStatusBar
       Left = 0
       Top = 81
@@ -51,10 +49,13 @@ object FrequencyVisualForm: TFrequencyVisualForm
         end
         item
           Text = 'Last status: none'
-          Width = 200
+          Width = 300
+        end
+        item
+          Text = 'TRX: disconnected'
+          Width = 50
         end>
       OnMouseDown = StatusBar1MouseDown
-      ExplicitWidth = 882
     end
     object Panel2: TPanel
       Left = 624
@@ -65,7 +66,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
       BevelOuter = bvNone
       TabOrder = 1
       OnMouseDown = Panel4MouseDown
-      ExplicitLeft = 618
       object Bevel1: TBevel
         Left = 2
         Top = 6
@@ -74,54 +74,43 @@ object FrequencyVisualForm: TFrequencyVisualForm
         Shape = bsLeftLine
       end
       object chkStayOnTop: TCheckBox
-        Left = 152
-        Top = 58
-        Width = 73
+        Left = 17
+        Top = 48
+        Width = 116
         Height = 17
-        Caption = 'Stay on top'
+        Caption = 'Always stay on top'
         Checked = True
         State = cbChecked
         TabOrder = 0
         OnClick = chkStayOnTopClick
       end
-      object cbHiRes: TCheckBox
-        Left = 152
-        Top = 12
-        Width = 89
-        Height = 17
-        Caption = 'HighRes screen'
-        Checked = True
-        State = cbChecked
-        TabOrder = 1
-        OnClick = cbHiResClick
-      end
       object Button2: TButton
-        Left = 19
+        Left = 139
         Top = 13
         Width = 111
         Height = 25
         Caption = 'Settings...'
-        TabOrder = 2
+        TabOrder = 1
         OnClick = Button2Click
       end
       object Button1: TButton
-        Left = 19
+        Left = 139
         Top = 44
         Width = 111
         Height = 25
         Caption = 'Exit'
-        TabOrder = 3
+        TabOrder = 2
         OnClick = Button1Click
       end
       object chkTransparentForm: TCheckBox
-        Left = 152
-        Top = 35
+        Left = 17
+        Top = 17
         Width = 99
         Height = 17
         Caption = 'Transparent form'
         Checked = True
         State = cbChecked
-        TabOrder = 4
+        TabOrder = 3
         OnClick = chkTransparentFormClick
       end
     end
@@ -134,8 +123,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
       BevelOuter = bvNone
       TabOrder = 2
       OnMouseDown = Panel8MouseDown
-      ExplicitLeft = -2
-      ExplicitWidth = 628
       object btnSpotClearBand: TButton
         Left = 351
         Top = 44
@@ -211,8 +198,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
     DoubleBuffered = True
     ParentDoubleBuffered = False
     TabOrder = 1
-    ExplicitWidth = 882
-    ExplicitHeight = 220
     object frequencyPaintBox: TPaintBox
       Left = 0
       Top = 40
@@ -223,7 +208,13 @@ object FrequencyVisualForm: TFrequencyVisualForm
         'te spot. Ctrl + Click - additional menu.'
       Align = alClient
       Color = clNavy
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
       ParentColor = False
+      ParentFont = False
       ParentShowHint = False
       PopupMenu = freqPanelMenu
       ShowHint = True
@@ -244,7 +235,9 @@ object FrequencyVisualForm: TFrequencyVisualForm
       Font.Color = clBlack
       Font.Height = -12
       Font.Name = 'Tahoma'
+      Font.Pitch = fpVariable
       Font.Style = []
+      Font.Quality = fqAntialiased
       ParentFont = False
       Visible = False
     end
@@ -262,7 +255,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       ParentShowHint = False
       ShowHint = True
       OnPaint = frequencyPaintBoxTopPaint
-      ExplicitWidth = 882
+      ExplicitTop = -6
     end
     object Panel3: TPanel
       Left = 0
@@ -274,8 +267,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
       BevelKind = bkSoft
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitTop = 197
-      ExplicitWidth = 882
       object Panel4: TPanel
         Left = 0
         Top = 0
@@ -318,13 +309,12 @@ object FrequencyVisualForm: TFrequencyVisualForm
         Width = 381
         Height = 19
         Align = alClient
-        Max = 4000
+        Max = 6000
         Min = 1200
         PageSize = 0
         Position = 2500
         TabOrder = 1
         OnChange = spacerScrollChange
-        ExplicitWidth = 438
       end
       object Panel7: TPanel
         Left = 161
@@ -454,7 +444,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
           Align = alRight
           BevelOuter = bvNone
           TabOrder = 0
-          ExplicitLeft = 174
           object lbSpotTotal: TLabel
             Left = 1
             Top = 3
