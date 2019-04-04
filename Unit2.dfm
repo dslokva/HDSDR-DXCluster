@@ -54,7 +54,7 @@ object settingsForm: TsettingsForm
     Top = 8
     Width = 481
     Height = 252
-    ActivePage = TabDXCluster
+    ActivePage = TabGeneralOptions
     TabOrder = 2
     object TabDXCluster: TTabSheet
       Caption = 'DX Cluster'
@@ -475,8 +475,6 @@ object settingsForm: TsettingsForm
     object TabGeneralOptions: TTabSheet
       Caption = 'General options'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 33
       object GroupBox4: TGroupBox
         Left = 7
         Top = 3
@@ -537,7 +535,7 @@ object settingsForm: TsettingsForm
             Top = 22
             Width = 12
             Height = 13
-            Caption = '__'
+            Caption = '---'
             Enabled = False
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
@@ -551,7 +549,7 @@ object settingsForm: TsettingsForm
             Top = 0
             Width = 12
             Height = 13
-            Caption = '__'
+            Caption = '---'
             Enabled = False
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
@@ -563,7 +561,7 @@ object settingsForm: TsettingsForm
         end
       end
       object cbOmniRigEnabled: TCheckBox
-        Left = 17
+        Left = 18
         Top = 1
         Width = 17
         Height = 17

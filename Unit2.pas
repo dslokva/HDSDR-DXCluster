@@ -8,6 +8,34 @@ uses
   Vcl.ActnMan, Vcl.ActnColorMaps, VCLTee.TeCanvas, Vcl.ComCtrls, OmniRig_TLB;
 
 type
+   TOmniRigThread = class(TThread)
+   private
+     var
+       OmniRig: TOmniRigX;
+       ActiveRigNumber: Integer;
+       currentOmniRigFreq : integer;
+       currentOmniRigFreqTxt : string;
+       currentOmniRigType : string;
+       currentOmniRigStatus : string;
+       currentOmniRigStatusBarTxt : string;
+
+     procedure CreateRigControl();
+
+   public
+    constructor Create(RigNum : integer);
+    procedure ParamsChangeEvent(Sender: TObject; RigNumber, Params: Integer);
+    procedure RigTypeChangeEvent(Sender: TObject; RigNumber: Integer);
+    procedure StatusChangeEvent(Sender: TObject; RigNumber: Integer);
+    procedure setTRXFrequency(freqToSet : string);
+    procedure setRigNumber(RigNum: Integer);
+    procedure KillRigControl;
+
+   protected
+     procedure Execute; override;
+     procedure SetUIValues;
+   end;
+
+type
   TsettingsForm = class(TForm)
     btnSave: TButton;
     btnClose: TButton;
@@ -93,39 +121,65 @@ type
     procedure cbOmniRigEnabledClick(Sender: TObject);
     procedure radGrpRigNumClick(Sender: TObject);
   private
-    procedure CreateRigControl(RigNumber: Integer);
-    procedure KillRigControl;
+
     { Private declarations }
   public
     maxSpotsNumber : integer;
     currentOmniRigFreq : integer;
     currentOmniRigFreqTxt : string;
-    OmniRig: TOmniRigX;
-
-    procedure ParamsChangeEvent(Sender: TObject; RigNumber, Params: Integer);
-    procedure RigTypeChangeEvent(Sender: TObject; RigNumber: Integer);
-    procedure StatusChangeEvent(Sender: TObject; RigNumber: Integer);
-    procedure setTRXFrequency(freqToSet : string);
+    onmiRigThread : TOmniRigThread;
     { Public declarations }
   end;
 
 var
   settingsForm : TsettingsForm;
 
+
 implementation
 
-uses Unit1;
+uses Unit1, IdGlobal;
 
 {$R *.dfm}
 
-procedure TsettingsForm.setTRXFrequency(freqToSet : string);
+constructor TOmniRigThread.Create(RigNum : integer);
+begin
+  ActiveRigNumber := RigNum;
+  CreateRigControl();
+  inherited Create(true);
+End;
+
+procedure TOmniRigThread.SetUIValues;
+begin
+settingsForm.currentOmniRigFreq := currentOmniRigFreq;
+settingsForm.currentOmniRigFreqTxt := currentOmniRigFreqTxt;
+FrequencyVisualForm.StatusBar1.Panels[3].Text := currentOmniRigStatusBarTxt;
+settingsForm.Label9.Caption := currentOmniRigType;
+settingsForm.Label11.Caption := currentOmniRigStatus;
+FrequencyVisualForm.frequencyPaintBox.Refresh;
+End;
+
+procedure TOmniRigThread.Execute;
+begin
+try
+
+  while not Terminated do begin
+    sleep(200);
+    Synchronize(SetUIValues);
+  end;
+
+except
+end;
+
+End;
+
+procedure TOmniRigThread.setTRXFrequency(freqToSet : string);
 var
 freq : integer;
 begin
 freq := trunc(StrToFloat(freqToSet)*1000);
 
   if (OmniRig = nil) or (OmniRig.Rig2.Status <> ST_ONLINE) then Exit;
-  case radGrpRigNum.ItemIndex+1 of
+  case ActiveRigNumber of
     1:
       if OmniRig.Rig1.Status = ST_ONLINE then begin
         OmniRig.Rig1.SetSimplexMode(freq);
@@ -137,6 +191,130 @@ freq := trunc(StrToFloat(freqToSet)*1000);
       end;
     end;
 End;
+
+procedure TOmniRigThread.setRigNumber(RigNum : integer);
+begin
+ActiveRigNumber := RigNum;
+End;
+
+procedure TOmniRigThread.KillRigControl;
+begin
+  try
+    currentOmniRigFreq := 0;
+    currentOmniRigFreqTxt := '0';
+    currentOmniRigStatusBarTxt := 'TRX: disconnected';
+    currentOmniRigType := 'None';
+    currentOmniRigStatus := '---';
+    OmniRig.Disconnect;
+    FreeAndNil(OmniRig);
+  except end;
+End;
+
+function ModeName(Mode: integer): string;
+begin
+  case Mode of
+    PM_CW_U,
+    PM_CW_L:   Result := 'CW';
+    PM_SSB_U:  Result := 'USB';
+    PM_SSB_L:  Result := 'LSB';
+    PM_DIG_U,
+    PM_DIG_L:  Result := 'DIG';
+    PM_AM:     Result := 'AM';
+    PM_FM:     Result := 'FM';
+    else       Result := 'Unknown';
+    end;
+End;
+
+procedure TOmniRigThread.ParamsChangeEvent(Sender: TObject; RigNumber, Params: Integer);
+begin
+  if OmniRig = nil then Exit;
+
+  if RigNumber = ActiveRigNumber then
+    case ActiveRigNumber of
+      1:
+        if OmniRig.Rig1.Status = ST_ONLINE then begin
+            currentOmniRigFreq := OmniRig.Rig1.GetRxFrequency;
+            currentOmniRigFreqTxt := FloatToStrF(currentOmniRigFreq/1000, ffFixed, 9, 2);
+            currentOmniRigStatusBarTxt := 'TRX #1: '+OmniRig.Rig1.RigType+', '+ModeName(OmniRig.Rig1.Mode)+' - '+currentOmniRigFreqTxt;
+  //        Label11.Caption := ModeName(OmniRig.Rig1.Mode);
+        end else begin
+            currentOmniRigFreq := 0;
+            currentOmniRigFreqTxt := '0';
+            currentOmniRigStatusBarTxt := 'TRX #1: (' +OmniRig.Rig1.RigType+'): '+ OmniRig.Rig1.StatusStr;
+        end;
+
+      2:
+        if OmniRig.Rig2.Status = ST_ONLINE then begin
+            currentOmniRigFreq := OmniRig.Rig2.GetRxFrequency;
+            currentOmniRigFreqTxt := FloatToStrF(currentOmniRigFreq/1000, ffFixed, 9, 2);
+            currentOmniRigStatusBarTxt := 'TRX #2: '+OmniRig.Rig2.RigType+', '+ModeName(OmniRig.Rig2.Mode)+' - '+currentOmniRigFreqTxt;
+            DebugOutput('Status updated: '+currentOmniRigStatusBarTxt);
+  //        Label11.Caption := ModeName(OmniRig.Rig2.Mode);
+        end else begin
+            currentOmniRigFreq := 0;
+            currentOmniRigFreqTxt := '0';
+            currentOmniRigStatusBarTxt := 'TRX #2 (' +OmniRig.Rig2.RigType+'): '+ OmniRig.Rig2.StatusStr;
+        end;
+    end;
+End;
+
+procedure TsettingsForm.radGrpRigNumClick(Sender: TObject);
+begin
+if (onmiRigThread <> nil) then begin
+  onmiRigThread.setRigNumber(radGrpRigNum.ItemIndex+1);
+  onmiRigThread.RigTypeChangeEvent(nil, radGrpRigNum.ItemIndex+1);
+  onmiRigThread.ParamsChangeEvent(nil, radGrpRigNum.ItemIndex+1, 0);
+  onmiRigThread.StatusChangeEvent(nil, radGrpRigNum.ItemIndex+1);
+end;
+End;
+
+procedure TOmniRigThread.RigTypeChangeEvent(Sender: TObject; RigNumber: Integer);
+begin
+  if OmniRig = nil then Exit;
+
+  //display the radio model
+  if RigNumber = ActiveRigNumber then
+    case ActiveRigNumber of
+      1: currentOmniRigType := OmniRig.Rig1.RigType;
+      2: currentOmniRigType := OmniRig.Rig2.RigType;
+    end;
+End;
+
+procedure TOmniRigThread.StatusChangeEvent(Sender: TObject; RigNumber: Integer);
+begin
+  if OmniRig = nil then Exit;
+
+  //display the status string
+  if RigNumber = ActiveRigNumber then
+    case ActiveRigNumber of
+      1: currentOmniRigStatus := OmniRig.Rig1.StatusStr;
+      2: currentOmniRigStatus := OmniRig.Rig2.StatusStr;
+    end;
+End;
+
+procedure TOmniRigThread.CreateRigControl();
+begin
+  OmniRig := TOmniRigX.Create(settingsForm);
+  try
+    OmniRig.Connect;
+    OmniRig.OnRigTypeChange := RigTypeChangeEvent;
+    OmniRig.OnStatusChange := StatusChangeEvent;
+    OmniRig.OnParamsChange := ParamsChangeEvent;
+
+    //Check OmniRig version: in this demo we want V.1.1 to 1.99
+    if OmniRig.InterfaceVersion < $0101 then Abort;
+    if OmniRig.InterfaceVersion > $0199 then Abort;
+
+    //show rig type, current status, and parameters
+    RigTypeChangeEvent(nil, ActiveRigNumber);
+    StatusChangeEvent(nil, ActiveRigNumber);
+    ParamsChangeEvent(nil, ActiveRigNumber, 0);
+  except
+    KillRigControl();
+    DebugOutput('Unable to create the Omnirig object');
+  end;
+End;
+
 
 procedure TsettingsForm.chkAllowSpotSelectClick(Sender: TObject);
 begin
@@ -305,11 +483,24 @@ Label10.Enabled := cbOmniRigEnabled.Checked;
 Label11.Enabled := cbOmniRigEnabled.Checked;
 cbSetSpotFrequencyToTRX.Enabled := cbOmniRigEnabled.Checked;
 
+if cbOmniRigEnabled.Checked then begin
+  if (onmiRigThread = nil) then begin
+    onmiRigThread := TOmniRigThread.Create(radGrpRigNum.ItemIndex+1);
+    onmiRigThread.Resume;
+  end;
+
+end else begin
+
+  if (onmiRigThread <> nil) and (not onmiRigThread.Terminated) then begin
+    onmiRigThread.Terminate;
+    onmiRigThread.KillRigControl;
+    onmiRigThread.WaitFor;
+    FreeAndNil(onmiRigThread);
+    FrequencyVisualForm.StatusBar1.Panels[3].Text := 'TRX: disconnected';
+  end;
+end;
+
 radGrpRigNumClick(settingsForm);
-
-if not cbOmniRigEnabled.Checked then
-  FrequencyVisualForm.StatusBar1.Panels[3].Text := 'TRX: disconnected';
-
 end;
 
 procedure TsettingsForm.cbOwnSpotColorizeClick(Sender: TObject);
@@ -326,115 +517,6 @@ procedure TsettingsForm.cbSpotMouseMoveColorizeClick(Sender: TObject);
 begin
 colBoxSpotMouseMove.Enabled := cbSpotMouseMoveColorize.Checked;
 end;
-
-procedure TsettingsForm.KillRigControl;
-begin
-  try
-    currentOmniRigFreq := 0;
-    currentOmniRigFreqTxt := '0';
-    FrequencyVisualForm.StatusBar1.Panels[3].Text := 'TRX: disconnected';
-    FreeAndNil(OmniRig);
-  except end;
-End;
-
-function ModeName(Mode: integer): string;
-begin
-  case Mode of
-    PM_CW_U,
-    PM_CW_L:   Result := 'CW';
-    PM_SSB_U:  Result := 'USB';
-    PM_SSB_L:  Result := 'LSB';
-    PM_DIG_U,
-    PM_DIG_L:  Result := 'DIG';
-    PM_AM:     Result := 'AM';
-    PM_FM:     Result := 'FM';
-    else       Result := 'Unknown';
-    end;
-end;
-
-
-//------------------------------------------------------------------------------
-//                         OmniRig event handling
-//------------------------------------------------------------------------------
-procedure TsettingsForm.ParamsChangeEvent(Sender: TObject; RigNumber, Params: Integer);
-begin
-  if OmniRig = nil then Exit;
-
-  case RigNumber of
-    1:
-      if OmniRig.Rig1.Status = ST_ONLINE then begin
-//        Label9.Caption := IntToStr(OmniRig.Rig1.GetRxFrequency);
-          currentOmniRigFreq := OmniRig.Rig1.GetRxFrequency;
-          currentOmniRigFreqTxt := FloatToStrF(currentOmniRigFreq/1000, ffFixed,9,2);
-          FrequencyVisualForm.StatusBar1.Panels[3].Text := 'TRX: '+OmniRig.Rig1.RigType+', '+ModeName(OmniRig.Rig1.Mode)+' - '+currentOmniRigFreqTxt;
-          FrequencyVisualForm.frequencyPaintBox.Refresh;
-//        Label11.Caption := ModeName(OmniRig.Rig1.Mode);
-      end;
-
-    2:
-      if OmniRig.Rig2.Status = ST_ONLINE then begin
-//        Label9.Caption := IntToStr(OmniRig.Rig2.GetRxFrequency);
-          currentOmniRigFreq := OmniRig.Rig2.GetRxFrequency;
-          currentOmniRigFreqTxt := FloatToStrF(currentOmniRigFreq/1000, ffFixed,9,2);
-          FrequencyVisualForm.StatusBar1.Panels[3].Text := 'TRX: '+OmniRig.Rig2.RigType+', '+ModeName(OmniRig.Rig2.Mode)+' - '+currentOmniRigFreqTxt;
-          FrequencyVisualForm.frequencyPaintBox.Refresh;
-//        Label11.Caption := ModeName(OmniRig.Rig2.Mode);
-      end;
-    end;
-End;
-
-procedure TsettingsForm.radGrpRigNumClick(Sender: TObject);
-begin
-try KillRigControl(); except end;
-CreateRigControl(radGrpRigNum.ItemIndex+1);
-End;
-
-procedure TsettingsForm.RigTypeChangeEvent(Sender: TObject; RigNumber: Integer);
-begin
-  if OmniRig = nil then Exit;
-
-  //display the radio model
-  case RigNumber of
-    1: Label9.Caption := OmniRig.Rig1.RigType;
-    2: Label9.Caption := OmniRig.Rig2.RigType;
-    end;
-End;
-
-procedure TsettingsForm.StatusChangeEvent(Sender: TObject; RigNumber: Integer);
-begin
-  if OmniRig = nil then Exit;
-
-  //display the status string
-  case RigNumber of
-    1: Label11.Caption := OmniRig.Rig1.StatusStr;
-    2: Label11.Caption := OmniRig.Rig2.StatusStr;
-    end;
-End;
-
-procedure TsettingsForm.CreateRigControl(RigNumber: Integer);
-begin
-  //create and configure the OmniRig object
-  OmniRig := TOmniRigX.Create(Self);
-  try
-    OmniRig.Connect;
-    //listen to OmniRig events
-    OmniRig.OnRigTypeChange := RigTypeChangeEvent;
-    OmniRig.OnStatusChange := StatusChangeEvent;
-    OmniRig.OnParamsChange := ParamsChangeEvent;
-
-    //Check OmniRig version: in this demo we want V.1.1 to 1.99
-    if OmniRig.InterfaceVersion < $0101 then Abort;
-    if OmniRig.InterfaceVersion > $0199 then Abort;
-
-    //show rig type, current status, and parameters
-    RigTypeChangeEvent(nil, RigNumber);
-    StatusChangeEvent(nil, RigNumber);
-    ParamsChangeEvent(nil, RigNumber, 0);
-  except
-    KillRigControl;
-    MessageDlg('Unable to create the Omnirig object', mtError, [mbOk], 0);
-  end;
-End;
 
 procedure TsettingsForm.colBoxMainFreqPanelChange(Sender: TObject);
 begin
@@ -473,8 +555,8 @@ try
     cbSendCallFreqToAALog.Checked := ReadBool('MainSettings', 'SendSpotDataToAALog', true);
     cbHiRes.Checked := ReadBool('MainSettings', 'HighResScreen', true);
 
-    radGrpRigNum.ItemIndex := ReadInteger('OmniRigSettings', 'ActiveNum', 0);
     cbOmniRigEnabled.Checked := ReadBool('OmniRigSettings', 'Enabled', false);
+    radGrpRigNum.ItemIndex := ReadInteger('OmniRigSettings', 'ActiveNum', 0);
     cbSetSpotFrequencyToTRX.Checked := ReadBool('OmniRigSettings', 'SetSpotFrequencyToTRX', false);
 
     txtDXCPort.Text := IntToStr(ReadInteger('DXCluster', 'DXCPort', 8000));
@@ -503,6 +585,7 @@ try
 
   cbAALogIntegrationEnabledClick(self);
   chkAllowSpotSelectClick(self);
+
 finally
   iniFile.Free;
 end;

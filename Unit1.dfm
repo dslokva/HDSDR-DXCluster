@@ -66,8 +66,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
       BevelOuter = bvNone
       TabOrder = 1
       OnMouseDown = Panel4MouseDown
-      ExplicitLeft = 630
-      ExplicitTop = 1
       object Bevel1: TBevel
         Left = 1
         Top = 6

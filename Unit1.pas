@@ -135,7 +135,6 @@ type
     procedure setFreqStartAndMode();
     procedure refreshSelectedBandEdges();
     procedure RemoveSelectedSpot(dx : string);
-    function GetSpotBySelectedLabel(dx : string) : TSpot;
     procedure DeleteFirstSpot();
     procedure UpdateCallsignDetailsTable(answerData : TlkJSONobject; spotLabel : TSpotLabel);
     procedure MyShowHint(var HintStr: string; var CanShow: Boolean; var HintInfo: THintInfo);
@@ -427,9 +426,7 @@ if Button = mbLeft then begin
   end;
 
   if settingsForm.cbOmniRigEnabled.Checked and settingsForm.cbSetSpotFrequencyToTRX.Checked then begin
-    spot := GetSpotBySelectedLabel(lastSelectedSpotLabel.Caption);
-    if spot <> nil then
-      settingsForm.setTRXFrequency(spot.Freq);
+     settingsForm.onmiRigThread.setTRXFrequency(lastSelectedSpotLabel.frequency);
   end;
 end;
 
@@ -1119,29 +1116,6 @@ HideLabels(false);
 RepaintFrequencySpan(true);
 End;
 
-function TFrequencyVisualForm.GetSpotBySelectedLabel(dx : string) : TSpot;
-var
-j, i : integer;
-key : variant;
-spotArray : TArray<TSpot>;
-
-begin
-refreshSelectedBandEdges();
-for j := 0 to spotList.Count-1 do begin
-  key := spotList.Items[j].Key;
-  if (key >= freqBandStart) and (key <= freqBandEnd) then begin
-    spotArray := spotList.Items[j].Value;
-    for i := low(spotArray) to high(spotArray) do
-      if spotArray[i].spotLabel.Caption = dx then begin
-        result := spotArray[i];
-        exit;
-      end;
-  end;
-end;
-
-result := nil;
-End;
-
 procedure TFrequencyVisualForm.frequencyPaintBoxContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
 begin
 if notNeedToShowPopupForFreqPanel then
@@ -1155,11 +1129,10 @@ if notNeedToShowPopupForSpotLabel then
 end;
 
 
-
 procedure TFrequencyVisualForm.spotLabelMenuPopup(Sender: TObject);
 begin
 menuLabelOnHold.Checked := TSpotLabel(spotLabelMenu.PopupComponent).onHold;
-end;
+End;
 
 function TFrequencyVisualForm.CheckSpotListContainsKey(spotFreq : variant) : boolean;
 var
@@ -1510,6 +1483,7 @@ procedure TFrequencyVisualForm.IdTelnet1DataAvailable(Sender: TIdTelnet;
   const Buffer: TIdBytes);
 var
 Start, Stop : Integer;
+spotFreq : variant;
 spotFreqStr, incomeStr, hh, mm : string;
 spot : TSpot;
 localSpotArray : TArray<TSpot>;
@@ -1549,12 +1523,14 @@ while Start <= Length(incomeStr) do begin
     if regExp.Exec(fromDXCstr) then begin
         oldSpotCount := getSpotTotalCount();
         spotFreqStr := StringReplace(regExp.Match[2], '.', ',', [rfIgnoreCase, rfReplaceAll]);
+        spotFreq := FormatFloat('0.00', round(StrToFloat(spotFreqStr)*10)/10);
         if StrToFloat(spotFreqStr) > 150001 then exit;
+        if (spotFreq <= freqBandStart) or (spotFreq >= freqBandEnd) then exit;
 
         spot := TSpot.Create;
         spot.DE := Trim(regExp.Match[1]);
 //        spot.Freq := StrToFloat(spotFreqStr);
-        spot.Freq := FormatFloat('0.00', round(StrToFloat(spotFreqStr)*10)/10);
+        spot.Freq := spotFreq;
         spot.DX := Trim(regExp.Match[3]);
         spot.Comment := Trim(regExp.Match[4]);
 
@@ -1563,7 +1539,7 @@ while Start <= Length(incomeStr) do begin
         spot.UTCTime := DateOf(SystemTimeToUTC(Now)) + EncodeTime(StrToInt(hh),StrToInt(mm),00,000);
         spot.LocalTime := LocalDateTimeFromUTCDateTime(spot.UTCTime);
 
-        spotLabel := TSpotLabel.Create(Panel5, spot.DE, spot.LocalTime);
+        spotLabel := TSpotLabel.Create(Panel5, spot.DE, spot.LocalTime, spot.Freq);
         spotLabel.Transparent := false;
         spotLabel.Color := frequencyPaintBox.Color+1;
         spotLabel.Parent := Panel5;
@@ -1615,12 +1591,14 @@ while Start <= Length(incomeStr) do begin
     if regExp.Exec(fromDXCstr) then begin
         oldSpotCount := getSpotTotalCount();
         spotFreqStr := StringReplace(regExp.Match[1], '.', ',', [rfIgnoreCase, rfReplaceAll]);
-        if StrToFloat(spotFreqStr) > 150001 then exit;     //we don't process spot with freq more than 150 Mhz
+        spotFreq := FormatFloat('0.00', round(StrToFloat(spotFreqStr)*10)/10);
+        if StrToFloat(spotFreqStr) > 150001 then exit;  //we don't process spot with freq more than 150 Mhz
+        if (spotFreq <= freqBandStart) or (spotFreq >= freqBandEnd) then exit;
 
         spot := TSpot.Create;
         spot.DE := Trim(regExp.Match[5]);
 //        spot.Freq := StrToFloat(spotFreqStr);
-        spot.Freq := FormatFloat('0.00', round(StrToFloat(spotFreqStr)*10)/10);
+        spot.Freq := spotFreq;
         spot.DX := Trim(regExp.Match[2]);
         spot.Comment := Trim(regExp.Match[4]);
 
@@ -1629,7 +1607,7 @@ while Start <= Length(incomeStr) do begin
         spot.UTCTime := DateOf(SystemTimeToUTC(Now)) + EncodeTime(StrToInt(hh),StrToInt(mm),00,000);
         spot.LocalTime := LocalDateTimeFromUTCDateTime(spot.UTCTime);
 
-        spotLabel := TSpotLabel.Create(Panel5, spot.DE, spot.LocalTime);
+        spotLabel := TSpotLabel.Create(Panel5, spot.DE, spot.LocalTime, spot.Freq);
         spotLabel.Transparent := false;
         spotLabel.Color := frequencyPaintBox.Color+1;
         spotLabel.Parent := Panel5;
@@ -1756,7 +1734,7 @@ End;
 
 procedure TFrequencyVisualForm.frequencyPaintBoxPaint(Sender: TObject);
 var
-lineHeigth, lineStart, freqCAT : integer;
+lineStart, freqCAT : integer;
 
 begin
 spotBandCount := 0;

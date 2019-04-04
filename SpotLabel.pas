@@ -14,17 +14,19 @@ type
       receiveTime : TDateTime;
       selected : boolean;
       onHold : boolean;
-      constructor Create(AOwner: TComponent; spotDEStr : string; receiveTimeOrig : TDateTime);
+      frequency: variant;
+      constructor Create(AOwner: TComponent; spotDEStr : string; receiveTimeOrig : TDateTime; freq: variant);
   end;
 
 implementation
 
-constructor TSpotLabel.Create(AOwner: TComponent; spotDEStr : string; receiveTimeOrig : TDateTime);
+constructor TSpotLabel.Create(AOwner: TComponent; spotDEStr : string; receiveTimeOrig : TDateTime; freq: variant);
 begin
   spotDE := spotDEStr;
   receiveTime := receiveTimeOrig;
   selected := false;
   onHold := false;
+  frequency := freq;
   inherited Create(AOwner);
 End;
 
