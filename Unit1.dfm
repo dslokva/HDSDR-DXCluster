@@ -254,6 +254,14 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnPaint = frequencyPaintBoxTopPaint
       ExplicitTop = -6
     end
+    object spotSelectedPBox: TPaintBox
+      Left = 422
+      Top = 9
+      Width = 43
+      Height = 154
+      Visible = False
+      OnPaint = spotSelectedPBoxPaint
+    end
     object Panel3: TPanel
       Left = 0
       Top = 169

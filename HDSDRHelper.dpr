@@ -7,7 +7,8 @@ uses
   Unit2 in 'Unit2.pas' {settingsForm},
   Unit3 in 'Unit3.pas' {dxcViewForm},
   SpotLabel in 'SpotLabel.pas',
-  OmniRig_TLB in '..\..\20.0\Imports\OmniRig_TLB.pas';
+  OmniRig_TLB in '..\..\20.0\Imports\OmniRig_TLB.pas',
+  CallParser in 'CallParser.pas';
 
 {$R *.res}
 

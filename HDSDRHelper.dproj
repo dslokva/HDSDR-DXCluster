@@ -120,6 +120,7 @@
         </DCCReference>
         <DCCReference Include="SpotLabel.pas"/>
         <DCCReference Include="..\..\20.0\Imports\OmniRig_TLB.pas"/>
+        <DCCReference Include="CallParser.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -159,8 +159,8 @@ object settingsForm: TsettingsForm
       object gbAALogIntegration: TGroupBox
         Left = 3
         Top = 9
-        Width = 220
-        Height = 88
+        Width = 262
+        Height = 92
         Caption = '       AALog integration '
         Enabled = False
         TabOrder = 0
@@ -193,7 +193,7 @@ object settingsForm: TsettingsForm
         end
         object cbSendCallFreqToAALog: TCheckBox
           Left = 8
-          Top = 61
+          Top = 64
           Width = 209
           Height = 17
           Caption = 'Send info to AALog New QSO window'
@@ -210,8 +210,8 @@ object settingsForm: TsettingsForm
         OnClick = cbAALogIntegrationEnabledClick
       end
     end
-    object TabColors: TTabSheet
-      Caption = 'TabColors'
+    object Colors: TTabSheet
+      Caption = 'Colors'
       ImageIndex = 2
       object GroupBox2: TGroupBox
         Left = 3
@@ -349,7 +349,7 @@ object settingsForm: TsettingsForm
         end
         object Label8: TLabel
           Left = 7
-          Top = 104
+          Top = 103
           Width = 208
           Height = 13
           Caption = '---------------------Presets----------------------'
@@ -370,7 +370,7 @@ object settingsForm: TsettingsForm
         end
         object Label13: TLabel
           Left = 7
-          Top = 172
+          Top = 170
           Width = 208
           Height = 13
           Caption = '----------------------------------------------------'
@@ -387,7 +387,7 @@ object settingsForm: TsettingsForm
         end
         object btnDefaultFreqPanColor: TButton
           Left = 151
-          Top = 122
+          Top = 121
           Width = 64
           Height = 21
           Caption = 'Dark Blue'
@@ -396,7 +396,7 @@ object settingsForm: TsettingsForm
         end
         object btnGreennyFreqPanColor: TButton
           Left = 80
-          Top = 122
+          Top = 121
           Width = 64
           Height = 21
           Caption = 'Green'
@@ -405,7 +405,7 @@ object settingsForm: TsettingsForm
         end
         object Button1: TButton
           Left = 8
-          Top = 149
+          Top = 148
           Width = 65
           Height = 21
           Caption = 'Grey'
@@ -414,7 +414,7 @@ object settingsForm: TsettingsForm
         end
         object Button2: TButton
           Left = 151
-          Top = 149
+          Top = 148
           Width = 64
           Height = 21
           Caption = 'Black'
@@ -423,7 +423,7 @@ object settingsForm: TsettingsForm
         end
         object Button3: TButton
           Left = 8
-          Top = 122
+          Top = 121
           Width = 65
           Height = 21
           Caption = 'Blue'
@@ -432,7 +432,7 @@ object settingsForm: TsettingsForm
         end
         object Button4: TButton
           Left = 80
-          Top = 149
+          Top = 148
           Width = 64
           Height = 21
           Caption = 'Brick'
@@ -444,7 +444,7 @@ object settingsForm: TsettingsForm
           Top = 188
           Width = 102
           Height = 17
-          Caption = 'Allow spot select'
+          Caption = 'Allow spot select:'
           Checked = True
           State = cbChecked
           TabOrder = 7
@@ -468,6 +468,16 @@ object settingsForm: TsettingsForm
           Selected = clRed
           Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
           TabOrder = 9
+          OnChange = colBoxScaleChange
+        end
+        object cboxSpotSelectBgColor: TColorBox
+          Left = 116
+          Top = 186
+          Width = 97
+          Height = 22
+          Selected = clWhite
+          Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
+          TabOrder = 10
           OnChange = colBoxScaleChange
         end
       end
@@ -575,6 +585,15 @@ object settingsForm: TsettingsForm
         Height = 105
         Caption = 'Other options: '
         TabOrder = 2
+        object SpeedButton1: TSpeedButton
+          Left = 290
+          Top = 67
+          Width = 23
+          Height = 23
+          Caption = '...'
+          Enabled = False
+          OnClick = SpeedButton1Click
+        end
         object cbHiRes: TCheckBox
           Left = 13
           Top = 22
@@ -586,7 +605,39 @@ object settingsForm: TsettingsForm
           TabOrder = 0
           OnClick = cbHiResClick
         end
+        object cbAdditionalInfoFromCall: TCheckBox
+          Left = 13
+          Top = 45
+          Width = 188
+          Height = 17
+          Caption = 'Show additional info for callsigns:'
+          TabOrder = 1
+          OnClick = cbAdditionalInfoFromCallClick
+        end
+        object txtPathToPrefixLst: TEdit
+          Left = 13
+          Top = 68
+          Width = 276
+          Height = 21
+          Enabled = False
+          TabOrder = 2
+        end
       end
     end
+  end
+  object FileOpenDialog1: TFileOpenDialog
+    FavoriteLinks = <>
+    FileTypes = <
+      item
+        DisplayName = 'Prefix lst'
+        FileMask = '*.lst'
+      end
+      item
+        DisplayName = 'All files'
+        FileMask = '*.*'
+      end>
+    Options = [fdoFileMustExist]
+    Left = 388
+    Top = 208
   end
 end
