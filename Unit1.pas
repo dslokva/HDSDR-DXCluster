@@ -457,6 +457,8 @@ if Button = mbLeft then begin
     end;
     spotSelectedPBox.Visible := true;
     lastSelectedSpotLabel := TSpotLabel(Sender);
+    spotSelectedPBox.BringToFront;
+    lastSelectedSpotLabel.BringToFront;
   end;
 
   if settingsForm.cbOmniRigEnabled.Checked and settingsForm.cbSetSpotFrequencyToTRX.Checked then begin
@@ -1468,6 +1470,13 @@ begin
   freqShifter := freqShift;
   spotSelectedPBox.Visible := false;
   frequencyPositionArr[bandSwitcher.ItemIndex] := freqShift;
+
+  if lastSelectedSpotLabel <> nil then begin
+    lastSelectedSpotLabel.selected := false;
+    spotSelectedPBox.Visible := false;
+    lastSelectedSpotLabel := nil;
+  end;
+
   HideLabels(true);
   RepaintFrequencySpan(true);
 end;
@@ -1835,6 +1844,7 @@ with frequencyPaintBox.Canvas do begin
           LineTo(lineStart, frequencyPaintBox.Height);
           LogBrush.lbColor := clWhite;
           Pen.Handle := ExtCreatePen(BS_SOLID, PenWidthDPICorr, LogBrush, 0, nil);
+          DebugOutput('Paint red line on freqPanel:' + IntToStr(freqCAT));
       end;
 
        freqStart := freqStart + freqAddKhz;

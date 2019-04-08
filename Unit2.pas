@@ -159,6 +159,7 @@ begin
 Label9.Caption := currentOmniRigType;
 Label11.Caption := currentOmniRigStatus;
 FrequencyVisualForm.StatusBar1.Panels[3].Text := currentOmniRigStatusBarTxt;
+FrequencyVisualForm.frequencyPaintBox.Refresh;
 End;
 
 
@@ -262,6 +263,7 @@ procedure TsettingsForm.setTRXFrequency(freqToSet : string);
 var
 freq : integer;
 begin
+DebugOutput('Set simplex mode called:' + IntToStr(freq));
 freq := trunc(StrToFloat(freqToSet)*1000);
 
   if (OmniRig = nil) or (OmniRig.Rig2.Status <> ST_ONLINE) then Exit;
@@ -279,6 +281,7 @@ freq := trunc(StrToFloat(freqToSet)*1000);
 
     currentOmniRigFreq := freq;
     currentOmniRigFreqTxt := freqToSet;
+
     UpdateUIValues();
 End;
 
