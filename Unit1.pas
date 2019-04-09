@@ -155,7 +155,7 @@ type
     procedure updateSpotListArray(spotFreq : variant; spotArray : TArray<TSpot>);
     procedure setFreqAddKhz(addKhz : variant);
     procedure RepaintFrequencySpan(showLabels : boolean);
-    procedure createCallParser();
+    procedure createCallParser(filePath : string);
 
     { Public declarations }
 
@@ -716,15 +716,12 @@ freqShifter := frequencyPositionArr[bandSwitcher.ItemIndex];
 
 refreshSelectedBandEdges();
 setFreqStartAndMode();
-
 End;
 
-procedure TFrequencyVisualForm.createCallParser();
+procedure TFrequencyVisualForm.createCallParser(filePath : string);
 begin
-
 CallParser := TCallParser.Create(Self);
-CallParser.PrefixFile := 'prefix.lst';
-
+CallParser.PrefixFile := filePath;
 End;
 
 procedure TFrequencyVisualForm.FormResize(Sender: TObject);
@@ -1598,7 +1595,6 @@ while Start <= Length(incomeStr) do begin
 
         spot := TSpot.Create;
         spot.DE := Trim(regExp.Match[1]);
-//        spot.Freq := StrToFloat(spotFreqStr);
         spot.Freq := spotFreq;
         spot.DX := Trim(regExp.Match[3]);
         spot.Comment := Trim(regExp.Match[4]);
@@ -1666,7 +1662,6 @@ while Start <= Length(incomeStr) do begin
 
         spot := TSpot.Create;
         spot.DE := Trim(regExp.Match[5]);
-//        spot.Freq := StrToFloat(spotFreqStr);
         spot.Freq := spotFreq;
         spot.DX := Trim(regExp.Match[2]);
         spot.Comment := Trim(regExp.Match[4]);
@@ -1724,10 +1719,10 @@ while Start <= Length(incomeStr) do begin
         end;
     end;
 
-    if getSpotMaxCount < getSpotTotalCount then begin
-      //delete first (most early by time) spot in list on same band//
+    //delete first (most early by time) spot in list on same band//
+    if getSpotMaxCount < getSpotTotalCount then
       deleteFirstSpot();
-    end;
+
 
   finally
     regExp.Free;

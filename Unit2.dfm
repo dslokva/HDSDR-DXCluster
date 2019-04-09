@@ -3,7 +3,7 @@ object settingsForm: TsettingsForm
   Top = 0
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 296
+  ClientHeight = 303
   ClientWidth = 496
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,7 +18,7 @@ object settingsForm: TsettingsForm
   TextHeight = 13
   object labSaveInfo: TLabel
     Left = 108
-    Top = 271
+    Top = 276
     Width = 15
     Height = 13
     Caption = 'OK'
@@ -33,7 +33,7 @@ object settingsForm: TsettingsForm
   end
   object btnSave: TButton
     Left = 8
-    Top = 266
+    Top = 271
     Width = 92
     Height = 25
     Caption = 'Save config'
@@ -42,7 +42,7 @@ object settingsForm: TsettingsForm
   end
   object btnClose: TButton
     Left = 405
-    Top = 266
+    Top = 271
     Width = 83
     Height = 25
     Caption = 'Close'
@@ -53,15 +53,12 @@ object settingsForm: TsettingsForm
     Left = 8
     Top = 8
     Width = 481
-    Height = 252
-    ActivePage = TabGeneralOptions
+    Height = 257
+    ActivePage = TabDXCluster
     TabOrder = 2
     object TabDXCluster: TTabSheet
       Caption = 'DX Cluster'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitHeight = 224
       object GroupBox1: TGroupBox
         Left = 3
         Top = 3
@@ -160,10 +157,7 @@ object settingsForm: TsettingsForm
     object TabLogIntegration: TTabSheet
       Caption = 'Log integration'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitHeight = 224
       object gbAALogIntegration: TGroupBox
         Left = 3
         Top = 9
@@ -221,10 +215,7 @@ object settingsForm: TsettingsForm
     object Colors: TTabSheet
       Caption = 'Colors'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitHeight = 224
       object GroupBox2: TGroupBox
         Left = 3
         Top = 3
@@ -497,6 +488,7 @@ object settingsForm: TsettingsForm
     object TabGeneralOptions: TTabSheet
       Caption = 'General options'
       ImageIndex = 3
+      ExplicitHeight = 225
       object GroupBox4: TGroupBox
         Left = 7
         Top = 3
@@ -594,21 +586,34 @@ object settingsForm: TsettingsForm
         Left = 7
         Top = 114
         Width = 334
-        Height = 105
+        Height = 110
         Caption = 'Other options: '
         TabOrder = 2
         object SpeedButton1: TSpeedButton
-          Left = 290
-          Top = 67
+          Left = 287
+          Top = 64
           Width = 23
           Height = 23
           Caption = '...'
           Enabled = False
           OnClick = SpeedButton1Click
         end
+        object Label14: TLabel
+          Left = 9
+          Top = 90
+          Width = 134
+          Height = 13
+          Caption = 'Valid Prefix.lst file is needed'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clRed
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
         object cbHiRes: TCheckBox
-          Left = 13
-          Top = 22
+          Left = 10
+          Top = 19
           Width = 190
           Height = 17
           Caption = 'Try high resolution screen settings'
@@ -618,8 +623,8 @@ object settingsForm: TsettingsForm
           OnClick = cbHiResClick
         end
         object cbAdditionalInfoFromCall: TCheckBox
-          Left = 13
-          Top = 45
+          Left = 10
+          Top = 42
           Width = 188
           Height = 17
           Caption = 'Show additional info for callsigns:'
@@ -627,8 +632,8 @@ object settingsForm: TsettingsForm
           OnClick = cbAdditionalInfoFromCallClick
         end
         object txtPathToPrefixLst: TEdit
-          Left = 13
-          Top = 68
+          Left = 10
+          Top = 65
           Width = 276
           Height = 21
           Enabled = False
@@ -649,7 +654,7 @@ object settingsForm: TsettingsForm
         FileMask = '*.*'
       end>
     Options = [fdoFileMustExist]
-    Left = 388
-    Top = 208
+    Left = 332
+    Top = 264
   end
 end

@@ -77,6 +77,7 @@ type
     FileOpenDialog1: TFileOpenDialog;
     SpeedButton1: TSpeedButton;
     txtPathToPrefixLst: TEdit;
+    Label14: TLabel;
     procedure btnCloseClick(Sender: TObject);
     procedure txtDXCPortKeyPress(Sender: TObject; var Key: Char);
     procedure btnSaveClick(Sender: TObject);
@@ -108,6 +109,7 @@ type
     procedure UpdateUIValues();
     procedure cbAdditionalInfoFromCallClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
+    procedure createPrefixLstParser();
   private
     OmniRig: TOmniRigX;
     ActiveRigNumber: Integer;
@@ -160,6 +162,7 @@ Label9.Caption := currentOmniRigType;
 Label11.Caption := currentOmniRigStatus;
 FrequencyVisualForm.StatusBar1.Panels[3].Text := currentOmniRigStatusBarTxt;
 FrequencyVisualForm.frequencyPaintBox.Refresh;
+DebugOutput('UpdateUIValues called');
 End;
 
 
@@ -285,11 +288,24 @@ freq := trunc(StrToFloat(freqToSet)*1000);
     UpdateUIValues();
 End;
 
+procedure TsettingsForm.createPrefixLstParser();
+begin
+  try
+    frequencyVisualForm.createCallParser(txtPathToPrefixLst.Text);
+    Label14.Caption := 'Prefix.lst file is valid';
+    Label14.Font.Color := clGreen;
+  except
+    Label14.Caption := 'Valid Prefix.lst file is needed';
+    Label14.Font.Color := clRed;
+  end;
+End;
+
 procedure TsettingsForm.SpeedButton1Click(Sender: TObject);
 begin
-if FileOpenDialog1.Execute then
+if FileOpenDialog1.Execute then begin
   txtPathToPrefixLst.Text := FileOpenDialog1.FileName;
-
+  createPrefixLstParser();
+end;
 End;
 
 procedure TsettingsForm.radGrpRigNumClick(Sender: TObject);
@@ -580,10 +596,11 @@ try
   chkAllowSpotSelectClick(self);
 
   FileOpenDialog1.DefaultFolder := ExtractFilePath(Application.ExeName);
+
   if Length(txtPathToPrefixLst.Text) < 5 then
     txtPathToPrefixLst.Text := ExtractFilePath(Application.ExeName)
   else
-    frequencyVisualForm.createCallParser();
+    createPrefixLstParser();
 
 finally
   iniFile.Free;
