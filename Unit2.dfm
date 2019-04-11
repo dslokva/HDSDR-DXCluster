@@ -54,11 +54,10 @@ object settingsForm: TsettingsForm
     Top = 8
     Width = 481
     Height = 257
-    ActivePage = TabDXCluster
+    ActivePage = Colors
     TabOrder = 2
     object TabDXCluster: TTabSheet
       Caption = 'DX Cluster'
-      ExplicitHeight = 224
       object GroupBox1: TGroupBox
         Left = 3
         Top = 3
@@ -157,7 +156,6 @@ object settingsForm: TsettingsForm
     object TabLogIntegration: TTabSheet
       Caption = 'Log integration'
       ImageIndex = 1
-      ExplicitHeight = 224
       object gbAALogIntegration: TGroupBox
         Left = 3
         Top = 9
@@ -215,7 +213,6 @@ object settingsForm: TsettingsForm
     object Colors: TTabSheet
       Caption = 'Colors'
       ImageIndex = 2
-      ExplicitHeight = 224
       object GroupBox2: TGroupBox
         Left = 3
         Top = 3
@@ -488,7 +485,6 @@ object settingsForm: TsettingsForm
     object TabGeneralOptions: TTabSheet
       Caption = 'General options'
       ImageIndex = 3
-      ExplicitHeight = 225
       object GroupBox4: TGroupBox
         Left = 7
         Top = 3

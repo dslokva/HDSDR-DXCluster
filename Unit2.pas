@@ -158,8 +158,6 @@ End;
 
 procedure TsettingsForm.UpdateUIValues();
 begin
-Label9.Caption := currentOmniRigType;
-Label11.Caption := currentOmniRigStatus;
 FrequencyVisualForm.StatusBar1.Panels[3].Text := currentOmniRigStatusBarTxt;
 FrequencyVisualForm.frequencyPaintBox.Refresh;
 DebugOutput('UpdateUIValues called');
@@ -185,7 +183,7 @@ procedure TsettingsForm.ParamsChangeEvent(Sender: TObject; RigNumber, Params: In
 begin
   if OmniRig = nil then Exit;
 
-  if RigNumber = ActiveRigNumber then
+  if RigNumber = ActiveRigNumber then begin
     case ActiveRigNumber of
       1:
         if OmniRig.Rig1.Status = ST_ONLINE then begin
@@ -210,6 +208,8 @@ begin
             currentOmniRigStatusBarTxt := 'TRX #2 (' +OmniRig.Rig2.RigType+'): '+ OmniRig.Rig2.StatusStr;
         end;
     end;
+    UpdateUIValues();
+    end;
 End;
 
 
@@ -223,7 +223,8 @@ begin
       1: currentOmniRigType := OmniRig.Rig1.RigType;
       2: currentOmniRigType := OmniRig.Rig2.RigType;
     end;
-    UpdateUIValues();
+    Label9.Caption := currentOmniRigType;
+
 End;
 
 procedure TsettingsForm.StatusChangeEvent(Sender: TObject; RigNumber: Integer);
@@ -236,7 +237,8 @@ begin
       1: currentOmniRigStatus := OmniRig.Rig1.StatusStr;
       2: currentOmniRigStatus := OmniRig.Rig2.StatusStr;
     end;
-    UpdateUIValues();
+    Label11.Caption := currentOmniRigStatus;
+
 End;
 
 procedure TsettingsForm.CreateRigControl();
@@ -602,6 +604,7 @@ try
   else
     createPrefixLstParser();
 
+    cbHiResClick(self);
 finally
   iniFile.Free;
 end;

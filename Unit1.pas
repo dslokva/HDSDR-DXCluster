@@ -1973,8 +1973,8 @@ end;
 
 procedure TFrequencyVisualForm.spotSelectedPBoxPaint(Sender: TObject);
 begin
-DrawTransparentRectangle(spotSelectedPBox.Canvas, Rect(0, 0, spotSelectedPBox.Width,
- spotSelectedPBox.Height), settingsForm.cboxSpotSelectBgColor.Selected, 70);
+//DrawTransparentRectangle(spotSelectedPBox.Canvas, Rect(0, 0, spotSelectedPBox.Width,
+// spotSelectedPBox.Height), settingsForm.cboxSpotSelectBgColor.Selected, 70);
 
 End;
 
