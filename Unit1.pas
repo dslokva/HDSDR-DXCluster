@@ -71,7 +71,6 @@ type
     SpeedButton2: TSpeedButton;
     SpeedButton3: TSpeedButton;
     SpeedButton4: TSpeedButton;
-    spotSelectedPBox: TPaintBox;
     procedure frequencyPaintBoxPaint(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure chkStayOnTopClick(Sender: TObject);
@@ -122,7 +121,7 @@ type
     procedure SpeedButton2Click(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton4Click(Sender: TObject);
-    procedure spotSelectedPBoxPaint(Sender: TObject);
+
   private
     procedure SpotLabelMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
@@ -202,6 +201,9 @@ var
   spotCount15MinutesRateList : TList<integer>;
   showLabelsDuringPaint : boolean;
   CallParser : TCallParser;
+  BlendFunc : TBlendFunction;
+  FrontBMP : TBitmap;
+
 implementation
 
 {$R *.dfm}
@@ -455,9 +457,7 @@ if Button = mbLeft then begin
         lastSelectedSpotLabel.selected := false;
       TSpotLabel(Sender).selected := true;
     end;
-    spotSelectedPBox.Visible := true;
     lastSelectedSpotLabel := TSpotLabel(Sender);
-    spotSelectedPBox.BringToFront;
     lastSelectedSpotLabel.BringToFront;
   end;
 
@@ -482,11 +482,8 @@ if Button = mbRight then begin
       if (lastSelectedSpotLabel.Caption = TSpotLabel(Sender).Caption) then begin
         lastSelectedSpotLabel := nil;
         TSpotLabel(Sender).selected := false;
-        spotSelectedPBox.Visible := false;
       end;
-
   end;
-
 end;
 
 //HideLabels(false);
@@ -624,6 +621,13 @@ var
 iniFile : TIniFile;
 
 begin
+FrontBMP := TBitmap.Create;
+// Blend a foreground image over the top - constant alpha, not per-pixel
+BlendFunc.BlendOp := AC_SRC_OVER;
+BlendFunc.BlendFlags := 0;
+BlendFunc.SourceConstantAlpha := 90;
+BlendFunc.AlphaFormat := 0;
+
 // Initialize all nesessary things
 frequencyPositionArr[0] := 0;
 frequencyPositionArr[1] := 0;
@@ -677,6 +681,8 @@ showLabelsDuringPaint := false;
 
 frequencyPaintBox.Color := $00471B15;
 frequencyPaintBoxTop.Color := $00471B15;
+
+
 
 iniFile := TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
 try
@@ -1230,7 +1236,8 @@ spotCount, YPos : integer;
 spotLabel : TSpotLabel;
 LogBrush: TLogBrush;
 hBrush1 : HBRUSH;
-rect : TRect;
+//rect : TRect;
+spotSelectedBoxTop,spotSelectedBoxHeight, spotSelectedBoxWidth, spotSelectedBoxLeft : integer;
 
 begin
 //Memo1.Lines.Add(IntToStr(textXPos) + ' - ' + FloatToStr(freqValue));
@@ -1277,12 +1284,17 @@ if CheckSpotListContainsKey(freqValue) then begin
           end;
 
           if (spotLabel.selected) and (settingsForm.chkAllowSpotSelect.Checked) then begin
-            spotSelectedPBox.Top := frequencyPaintBox.Top+2;
-            spotSelectedPBox.Height := frequencyPaintBox.Height;
-            spotSelectedPBox.Width := Round(spotLabel.Width / 1.3);
-            spotSelectedPBox.Left := textXPos - spotSelectedPBox.Width - PenWidthDPICorr-1;
-            spotSelectedPBox.Visible := true;
-            spotSelectedPBox.BringToFront;
+            spotSelectedBoxTop := frequencyPaintBox.Top+2;
+            spotSelectedBoxHeight := frequencyPaintBox.Height;
+            spotSelectedBoxWidth := Round(spotLabel.Width / 1.3);
+            spotSelectedBoxLeft := textXPos - spotSelectedBoxWidth - PenWidthDPICorr-1;
+
+            FrontBMP.Canvas.Brush.Color := settingsForm.cboxSpotSelectBgColor.Selected;
+            FrontBMP.Width := spotSelectedBoxWidth;
+            FrontBMP.Height := spotSelectedBoxHeight;
+            FrontBMP.Canvas.FillRect(Rect(0, 0, spotSelectedBoxWidth, spotSelectedBoxHeight));
+            WinApi.Windows.AlphaBlend(frequencyPaintBox.Canvas.Handle, spotSelectedBoxLeft, 2, FrontBMP.Width, FrontBMP.Height, FrontBMP.Canvas.Handle, 0, 0, FrontBMP.Width, FrontBMP.Height, BlendFunc);
+
             spotLabel.BringToFront;
             Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, PenWidthDPICorr, LogBrush, 0, nil);
 //
@@ -1336,11 +1348,17 @@ if CheckSpotListContainsKey(freqValue) then begin
           end;
 
           if (spotLabel.selected) and (settingsForm.chkAllowSpotSelect.Checked) then begin
-            spotSelectedPBox.Top := frequencyPaintBox.Top+2;
-            spotSelectedPBox.Height := frequencyPaintBox.Height;
-            spotSelectedPBox.Width := Round(spotLabel.Width / 1.3);
-            spotSelectedPBox.Left := spotLabel.Left+1;
-            spotSelectedPBox.Visible := true;
+            spotSelectedBoxTop := frequencyPaintBox.Top+2;
+            spotSelectedBoxHeight := frequencyPaintBox.Height;
+            spotSelectedBoxWidth := Round(spotLabel.Width / 1.3);
+            spotSelectedBoxLeft := spotLabel.Left+1;
+
+            FrontBMP.Canvas.Brush.Color := settingsForm.cboxSpotSelectBgColor.Selected;
+            FrontBMP.Width := spotSelectedBoxWidth;
+            FrontBMP.Height := spotSelectedBoxHeight;
+            FrontBMP.Canvas.FillRect(Rect(0, 0, spotSelectedBoxWidth, spotSelectedBoxHeight));
+            WinApi.Windows.AlphaBlend(frequencyPaintBox.Canvas.Handle, spotSelectedBoxLeft, 2, FrontBMP.Width, FrontBMP.Height, FrontBMP.Canvas.Handle, 0, 0, FrontBMP.Width, FrontBMP.Height, BlendFunc);
+
             Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, PenWidthDPICorr, LogBrush, 0, nil);
 //            //paint two vertical lines
 ////            MoveTo(textXPos+spotLabel.Width+textXPosDPICorr+4, longLine+UnderFreqDPICorr+2);
@@ -1465,12 +1483,12 @@ begin
   setFreqStartAndMode;
   refreshSelectedBandEdges;
   freqShifter := freqShift;
-  spotSelectedPBox.Visible := false;
+//  spotSelectedPBox.Visible := false;
   frequencyPositionArr[bandSwitcher.ItemIndex] := freqShift;
 
   if lastSelectedSpotLabel <> nil then begin
     lastSelectedSpotLabel.selected := false;
-    spotSelectedPBox.Visible := false;
+//    spotSelectedPBox.Visible := false;
     lastSelectedSpotLabel := nil;
   end;
 
@@ -1751,6 +1769,7 @@ if (ssRight in Shift) and (not isPanelHoldActive.Checked) then begin
   if Xold > 0 then horz := X - Xold else horz := 0;
   Xold := X;
   sleep(10);
+  DebugOutput('X: '+IntToStr(X));
   if horz > 0 then begin
     //mouse move to right
     freqShifter := freqShifter - 1;
@@ -1800,6 +1819,7 @@ procedure TFrequencyVisualForm.frequencyPaintBoxPaint(Sender: TObject);
 var
 lineStart, freqCAT : integer;
 LogBrush : TLogBrush;
+
 begin
 spotBandCount := 0;
 lineStart := 1;
@@ -1832,15 +1852,15 @@ with frequencyPaintBox.Canvas do begin
        if showLabelsDuringPaint then
          AddFrequencyPosition(lineStart, freqStart);
 
-      freqCAT := freqStart * 1000;
-      if freqCAT = settingsForm.currentOmniRigFreq then begin
-          Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, PenWidthDPICorr, LogBrush, 0, nil);
-          MoveTo(lineStart, StartYPosDPICorr);
-          LineTo(lineStart, frequencyPaintBox.Height);
-          LogBrush.lbColor := clWhite;
-          Pen.Handle := ExtCreatePen(BS_SOLID, PenWidthDPICorr, LogBrush, 0, nil);
-          DebugOutput('Paint red line on freqPanel:' + IntToStr(freqCAT));
-      end;
+       freqCAT := freqStart * 1000;
+       if freqCAT = settingsForm.currentOmniRigFreq then begin
+           Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, PenWidthDPICorr, LogBrush, 0, nil);
+           MoveTo(lineStart, StartYPosDPICorr);
+           LineTo(lineStart, frequencyPaintBox.Height);
+           LogBrush.lbColor := clWhite;
+           Pen.Handle := ExtCreatePen(BS_SOLID, PenWidthDPICorr, LogBrush, 0, nil);
+           DebugOutput('Paint red line on freqPanel:' + IntToStr(freqCAT));
+       end;
 
        freqStart := freqStart + freqAddKhz;
        lineStart := lineStart + lineSpacer div 10;
@@ -1880,7 +1900,7 @@ end;
     Font.Size := freqMarkerFontSize;
 
     while lineStart < boxWidth do begin
-      if textShift < 0 then textShift := 0;
+//      if textShift < 0 then textShift := 0;
 
       lineHeigth := shortLine;
       AddSomeHzPositionToFreqSpan(frequencyPaintBoxTop.Canvas, lineStart, lineHeigth);
@@ -1947,36 +1967,6 @@ end;
     end;
   end;
 end;
-
-procedure DrawTransparentRectangle(Canvas: TCanvas; Rect: TRect;
-  Color: TColor; Transparency: Integer);
-var
-  X: Integer;
-  Y: Integer;
-  C: TColor;
-  R, G, B: Integer;
-  RR, RG, RB: Integer;
-begin
-  RR := GetRValue(Color);
-  RG := GetGValue(Color);
-  RB := GetBValue(Color);
-  for Y := Rect.Top to Rect.Bottom - 1 do
-  for X := Rect.Left to Rect.Right - 1 do
-    begin
-      C := Canvas.Pixels[X, Y];
-      R := Round(0.01 * (Transparency * GetRValue(C) + (100 - Transparency) * RR));
-      G := Round(0.01 * (Transparency * GetGValue(C) + (100 - Transparency) * RG));
-      B := Round(0.01 * (Transparency * GetBValue(C) + (100 - Transparency) * RB));
-      Canvas.Pixels[X, Y] := RGB(R, G, B);
-    end;
-end;
-
-procedure TFrequencyVisualForm.spotSelectedPBoxPaint(Sender: TObject);
-begin
-//DrawTransparentRectangle(spotSelectedPBox.Canvas, Rect(0, 0, spotSelectedPBox.Width,
-// spotSelectedPBox.Height), settingsForm.cboxSpotSelectBgColor.Selected, 70);
-
-End;
 
 procedure TFrequencyVisualForm.Panel1MouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);

@@ -213,7 +213,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       ParentColor = False
       ParentFont = False
       ParentShowHint = False
-      PopupMenu = freqPanelMenu
+      PopupMenu = spotLabelMenu
       ShowHint = True
       OnContextPopup = frequencyPaintBoxContextPopup
       OnMouseLeave = frequencyPaintBoxMouseLeave
@@ -253,14 +253,6 @@ object FrequencyVisualForm: TFrequencyVisualForm
       ShowHint = True
       OnPaint = frequencyPaintBoxTopPaint
       ExplicitTop = -6
-    end
-    object spotSelectedPBox: TPaintBox
-      Left = 422
-      Top = 46
-      Width = 43
-      Height = 117
-      Visible = False
-      OnPaint = spotSelectedPBoxPaint
     end
     object Panel3: TPanel
       Left = 0
