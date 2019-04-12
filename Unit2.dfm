@@ -54,7 +54,7 @@ object settingsForm: TsettingsForm
     Top = 8
     Width = 481
     Height = 257
-    ActivePage = Colors
+    ActivePage = TabGeneralOptions
     TabOrder = 2
     object TabDXCluster: TTabSheet
       Caption = 'DX Cluster'

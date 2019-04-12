@@ -271,7 +271,7 @@ begin
 DebugOutput('Set simplex mode called:' + IntToStr(freq));
 freq := trunc(StrToFloat(freqToSet)*1000);
 
-  if (OmniRig = nil) or (OmniRig.Rig2.Status <> ST_ONLINE) then Exit;
+  if (OmniRig = nil) or ((OmniRig.Rig1.Status <> ST_ONLINE) AND (OmniRig.Rig2.Status <> ST_ONLINE)) then Exit;
   case ActiveRigNumber of
     1:
       if OmniRig.Rig1.Status = ST_ONLINE then begin
@@ -464,7 +464,7 @@ if cbHiRes.Checked then begin
 
   UnderFreqDPICorr := 1;
   PenWidthDPICorr := 3;
-  frequencyVisualForm.frequencyPaintBoxTop.Height := 55;
+  frequencyVisualForm.frequencyPaintBoxTop.Height := 65;
 end else begin
   spaceAdjustValue := 120;
   longLine := 24;
