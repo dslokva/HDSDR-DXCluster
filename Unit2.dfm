@@ -569,6 +569,15 @@ object settingsForm: TsettingsForm
             ParentFont = False
           end
         end
+        object cbSetCallsignToAALog: TCheckBox
+          Left = 207
+          Top = 81
+          Width = 120
+          Height = 17
+          Caption = 'Set callsign to AALog'
+          Enabled = False
+          TabOrder = 3
+        end
       end
       object cbOmniRigEnabled: TCheckBox
         Left = 18
@@ -650,7 +659,7 @@ object settingsForm: TsettingsForm
         FileMask = '*.*'
       end>
     Options = [fdoFileMustExist]
-    Left = 332
-    Top = 264
+    Left = 388
+    Top = 208
   end
 end

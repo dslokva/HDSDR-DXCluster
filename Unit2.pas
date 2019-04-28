@@ -78,6 +78,7 @@ type
     SpeedButton1: TSpeedButton;
     txtPathToPrefixLst: TEdit;
     Label14: TLabel;
+    cbSetCallsignToAALog: TCheckBox;
     procedure btnCloseClick(Sender: TObject);
     procedure txtDXCPortKeyPress(Sender: TObject; var Key: Char);
     procedure btnSaveClick(Sender: TObject);
@@ -495,9 +496,9 @@ Label9.Enabled := cbOmniRigEnabled.Checked;
 Label10.Enabled := cbOmniRigEnabled.Checked;
 Label11.Enabled := cbOmniRigEnabled.Checked;
 cbSetSpotFrequencyToTRX.Enabled := cbOmniRigEnabled.Checked;
+cbSetCallsignToAALog.Enabled := cbOmniRigEnabled.Checked;
 
 if cbOmniRigEnabled.Checked then begin
-
   ActiveRigNumber := radGrpRigNum.ItemIndex+1;
   CreateRigControl();
 

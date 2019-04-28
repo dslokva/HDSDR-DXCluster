@@ -436,10 +436,45 @@ end;
 
 End;
 
+function FillJsonSetValuesRequest(request : TSetNewQSOValuesRequest) : string;
+var
+  JsonRequest : TJson;
+  str: string;
+begin
+try
+//request #3 - set new values to AALog New QSO window.
+JsonRequest := TJson.Create();
+JsonRequest.Put('requestType', request.requestType);
+
+with JsonRequest['requestData'].AsObject do begin
+  Put('callsign', request.callsign);
+  Put('freq', request.freq);
+  Put('mode', request.mode);
+end;
+
+//result - JSON string
+result := JsonRequest.Stringify;
+finally
+//
+end;
+End;
+
+procedure SendRequestToAALog(requestStr, udpHost : string; udpPort : TIdPort; spotLabelIn : TSpotLabel);
+var
+  requestThread: TRequestThread;
+begin
+  requestThread := TRequestThread.Create(requestStr, udpHost, udpPort, spotLabelIn);
+  requestThread.FreeOnTerminate := true;
+  requestThread.Resume;
+End;
+
 procedure TFrequencyVisualForm.SpotLabelMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
 spotLabel : TSpotLabel;
 spot : TSpot;
+request : TSetNewQSOValuesRequest;
+requestStr : string;
+
 begin
 //Tag value is used for vertical alignment of spotLabels
 spotLabel := TSpotLabel(Sender);
@@ -461,8 +496,16 @@ if Button = mbLeft then begin
     lastSelectedSpotLabel.BringToFront;
   end;
 
-  if settingsForm.cbOmniRigEnabled.Checked and settingsForm.cbSetSpotFrequencyToTRX.Checked then begin
+  if (settingsForm.cbOmniRigEnabled.Checked) and
+  (settingsForm.cbSetSpotFrequencyToTRX.Checked) and
+  (not settingsForm.cbSetCallsignToAALog.Checked) then begin
     settingsForm.setTRXFrequency(lastSelectedSpotLabel.frequency);
+  end;
+
+  if settingsForm.cbSetCallsignToAALog.Checked then begin
+    request := TSetNewQSOValuesRequest.Create(lastSelectedSpotLabel.Caption, lastSelectedSpotLabel.frequency, freqText);
+    requestStr := FillJsonSetValuesRequest(request);
+    SendRequestToAALog(requestStr, settingsForm.txtAalAddr.Text, StrToInt(settingsForm.txtAalPort.Text), lastSelectedSpotLabel);
   end;
 end;
 
@@ -860,15 +903,6 @@ begin
     callsingDataFromAALog.Add(callsign, answer);
 End;
 
-
-procedure SendRequestToAALog(requestStr, udpHost : string; udpPort : TIdPort; spotLabelIn : TSpotLabel);
-var
-  requestThread: TRequestThread;
-begin
-  requestThread := TRequestThread.Create(requestStr, udpHost, udpPort, spotLabelIn);
-  requestThread.FreeOnTerminate := true;
-  requestThread.Resume;
-End;
 
 procedure TFrequencyVisualForm.IdTelnet1Connected(Sender: TObject);
 begin
