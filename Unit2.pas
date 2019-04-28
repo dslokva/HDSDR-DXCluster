@@ -386,6 +386,7 @@ try
     WriteBool('DXCluster', 'SpotLotwEqslColorize', cbSpotLotwEqsl.Checked);
     WriteBool('DXCluster', 'EarlySpotColorize', cbEarlySpot.Checked);
     WriteBool('MainSettings', 'AllowSpotSelect', chkAllowSpotSelect.Checked);
+    WriteBool('MainSettings', 'SendCallsignToAALog', cbSetCallsignToAALog.Checked);
 
     WriteBool('OmniRigSettings', 'Enabled', cbOmniRigEnabled.Checked);
     WriteBool('OmniRigSettings', 'SetSpotFrequencyToTRX', cbSetSpotFrequencyToTRX.Checked);
@@ -566,6 +567,7 @@ try
     cbSendCallFreqToAALog.Checked := ReadBool('MainSettings', 'SendSpotDataToAALog', true);
     cbHiRes.Checked := ReadBool('MainSettings', 'HighResScreen', true);
     cbAdditionalInfoFromCall.Checked := ReadBool('MainSettings', 'ShowAdditionalInfo', false);
+    cbSetCallsignToAALog.Checked := ReadBool('MainSettings', 'SendCallsignToAALog', false);
 
     cbOmniRigEnabled.Checked := ReadBool('OmniRigSettings', 'Enabled', false);
     radGrpRigNum.ItemIndex := ReadInteger('OmniRigSettings', 'ActiveNum', 0);

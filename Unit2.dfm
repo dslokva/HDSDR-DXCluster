@@ -54,7 +54,7 @@ object settingsForm: TsettingsForm
     Top = 8
     Width = 481
     Height = 257
-    ActivePage = TabGeneralOptions
+    ActivePage = TabLogIntegration
     TabOrder = 2
     object TabDXCluster: TTabSheet
       Caption = 'DX Cluster'
@@ -160,7 +160,7 @@ object settingsForm: TsettingsForm
         Left = 3
         Top = 9
         Width = 262
-        Height = 92
+        Height = 120
         Caption = '       AALog integration '
         Enabled = False
         TabOrder = 0
@@ -199,6 +199,15 @@ object settingsForm: TsettingsForm
           Caption = 'Send info to AALog New QSO window'
           Enabled = False
           TabOrder = 2
+        end
+        object cbSetCallsignToAALog: TCheckBox
+          Left = 8
+          Top = 85
+          Width = 209
+          Height = 21
+          Caption = 'Send callsign and frequency to AALog'
+          Enabled = False
+          TabOrder = 3
         end
       end
       object cbAALogIntegrationEnabled: TCheckBox
@@ -568,15 +577,6 @@ object settingsForm: TsettingsForm
             Font.Style = []
             ParentFont = False
           end
-        end
-        object cbSetCallsignToAALog: TCheckBox
-          Left = 207
-          Top = 81
-          Width = 120
-          Height = 17
-          Caption = 'Set callsign to AALog'
-          Enabled = False
-          TabOrder = 3
         end
       end
       object cbOmniRigEnabled: TCheckBox

@@ -188,7 +188,7 @@ var
   regExp : TRegExpr;
   spotList : TList<TPair<variant, TArray<TSpot>>>;
   spotBandCount : integer;
-  regex1, regex2, freqText : string;
+  regex1, regex2, freqText, freqModeGuess : string;
   longLine, shortLine, freqMarkerFontSize, textShiftValueLB, textShiftValueHB : integer;
   textXPosDPICorr, StartYPosDPICorr, EndYPosDPICorr, UnderFreqDPICorr, PenWidthDPICorr : integer;
   notNeedToShowPopupForFreqPanel, notNeedToShowPopupForSpotLabel : boolean;
@@ -468,12 +468,22 @@ begin
   requestThread.Resume;
 End;
 
+procedure refreshFreqModeGuess();
+begin
+//case lastSelectedSpotLabel.frequency of
+// todo: select cw / rtty / ssb selecting
+//end;
+
+freqModeGuess := 'SSB';
+
+End;
+
 procedure TFrequencyVisualForm.SpotLabelMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
 spotLabel : TSpotLabel;
 spot : TSpot;
 request : TSetNewQSOValuesRequest;
-requestStr : string;
+requestStr,spotFrequency : string;
 
 begin
 //Tag value is used for vertical alignment of spotLabels
@@ -487,6 +497,7 @@ if Button = mbLeft then begin
   else begin
     //Left click - select label
 
+
     if (lastSelectedSpotLabel.Caption <> TSpotLabel(Sender).Caption) then begin
       if lastSelectedSpotLabel <> nil then
         lastSelectedSpotLabel.selected := false;
@@ -494,6 +505,8 @@ if Button = mbLeft then begin
     end;
     lastSelectedSpotLabel := TSpotLabel(Sender);
     lastSelectedSpotLabel.BringToFront;
+
+    refreshFreqModeGuess();
   end;
 
   if (settingsForm.cbOmniRigEnabled.Checked) and
@@ -502,8 +515,12 @@ if Button = mbLeft then begin
     settingsForm.setTRXFrequency(lastSelectedSpotLabel.frequency);
   end;
 
-  if settingsForm.cbSetCallsignToAALog.Checked then begin
-    request := TSetNewQSOValuesRequest.Create(lastSelectedSpotLabel.Caption, lastSelectedSpotLabel.frequency, freqText);
+  spotFrequency := FloatToStrF(lastSelectedSpotLabel.frequency, ffFixed, 8, 3);
+  spotFrequency := StringReplace(spotFrequency, ',', '', [rfIgnoreCase, rfReplaceAll]);
+
+  if (settingsForm.cbOmniRigEnabled.Checked) and
+  (settingsForm.cbSetCallsignToAALog.Checked) then begin
+    request := TSetNewQSOValuesRequest.Create(lastSelectedSpotLabel.Caption, spotFrequency, freqModeGuess);
     requestStr := FillJsonSetValuesRequest(request);
     SendRequestToAALog(requestStr, settingsForm.txtAalAddr.Text, StrToInt(settingsForm.txtAalPort.Text), lastSelectedSpotLabel);
   end;
@@ -859,13 +876,16 @@ if answerStr = '0' then begin
   FrequencyVisualForm.ColorizeSpotLabel(corrSpotLabel);
   exit;
 end;
+try
+  JsonAnswer := TlkJSON.ParseText(answerStr) as TlkJSONobject;
+  answerType := (JsonAnswer.Field['answerType'] as TlkJSONstring).value;
+  jsData := JsonAnswer.Field['answerData'] as TlkJSONobject;
 
-JsonAnswer := TlkJSON.ParseText(answerStr) as TlkJSONobject;
-answerType := (JsonAnswer.Field['answerType'] as TlkJSONstring).value;
-jsData := JsonAnswer.Field['answerData'] as TlkJSONobject;
+  if (answerType = REQ_IS_IN_LOG) then
+      frequencyVisualForm.UpdateCallsignDetailsTable(jsData, corrSpotLabel);
+except
 
-if (answerType = REQ_IS_IN_LOG) then
-    frequencyVisualForm.UpdateCallsignDetailsTable(jsData, corrSpotLabel);
+end;
 
 End;
 
