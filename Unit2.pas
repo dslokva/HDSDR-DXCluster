@@ -42,7 +42,6 @@ type
     gbAALogIntegration: TGroupBox;
     txtAalAddr: TLabeledEdit;
     txtAalPort: TLabeledEdit;
-    cbSendCallFreqToAALog: TCheckBox;
     cbAALogIntegrationEnabled: TCheckBox;
     GroupBox1: TGroupBox;
     Label2: TLabel;
@@ -377,7 +376,6 @@ try
 
     WriteBool('MainSettings', 'ShowAdditionalInfo', cbAdditionalInfoFromCall.Checked);
     WriteBool('MainSettings', 'HighResScreen', cbHiRes.Checked);
-    WriteBool('DXCluster', 'SendSpotDataToAALog', cbSendCallFreqToAALog.Checked);
     WriteBool('DXCluster', 'DXCAutoConnect', chkDXCAutoConnect.Checked);
     WriteBool('DXCluster', 'AALogIntegrationEnabled', cbAALogIntegrationEnabled.Checked);
     WriteBool('DXCluster', 'OwnSpotColorize', cbOwnSpotColorize.Checked);
@@ -440,7 +438,7 @@ Label4.Enabled := cbAALogIntegrationEnabled.Checked;
 cbSpotInLog.Enabled := cbAALogIntegrationEnabled.Checked;
 cbSpotLotwEqsl.Enabled := cbAALogIntegrationEnabled.Checked;
 colBoxSpotInLog.Enabled := cbAALogIntegrationEnabled.Checked;
-cbSendCallFreqToAALog.Enabled := cbAALogIntegrationEnabled.Checked;
+FrequencyVisualForm.menuLabelRequestAALogData.Enabled := cbAALogIntegrationEnabled.Checked;
 End;
 
 procedure TsettingsForm.cbAdditionalInfoFromCallClick(Sender: TObject);
@@ -564,7 +562,6 @@ try
     cbAALogIntegrationEnabled.Checked := ReadBool('DXCluster', 'AALogIntegrationEnabled', false);
     cbEarlySpot.Checked := ReadBool('DXCluster', 'EarlySpotColorize', false);
     chkAllowSpotSelect.Checked := ReadBool('MainSettings', 'AllowSpotSelect', true);
-    cbSendCallFreqToAALog.Checked := ReadBool('MainSettings', 'SendSpotDataToAALog', true);
     cbHiRes.Checked := ReadBool('MainSettings', 'HighResScreen', true);
     cbAdditionalInfoFromCall.Checked := ReadBool('MainSettings', 'ShowAdditionalInfo', false);
     cbSetCallsignToAALog.Checked := ReadBool('MainSettings', 'SendCallsignToAALog', false);

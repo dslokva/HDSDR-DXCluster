@@ -3,12 +3,12 @@ object FrequencyVisualForm: TFrequencyVisualForm
   Top = 0
   Caption = 'SDR-DXCluster-Helper v0.32'
   ClientHeight = 292
-  ClientWidth = 888
+  ClientWidth = 949
   Color = clBtnFace
   TransparentColor = True
   TransparentColorValue = 4659989
-  Constraints.MinHeight = 220
-  Constraints.MinWidth = 904
+  Constraints.MinHeight = 230
+  Constraints.MinWidth = 965
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -25,7 +25,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
   object Panel1: TPanel
     Left = 0
     Top = 192
-    Width = 888
+    Width = 949
     Height = 100
     Align = alBottom
     BevelEdges = []
@@ -36,7 +36,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
     object StatusBar1: TStatusBar
       Left = 0
       Top = 81
-      Width = 888
+      Width = 949
       Height = 19
       Panels = <
         item
@@ -49,7 +49,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
         end
         item
           Text = 'Last status: none'
-          Width = 300
+          Width = 350
         end
         item
           Text = 'TRX: disconnected'
@@ -58,7 +58,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnMouseDown = StatusBar1MouseDown
     end
     object Panel2: TPanel
-      Left = 624
+      Left = 685
       Top = 0
       Width = 264
       Height = 81
@@ -117,7 +117,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
     object Panel8: TPanel
       Left = 0
       Top = 0
-      Width = 624
+      Width = 685
       Height = 81
       Align = alClient
       BevelOuter = bvNone
@@ -190,18 +190,19 @@ object FrequencyVisualForm: TFrequencyVisualForm
   object Panel5: TPanel
     Left = 0
     Top = 0
-    Width = 888
+    Width = 949
     Height = 192
     Align = alClient
     BevelEdges = []
     BevelOuter = bvNone
     DoubleBuffered = True
+    FullRepaint = False
     ParentDoubleBuffered = False
     TabOrder = 1
     object frequencyPaintBox: TPaintBox
       Left = 0
       Top = 40
-      Width = 888
+      Width = 949
       Height = 129
       Align = alClient
       Color = clNavy
@@ -221,6 +222,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       OnMouseUp = frequencyPaintBoxMouseUp
       OnPaint = frequencyPaintBoxPaint
       ExplicitTop = 39
+      ExplicitWidth = 888
     end
     object labelSpotHint: TLabel
       Left = 664
@@ -241,7 +243,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
     object frequencyPaintBoxTop: TPaintBox
       Left = 0
       Top = 0
-      Width = 888
+      Width = 949
       Height = 40
       Hint = 
         'Shift+Left click - spot down, Shift+Right - up. Alt+Click - dele' +
@@ -253,11 +255,12 @@ object FrequencyVisualForm: TFrequencyVisualForm
       ShowHint = True
       OnPaint = frequencyPaintBoxTopPaint
       ExplicitTop = -6
+      ExplicitWidth = 888
     end
     object Panel3: TPanel
       Left = 0
       Top = 169
-      Width = 888
+      Width = 949
       Height = 23
       Align = alBottom
       BevelEdges = [beTop, beBottom]
@@ -303,7 +306,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
       object spacerScroll: TScrollBar
         Left = 234
         Top = 0
-        Width = 381
+        Width = 442
         Height = 19
         Align = alClient
         Max = 6000
@@ -341,7 +344,7 @@ object FrequencyVisualForm: TFrequencyVisualForm
         end
       end
       object Panel6: TPanel
-        Left = 615
+        Left = 676
         Top = 0
         Width = 273
         Height = 19
@@ -495,6 +498,10 @@ object FrequencyVisualForm: TFrequencyVisualForm
     object menuLabelOnHold: TMenuItem
       Caption = 'Hold label'
       OnClick = menuLabelOnHoldClick
+    end
+    object menuLabelRequestAALogData: TMenuItem
+      Caption = 'Request info from AALog'
+      OnClick = menuLabelRequestAALogDataClick
     end
   end
   object refreshLabelColorTimer: TTimer

@@ -4,7 +4,7 @@ object settingsForm: TsettingsForm
   BorderStyle = bsSingle
   Caption = 'Settings'
   ClientHeight = 303
-  ClientWidth = 496
+  ClientWidth = 534
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -41,8 +41,8 @@ object settingsForm: TsettingsForm
     OnClick = btnSaveClick
   end
   object btnClose: TButton
-    Left = 405
-    Top = 271
+    Left = 443
+    Top = 270
     Width = 83
     Height = 25
     Caption = 'Close'
@@ -50,14 +50,15 @@ object settingsForm: TsettingsForm
     OnClick = btnCloseClick
   end
   object PageControl1: TPageControl
-    Left = 8
-    Top = 8
-    Width = 481
+    Left = 6
+    Top = 7
+    Width = 523
     Height = 257
     ActivePage = TabLogIntegration
     TabOrder = 2
     object TabDXCluster: TTabSheet
       Caption = 'DX Cluster'
+      ExplicitWidth = 473
       object GroupBox1: TGroupBox
         Left = 3
         Top = 3
@@ -156,11 +157,12 @@ object settingsForm: TsettingsForm
     object TabLogIntegration: TTabSheet
       Caption = 'Log integration'
       ImageIndex = 1
+      ExplicitWidth = 473
       object gbAALogIntegration: TGroupBox
         Left = 3
         Top = 9
-        Width = 262
-        Height = 120
+        Width = 278
+        Height = 104
         Caption = '       AALog integration '
         Enabled = False
         TabOrder = 0
@@ -191,23 +193,14 @@ object settingsForm: TsettingsForm
           Text = '3541'
           OnKeyPress = txtDXCPortKeyPress
         end
-        object cbSendCallFreqToAALog: TCheckBox
-          Left = 8
-          Top = 64
-          Width = 209
-          Height = 17
-          Caption = 'Send info to AALog New QSO window'
-          Enabled = False
-          TabOrder = 2
-        end
         object cbSetCallsignToAALog: TCheckBox
           Left = 8
-          Top = 85
-          Width = 209
+          Top = 61
+          Width = 251
           Height = 21
-          Caption = 'Send callsign and frequency to AALog'
+          Caption = 'Send Callsign and freq info to New QSO window'
           Enabled = False
-          TabOrder = 3
+          TabOrder = 2
         end
       end
       object cbAALogIntegrationEnabled: TCheckBox
@@ -222,19 +215,20 @@ object settingsForm: TsettingsForm
     object Colors: TTabSheet
       Caption = 'Colors'
       ImageIndex = 2
+      ExplicitWidth = 517
       object GroupBox2: TGroupBox
         Left = 3
         Top = 3
-        Width = 234
+        Width = 261
         Height = 215
         Caption = ' Spot colors: '
         TabOrder = 0
         object Label4: TLabel
           Left = 9
           Top = 139
-          Width = 216
+          Width = 215
           Height = 13
-          Caption = '--------------------AALog data--------------------'
+          Caption = '-----------Additional data from AALog----------'
         end
         object Label6: TLabel
           Left = 9
@@ -255,18 +249,18 @@ object settingsForm: TsettingsForm
           OnClick = cbOwnSpotColorizeClick
         end
         object colBoxOwnSpot: TColorBox
-          Left = 127
+          Left = 143
           Top = 15
-          Width = 97
+          Width = 112
           Height = 22
           Selected = clYellow
           Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
           TabOrder = 1
         end
         object colBoxSpotMouseMove: TColorBox
-          Left = 127
+          Left = 143
           Top = 45
-          Width = 97
+          Width = 112
           Height = 22
           Selected = clLime
           Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
@@ -295,9 +289,9 @@ object settingsForm: TsettingsForm
           OnClick = cbSpotInLogClick
         end
         object colBoxSpotInLog: TColorBox
-          Left = 127
+          Left = 143
           Top = 160
-          Width = 97
+          Width = 112
           Height = 22
           Selected = clGray
           Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
@@ -318,24 +312,24 @@ object settingsForm: TsettingsForm
           Top = 77
           Width = 113
           Height = 17
-          Caption = 'Early spot (2 min):'
+          Caption = 'Early spot (3 min):'
           Checked = True
           State = cbChecked
           TabOrder = 7
         end
         object colBoxEarlySpot: TColorBox
-          Left = 127
+          Left = 143
           Top = 75
-          Width = 97
+          Width = 112
           Height = 22
           Selected = 35071
           Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
           TabOrder = 8
         end
         object colBoxRegularSpot: TColorBox
-          Left = 80
+          Left = 96
           Top = 105
-          Width = 144
+          Width = 159
           Height = 22
           Selected = clWhite
           Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames, cbCustomColors]
@@ -343,25 +337,25 @@ object settingsForm: TsettingsForm
         end
       end
       object GroupBox3: TGroupBox
-        Left = 243
+        Left = 275
         Top = 3
-        Width = 224
+        Width = 230
         Height = 215
         Caption = ' Frequency panel: '
         TabOrder = 1
         object Label1: TLabel
           Left = 8
           Top = 18
-          Width = 52
+          Width = 86
           Height = 13
-          Caption = 'Main color:'
+          Caption = 'Background color:'
         end
         object Label8: TLabel
           Left = 7
           Top = 103
-          Width = 208
+          Width = 207
           Height = 13
-          Caption = '---------------------Presets----------------------'
+          Caption = '---------------Main color presets---------------'
         end
         object Label5: TLabel
           Left = 8
@@ -385,7 +379,7 @@ object settingsForm: TsettingsForm
           Caption = '----------------------------------------------------'
         end
         object colBoxMainFreqPanel: TColorBox
-          Left = 95
+          Left = 103
           Top = 15
           Width = 118
           Height = 22
@@ -460,7 +454,7 @@ object settingsForm: TsettingsForm
           OnClick = chkAllowSpotSelectClick
         end
         object colBoxScale: TColorBox
-          Left = 95
+          Left = 103
           Top = 45
           Width = 118
           Height = 22
@@ -470,7 +464,7 @@ object settingsForm: TsettingsForm
           OnChange = colBoxScaleChange
         end
         object colBoxCATFreqColor: TColorBox
-          Left = 106
+          Left = 114
           Top = 75
           Width = 107
           Height = 22
@@ -480,7 +474,7 @@ object settingsForm: TsettingsForm
           OnChange = colBoxScaleChange
         end
         object cboxSpotSelectBgColor: TColorBox
-          Left = 116
+          Left = 124
           Top = 186
           Width = 97
           Height = 22
@@ -492,8 +486,9 @@ object settingsForm: TsettingsForm
       end
     end
     object TabGeneralOptions: TTabSheet
-      Caption = 'General options'
+      Caption = 'CAT / other options'
       ImageIndex = 3
+      ExplicitWidth = 473
       object GroupBox4: TGroupBox
         Left = 7
         Top = 3
@@ -630,9 +625,9 @@ object settingsForm: TsettingsForm
         object cbAdditionalInfoFromCall: TCheckBox
           Left = 10
           Top = 42
-          Width = 188
+          Width = 276
           Height = 17
-          Caption = 'Show additional info for callsigns:'
+          Caption = 'Show more info for callsigns (choose prefix file):'
           TabOrder = 1
           OnClick = cbAdditionalInfoFromCallClick
         end
@@ -659,7 +654,7 @@ object settingsForm: TsettingsForm
         FileMask = '*.*'
       end>
     Options = [fdoFileMustExist]
-    Left = 388
-    Top = 208
+    Left = 324
+    Top = 256
   end
 end

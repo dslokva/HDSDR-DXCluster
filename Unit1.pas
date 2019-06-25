@@ -71,6 +71,7 @@ type
     SpeedButton2: TSpeedButton;
     SpeedButton3: TSpeedButton;
     SpeedButton4: TSpeedButton;
+    menuLabelRequestAALogData: TMenuItem;
     procedure frequencyPaintBoxPaint(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure chkStayOnTopClick(Sender: TObject);
@@ -121,6 +122,7 @@ type
     procedure SpeedButton2Click(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton4Click(Sender: TObject);
+    procedure menuLabelRequestAALogDataClick(Sender: TObject);
 
   private
     procedure SpotLabelMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -142,6 +144,7 @@ type
     procedure ColorizeSpotLabel(spotLabel: TSpotLabel);
     procedure ReColorizeAllLabels();
     procedure ChandeBandPosition(freqShift : integer);
+    procedure RefreshFreqStartAndShifter;
     { Private declarations }
 
   public
@@ -188,7 +191,7 @@ var
   regExp : TRegExpr;
   spotList : TList<TPair<variant, TArray<TSpot>>>;
   spotBandCount : integer;
-  regex1, regex2, freqText, freqModeGuess : string;
+  regex1, regex2, freqBandText, freqModeGuess : string;
   longLine, shortLine, freqMarkerFontSize, textShiftValueLB, textShiftValueHB : integer;
   textXPosDPICorr, StartYPosDPICorr, EndYPosDPICorr, UnderFreqDPICorr, PenWidthDPICorr : integer;
   notNeedToShowPopupForFreqPanel, notNeedToShowPopupForSpotLabel : boolean;
@@ -203,6 +206,7 @@ var
   CallParser : TCallParser;
   BlendFunc : TBlendFunction;
   FrontBMP : TBitmap;
+  mouseOnLabelNow : boolean;
 
 implementation
 
@@ -245,7 +249,6 @@ begin
 
 menuLabelOnHold.Checked := not menuLabelOnHold.Checked;
 TSpotLabel(spotLabelMenu.PopupComponent).onHold := menuLabelOnHold.Checked;
-
 End;
 
 function TFrequencyVisualForm.getSpotMaxCount() : Integer;
@@ -360,7 +363,7 @@ spotSecDiff : Integer;
 addCallsignData, newHintStr, spotAge, spotHold : string;
 spotAALogData : TSimpleCallsignAnswer;
 begin
-
+mouseOnLabelNow := true;
 if (spotHintOldX <> X) or (spotHintOldY <> Y) then begin
   spotLabel := TSpotLabel(Sender);
   newHintStr := spotLabel.Hint;
@@ -402,22 +405,19 @@ if (spotHintOldX <> X) or (spotHintOldY <> Y) then begin
   spotSecDiff := SecondsBetween(now, spotLabel.receiveTime);
   spotAge := Format('%2.2d:%2.2d:%2.2d',[spotSecDiff div SecsPerHour,(spotSecDiff div SecsPerMin) mod SecsPerMin, spotSecDiff mod SecsPerMin]);
   labelSpotHint.Caption := ' '+spotLabel.Hint;
+  newHintStr := ' '+newHintStr + #10#13 + ' Spot age: ' + spotAge + spotHold + addCallsignData;
 
-    if (settingsForm.cbAALogIntegrationEnabled.Checked) and (callsingDataFromAALog.ContainsKey(spotLabel.Caption)) then begin
-        spotAALogData := callsingDataFromAALog.Items[spotLabel.Caption];
+  if (settingsForm.cbAALogIntegrationEnabled.Checked) and (callsingDataFromAALog.ContainsKey(spotLabel.Caption)) then begin
+      spotAALogData := callsingDataFromAALog.Items[spotLabel.Caption];
+      newHintStr := newHintStr + #13#13 + ' From AALog: ' + #13;
 
-        newHintStr := ' '+newHintStr + #10#13 + ' Spot age: ' + spotAge + spotHold + addCallsignData + #13#13 + ' From AALog: ' + #13;
+      if (spotAALogData.hamName <> '') then
+        newHintStr := newHintStr + ' Name: ' + (spotAALogData.hamName) + #13;
+      if (spotAALogData.hamQTH <> '') then
+        newHintStr := newHintStr + ' QTH: ' + (spotAALogData.hamQTH) + #13;
 
-        if (spotAALogData.hamName <> '') then
-          newHintStr := newHintStr + ' Name: ' + (spotAALogData.hamName) + #13;
-        if (spotAALogData.hamQTH <> '') then
-            newHintStr := newHintStr + ' QTH: ' + (spotAALogData.hamQTH) + #13;
-
-         newHintStr := newHintStr + ' InLog: '+spotAALogData.presentInLog + ', LoTW: '+spotAALogData.isLoTWUser + ', EQSL.cc: '+spotAALogData.isEqslUser + ' ';
-    end else begin
-      //todo: new request try from AALog
-      newHintStr := ' '+newHintStr + #13 + ' Spot age: ' + spotAge + spotHold + addCallsignData;
-    end;
+       newHintStr := newHintStr + ' InLog: '+spotAALogData.presentInLog + ', LoTW: '+spotAALogData.isLoTWUser + ', EQSL.cc: '+spotAALogData.isEqslUser + ' ';
+  end;
 
   spotHintPoint := TPoint.Create(spotLabel.Left+X, spotLabel.Top+Y);
   spotHintOldX := X;
@@ -439,7 +439,6 @@ End;
 function FillJsonSetValuesRequest(request : TSetNewQSOValuesRequest) : string;
 var
   JsonRequest : TJson;
-  str: string;
 begin
 try
 //request #3 - set new values to AALog New QSO window.
@@ -492,11 +491,11 @@ spotLabel := TSpotLabel(Sender);
 if Button = mbLeft then begin
   if (ssAlt in Shift) and (spotLabel.onHold = false) then
     RemoveSelectedSpot(spotLabel.Caption);
-  if ssShift in Shift then
-    TLabel(Sender).Tag := TLabel(Sender).Tag + 1
-  else begin
+  if ssShift in Shift then begin
+    TLabel(Sender).Tag := TLabel(Sender).Tag + 1;
+    mouseOnLabelNow := false;
+  end else begin
     //Left click - select label
-
 
     if (lastSelectedSpotLabel.Caption <> TSpotLabel(Sender).Caption) then begin
       if lastSelectedSpotLabel <> nil then
@@ -507,22 +506,23 @@ if Button = mbLeft then begin
     lastSelectedSpotLabel.BringToFront;
 
     refreshFreqModeGuess();
-  end;
 
-  if (settingsForm.cbOmniRigEnabled.Checked) and
-  (settingsForm.cbSetSpotFrequencyToTRX.Checked) and
-  (not settingsForm.cbSetCallsignToAALog.Checked) then begin
-    settingsForm.setTRXFrequency(lastSelectedSpotLabel.frequency);
-  end;
+    //if we want to set TRX frequency - we must check that AALog don't do it for us, because donw the code to set freq to AALog.
+    if (settingsForm.cbOmniRigEnabled.Checked) and (settingsForm.cbSetSpotFrequencyToTRX.Checked) and
+       (not settingsForm.cbSetCallsignToAALog.Checked) then begin
+         settingsForm.setTRXFrequency(lastSelectedSpotLabel.frequency);
+    end;
 
-  spotFrequency := FloatToStrF(lastSelectedSpotLabel.frequency, ffFixed, 8, 3);
-  spotFrequency := StringReplace(spotFrequency, ',', '', [rfIgnoreCase, rfReplaceAll]);
+    spotFrequency := FloatToStrF(lastSelectedSpotLabel.frequency, ffFixed, 8, 3);
+    spotFrequency := StringReplace(spotFrequency, ',', '', [rfIgnoreCase, rfReplaceAll]);
 
-  if (settingsForm.cbOmniRigEnabled.Checked) and
-  (settingsForm.cbSetCallsignToAALog.Checked) then begin
-    request := TSetNewQSOValuesRequest.Create(lastSelectedSpotLabel.Caption, spotFrequency, freqModeGuess);
-    requestStr := FillJsonSetValuesRequest(request);
-    SendRequestToAALog(requestStr, settingsForm.txtAalAddr.Text, StrToInt(settingsForm.txtAalPort.Text), lastSelectedSpotLabel);
+    if (settingsForm.cbOmniRigEnabled.Checked) and
+    (settingsForm.cbSetCallsignToAALog.Checked) then begin
+      request := TSetNewQSOValuesRequest.Create(lastSelectedSpotLabel.Caption, spotFrequency, freqModeGuess);
+      requestStr := FillJsonSetValuesRequest(request);
+      SendRequestToAALog(requestStr, settingsForm.txtAalAddr.Text, StrToInt(settingsForm.txtAalPort.Text), lastSelectedSpotLabel);
+    end;
+
   end;
 end;
 
@@ -533,9 +533,10 @@ if Button = mbRight then begin
   if ssShift in Shift then begin
     notNeedToShowPopupForSpotLabel := true;
     notNeedToShowPopupForFreqPanel := true;
-    if TLabel(Sender).Top >= longLine+UnderFreqDPICorr+EndYPosDPICorr then
+    if TLabel(Sender).Top >= longLine+UnderFreqDPICorr+EndYPosDPICorr then begin
       TLabel(Sender).Tag := TLabel(Sender).Tag - 1;
-
+      mouseOnLabelNow := false;
+    end;
   end else begin
     //right Click - deselect label
     if lastSelectedSpotLabel <> nil then
@@ -604,7 +605,7 @@ spotLabel : TSpotLabel;
 begin
 spotLabel := TSpotLabel(Sender);
 ColorizeSpotLabel(spotLabel);
-
+mouseOnLabelNow := false;
 labelSpotHint.Visible := false;
 End;
 
@@ -681,6 +682,7 @@ var
 iniFile : TIniFile;
 
 begin
+mouseOnLabelNow := false;
 FrontBMP := TBitmap.Create;
 // Blend a foreground image over the top - constant alpha, not per-pixel
 BlendFunc.BlendOp := AC_SRC_OVER;
@@ -790,6 +792,30 @@ CallParser := TCallParser.Create(Self);
 CallParser.PrefixFile := filePath;
 End;
 
+procedure TFrequencyVisualForm.RefreshFreqStartAndShifter;
+begin
+  case bandSwitcher.ItemIndex of
+    0:
+      freqStart := 1810.00 + freqShifter;
+    1:
+      freqStart := 3600.00 + freqShifter;
+    2:
+      freqStart := 7000.00 + freqShifter;
+    3:
+      freqStart := 10100.00 + freqShifter;
+    4:
+      freqStart := 14000.00 + freqShifter;
+    5:
+      freqStart := 18068.00 + freqShifter;
+    6:
+      freqStart := 21000.00 + freqShifter;
+    7:
+      freqStart := 24890.00 + freqShifter;
+    8:
+      freqStart := 28000.00 + freqShifter;
+  end;
+end;
+
 procedure TFrequencyVisualForm.FormResize(Sender: TObject);
 begin
 boxWidth := frequencyPaintBox.Width-40;
@@ -892,9 +918,8 @@ End;
 
 procedure TFrequencyVisualForm.UpdateCallsignDetailsTable(answerData : TlkJSONobject; spotLabel : TSpotLabel);
 var
-  JsonAnswer : TlkJSONobject;
   isLoTWUser, isEqslUser, callsign, hamName, hamQTH : string;
-   presentOnMode,  presentOnBand, presentInLog: string;
+  presentOnMode,  presentOnBand, presentInLog: string;
   answer : TSimpleCallsignAnswer;
 begin
   callsign := (answerData.Field['callsign'] as TlkJSONstring).value;
@@ -982,39 +1007,39 @@ begin
 case frequencyVisualForm.bandSwitcher.ItemIndex of
  0: begin
    freqStart := 1810.00;
-   freqText := '160m';
+   freqBandText := '160m';
  end;
  1: begin
     freqStart := 3500.00;
-    freqText := '80m';
+    freqBandText := '80m';
  end;
  2: begin
     freqStart := 7000.00;
-    freqText := '40m';
+    freqBandText := '40m';
  end;
  3: begin
     freqStart := 10100.00;
-    freqText := '30m';
+    freqBandText := '30m';
  end;
  4: begin
     freqStart := 14000.00;
-    freqText := '20m';
+    freqBandText := '20m';
  end;
  5: begin
     freqStart := 18068.00;
-    freqText := '17m';
+    freqBandText := '17m';
  end;
  6: begin
     freqStart := 21100.00;
-    freqText := '15m';
+    freqBandText := '15m';
  end;
  7: begin
     freqStart := 24890.00;
-    freqText := '12m';
+    freqBandText := '12m';
  end;
  8: begin
     freqStart := 28000.00;
-    freqText := '10m';
+    freqBandText := '10m';
  end;
 end;
 
@@ -1049,28 +1074,26 @@ dxcPort : integer;
 
 begin
 try
-dxcAddress := trim(settingsForm.txtDXCHost.Text);
-dxcPort :=  StrToInt(trim(settingsForm.txtDXCPort.Text));
-dxcUsername := trim(settingsForm.txtDXCUsername.Text);
+  dxcAddress := trim(settingsForm.txtDXCHost.Text);
+  dxcPort :=  StrToInt(trim(settingsForm.txtDXCPort.Text));
+  dxcUsername := trim(settingsForm.txtDXCUsername.Text);
 
-if (Length(dxcAddress) < 7) or (Length(dxcUsername) < 4)  or (dxcPort < 1000) or (dxcPort > 65535) then begin
-  StatusBar1.Panels[0].Text := 'DXCluster: please check telnet settings!';
-  exit;
-end;
+  if (Length(dxcAddress) < 7) or (Length(dxcUsername) < 4)  or (dxcPort < 20) or (dxcPort > 65535) then begin
+    StatusBar1.Panels[0].Text := 'DXCluster: please check telnet settings!';
+    exit;
+  end;
 
-IdTelnet1.Host := dxcAddress;
-IdTelnet1.Port := dxcPort;
+  IdTelnet1.Host := dxcAddress;
+  IdTelnet1.Port := dxcPort;
 
-  if IdTelnet1.Connected then
-    IdTelnet1.Disconnect
-  else
-    IdTelnet1.Connect;
-
-
+    if IdTelnet1.Connected then
+      IdTelnet1.Disconnect
+    else
+      IdTelnet1.Connect;
 
 except
   on E : Exception do begin
-    StatusBar1.Panels[0].Text := 'DXCluster: error, ' + E.Message;
+    StatusBar1.Panels[2].Text := 'DXCluster error: ' + E.Message;
     StatusBar1.Panels[0].Text := 'DXCluster: disconnected at ' + TimeToStr(now);
    // dxcStatusLabel.Font.Color := clRed;
   end;
@@ -1160,7 +1183,6 @@ var
 j, i : integer;
 key : variant;
 spotArray : TArray<TSpot>;
-spotLabel : TSpotLabel;
 labelHolded : boolean;
 
 begin
@@ -1289,17 +1311,17 @@ spot : TSpot;
 spotCount, YPos : integer;
 spotLabel : TSpotLabel;
 LogBrush: TLogBrush;
-hBrush1 : HBRUSH;
 //rect : TRect;
-spotSelectedBoxTop,spotSelectedBoxHeight, spotSelectedBoxWidth, spotSelectedBoxLeft : integer;
+spotSelectedBoxHeight, spotSelectedBoxWidth, spotSelectedBoxLeft : integer;
 
 begin
 //Memo1.Lines.Add(IntToStr(textXPos) + ' - ' + FloatToStr(freqValue));
+if mouseOnLabelNow then exit;
 
 if CheckSpotListContainsKey(freqValue) then begin
 //this is a main procedure that draw spots on frequency pane
 //still very fragile for DPI and Scale options (((
-//DebugOutput('freqStart: '+FloatToStr(freqValue));
+//DebugOutput('AddFrequencyPosition called: '+FloatToStr(freqValue));
   spotArray := GetSpotArrayFromList(freqValue);
   if spotArray <> nil then
     with frequencyPaintBox.Canvas do begin
@@ -1338,7 +1360,6 @@ if CheckSpotListContainsKey(freqValue) then begin
           end;
 
           if (spotLabel.selected) and (settingsForm.chkAllowSpotSelect.Checked) then begin
-            spotSelectedBoxTop := frequencyPaintBox.Top+2;
             spotSelectedBoxHeight := frequencyPaintBox.Height;
             spotSelectedBoxWidth := Round(spotLabel.Width / 1.3);
             spotSelectedBoxLeft := textXPos - spotSelectedBoxWidth - PenWidthDPICorr-1;
@@ -1351,32 +1372,12 @@ if CheckSpotListContainsKey(freqValue) then begin
 
             spotLabel.BringToFront;
             Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, PenWidthDPICorr, LogBrush, 0, nil);
-//
+
             //paint "selected" vertical line
-////            MoveTo(textXPos-spotLabel.Width-textXPosDPICorr-4, longLine+UnderFreqDPICorr+2);
-////            LineTo(textXPos-spotLabel.Width-textXPosDPICorr-4, frequencyPaintBox.Height-2);
             MoveTo(textXPos+PenWidthDPICorr+1, UnderFreqDPICorr+2);
             LineTo(textXPos+PenWidthDPICorr+1, frequencyPaintBox.Height);
-//            //create inner rectangle
-//            rect := TRect.Create(textXPos-spotLabel.Width-textXPosDPICorr+2, YPos+UnderFreqDPICorr+14,
-//            textXPos+textXPosDPICorr-5, frequencyPaintBox.Height-2);
-//
-////            Brush.Style := bsDiagCross;
-//            Brush.Style := bsFDiagonal;
-//            Brush.Color := clWhite;
-//            SetBkColor(Handle, ColorToRGB(frequencyPaintBox.Color));
-//            FillRect(rect);
-//
-//            //check if we need to fill rect on top of label
-//            if spotLabel.Tag > 0 then begin
-//              rect := TRect.Create(textXPos-spotLabel.Width-textXPosDPICorr+2, UnderFreqDPICorr+3,
-//              textXPos+textXPosDPICorr-5, YPos-StartYPosDPICorr+5);
-//              FillRect(rect);
-//            end;
 
             //return brush settings for other elements
-//            Brush.Style := bsSolid;
-//            Brush.Color := frequencyPaintBox.Color;
             Pen.Handle := ExtCreatePen(BS_SOLID, PenWidthDPICorr, LogBrush, 0, nil);
           end;
 
@@ -1402,7 +1403,6 @@ if CheckSpotListContainsKey(freqValue) then begin
           end;
 
           if (spotLabel.selected) and (settingsForm.chkAllowSpotSelect.Checked) then begin
-            spotSelectedBoxTop := frequencyPaintBox.Top+2;
             spotSelectedBoxHeight := frequencyPaintBox.Height;
             spotSelectedBoxWidth := Round(spotLabel.Width / 1.3);
             spotSelectedBoxLeft := spotLabel.Left+1;
@@ -1414,31 +1414,11 @@ if CheckSpotListContainsKey(freqValue) then begin
             WinApi.Windows.AlphaBlend(frequencyPaintBox.Canvas.Handle, spotSelectedBoxLeft, 2, FrontBMP.Width, FrontBMP.Height, FrontBMP.Canvas.Handle, 0, 0, FrontBMP.Width, FrontBMP.Height, BlendFunc);
 
             Pen.Handle := ExtCreatePen(PS_GEOMETRIC or PS_DOT, PenWidthDPICorr, LogBrush, 0, nil);
-//            //paint two vertical lines
-////            MoveTo(textXPos+spotLabel.Width+textXPosDPICorr+4, longLine+UnderFreqDPICorr+2);
-////            LineTo(textXPos+spotLabel.Width+textXPosDPICorr+4, frequencyPaintBox.Height-2);
+            //paint two vertical lines
             MoveTo(textXPos-PenWidthDPICorr-1, UnderFreqDPICorr+2);
             LineTo(textXPos-PenWidthDPICorr-1, frequencyPaintBox.Height);
-//            //crate inner rectangle
-//            rect := TRect.Create(textXPos-textXPosDPICorr+5, frequencyPaintBox.Height-2,
-//            textXPos+spotLabel.Width+textXPosDPICorr, YPos+UnderFreqDPICorr+14);
-//
-////            Brush.Style := bsDiagCross;
-//            Brush.Style := bsFDiagonal;
-//            Brush.Color := clWhite;
-//            SetBkColor(Handle, ColorToRGB(frequencyPaintBox.Color));
-//            FillRect(rect);
-//
-//            //check if we need to fill rect on top of label
-//            if spotLabel.Tag > 0 then begin
-//              rect := TRect.Create(textXPos-textXPosDPICorr+5, UnderFreqDPICorr+3,
-//              textXPos+spotLabel.Width+textXPosDPICorr, YPos-StartYPosDPICorr+5);
-//              FillRect(rect);
-//            end;
-//
+
             //return brush settings for other elements
-//            Brush.Style := bsSolid;
-//            Brush.Color := frequencyPaintBox.Color;
             Pen.Handle := ExtCreatePen(BS_SOLID, PenWidthDPICorr, LogBrush, 0, nil);
           end;
 
@@ -1701,7 +1681,7 @@ while Start <= Length(incomeStr) do begin
         spot.spotLabel := spotLabel;
 
         if (settingsForm.cbAALogIntegrationEnabled.Checked) then begin
-          request := TSimpleCallsignRequest.Create(spot.DX, freqText, 'SSB', REQ_IS_IN_LOG);
+          request := TSimpleCallsignRequest.Create(spot.DX, freqBandText, 'SSB', REQ_IS_IN_LOG);
           requestStr := FillJsonSimpleCallsignRequest(request);
           SendRequestToAALog(requestStr, settingsForm.txtAalAddr.Text, StrToInt(settingsForm.txtAalPort.Text), spotLabel);
         end else
@@ -1768,7 +1748,7 @@ while Start <= Length(incomeStr) do begin
         spot.spotLabel := spotLabel;
 
         if (settingsForm.cbAALogIntegrationEnabled.Checked) then begin
-          request := TSimpleCallsignRequest.Create(spot.DX, freqText, 'SSB', REQ_IS_IN_LOG);
+          request := TSimpleCallsignRequest.Create(spot.DX, freqBandText, 'SSB', REQ_IS_IN_LOG);
           requestStr := FillJsonSimpleCallsignRequest(request);
           SendRequestToAALog(requestStr, settingsForm.txtAalAddr.Text, StrToInt(settingsForm.txtAalPort.Text), spotLabel);
         end else
@@ -1869,6 +1849,21 @@ frequencyPaintBoxTop.Refresh;
 lbSpotTotal.Caption := IntToStr(getSpotTotalCount()) + ' / ' + IntToStr(spotBandCount);
 End;
 
+procedure TFrequencyVisualForm.menuLabelRequestAALogDataClick(Sender: TObject);
+var
+  requestStr : string;
+  request : TSimpleCallsignRequest;
+  spotLabel : TSpotLabel;
+begin
+spotLabel := TSpotLabel(spotLabelMenu.PopupComponent);
+if (settingsForm.cbAALogIntegrationEnabled.Checked) then begin
+  request := TSimpleCallsignRequest.Create(spotLabel.Caption, freqBandText, 'SSB', REQ_IS_IN_LOG);
+  requestStr := FillJsonSimpleCallsignRequest(request);
+  SendRequestToAALog(requestStr, settingsForm.txtAalAddr.Text, StrToInt(settingsForm.txtAalPort.Text), spotLabel);
+end;
+
+End;
+
 procedure TFrequencyVisualForm.frequencyPaintBoxPaint(Sender: TObject);
 var
 lineStart, freqCAT : integer;
@@ -1877,19 +1872,7 @@ LogBrush : TLogBrush;
 begin
 spotBandCount := 0;
 lineStart := 1;
-
-case bandSwitcher.ItemIndex of
- 0: freqStart := 1810.00 + freqShifter;
- 1: freqStart := 3600.00 + freqShifter;
- 2: freqStart := 7000.00 + freqShifter;
- 3: freqStart := 10100.00 + freqShifter;
- 4: freqStart := 14000.00 + freqShifter;
- 5: freqStart := 18068.00 + freqShifter;
- 6: freqStart := 21000.00 + freqShifter;
- 7: freqStart := 24890.00 + freqShifter;
- 8: freqStart := 28000.00 + freqShifter;
-end;
-
+RefreshFreqStartAndShifter;
 
 with frequencyPaintBox.Canvas do begin
      FillRect(Rect(0, 0, frequencyPaintBox.Width, frequencyPaintBox.Height));
@@ -1913,7 +1896,7 @@ with frequencyPaintBox.Canvas do begin
            LineTo(lineStart, frequencyPaintBox.Height);
            LogBrush.lbColor := clWhite;
            Pen.Handle := ExtCreatePen(BS_SOLID, PenWidthDPICorr, LogBrush, 0, nil);
-           DebugOutput('Paint red line on freqPanel:' + IntToStr(freqCAT));
+           //DebugOutput('Paint red line on freqPanel:' + IntToStr(freqCAT));
        end;
 
        freqStart := freqStart + freqAddKhz;
@@ -1931,19 +1914,8 @@ freqValueStr : String;
 
 begin
 lineStart := 1;
-boxWidth := frequencyPaintBox.Width-40;
-
-case bandSwitcher.ItemIndex of
- 0: freqStart := 1810.00 + freqShifter;
- 1: freqStart := 3600.00 + freqShifter;
- 2: freqStart := 7000.00 + freqShifter;
- 3: freqStart := 10100.00 + freqShifter;
- 4: freqStart := 14000.00 + freqShifter;
- 5: freqStart := 18068.00 + freqShifter;
- 6: freqStart := 21000.00 + freqShifter;
- 7: freqStart := 24890.00 + freqShifter;
- 8: freqStart := 28000.00 + freqShifter;
-end;
+boxWidth := frequencyPaintBox.Width-30;
+RefreshFreqStartAndShifter;
 
   with frequencyPaintBoxTop.Canvas do begin
     FillRect(Rect(0, 0, frequencyPaintBoxTop.Width, frequencyPaintBoxTop.Height));
