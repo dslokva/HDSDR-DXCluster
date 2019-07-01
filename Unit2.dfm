@@ -58,7 +58,6 @@ object settingsForm: TsettingsForm
     TabOrder = 2
     object TabDXCluster: TTabSheet
       Caption = 'DX Cluster'
-      ExplicitWidth = 473
       object GroupBox1: TGroupBox
         Left = 3
         Top = 3
@@ -157,7 +156,8 @@ object settingsForm: TsettingsForm
     object TabLogIntegration: TTabSheet
       Caption = 'Log integration'
       ImageIndex = 1
-      ExplicitWidth = 473
+      ExplicitLeft = 2
+      ExplicitTop = 28
       object gbAALogIntegration: TGroupBox
         Left = 3
         Top = 9
@@ -201,10 +201,11 @@ object settingsForm: TsettingsForm
           Caption = 'Send Callsign and freq info to New QSO window'
           Enabled = False
           TabOrder = 2
+          OnClick = cbSetCallsignToAALogClick
         end
       end
       object cbAALogIntegrationEnabled: TCheckBox
-        Left = 14
+        Left = 13
         Top = 7
         Width = 15
         Height = 17
@@ -215,7 +216,6 @@ object settingsForm: TsettingsForm
     object Colors: TTabSheet
       Caption = 'Colors'
       ImageIndex = 2
-      ExplicitWidth = 517
       object GroupBox2: TGroupBox
         Left = 3
         Top = 3
@@ -488,7 +488,6 @@ object settingsForm: TsettingsForm
     object TabGeneralOptions: TTabSheet
       Caption = 'CAT / other options'
       ImageIndex = 3
-      ExplicitWidth = 473
       object GroupBox4: TGroupBox
         Left = 7
         Top = 3

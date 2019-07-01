@@ -206,7 +206,6 @@ var
   CallParser : TCallParser;
   BlendFunc : TBlendFunction;
   FrontBMP : TBitmap;
-  mouseOnLabelNow : boolean;
 
 implementation
 
@@ -363,7 +362,6 @@ spotSecDiff : Integer;
 addCallsignData, newHintStr, spotAge, spotHold : string;
 spotAALogData : TSimpleCallsignAnswer;
 begin
-mouseOnLabelNow := true;
 if (spotHintOldX <> X) or (spotHintOldY <> Y) then begin
   spotLabel := TSpotLabel(Sender);
   newHintStr := spotLabel.Hint;
@@ -493,7 +491,7 @@ if Button = mbLeft then begin
     RemoveSelectedSpot(spotLabel.Caption);
   if ssShift in Shift then begin
     TLabel(Sender).Tag := TLabel(Sender).Tag + 1;
-    mouseOnLabelNow := false;
+
   end else begin
     //Left click - select label
 
@@ -501,10 +499,10 @@ if Button = mbLeft then begin
       if lastSelectedSpotLabel <> nil then
         lastSelectedSpotLabel.selected := false;
       TSpotLabel(Sender).selected := true;
+
     end;
     lastSelectedSpotLabel := TSpotLabel(Sender);
     lastSelectedSpotLabel.BringToFront;
-
     refreshFreqModeGuess();
 
     //if we want to set TRX frequency - we must check that AALog don't do it for us, because donw the code to set freq to AALog.
@@ -535,7 +533,7 @@ if Button = mbRight then begin
     notNeedToShowPopupForFreqPanel := true;
     if TLabel(Sender).Top >= longLine+UnderFreqDPICorr+EndYPosDPICorr then begin
       TLabel(Sender).Tag := TLabel(Sender).Tag - 1;
-      mouseOnLabelNow := false;
+
     end;
   end else begin
     //right Click - deselect label
@@ -605,7 +603,6 @@ spotLabel : TSpotLabel;
 begin
 spotLabel := TSpotLabel(Sender);
 ColorizeSpotLabel(spotLabel);
-mouseOnLabelNow := false;
 labelSpotHint.Visible := false;
 End;
 
@@ -682,7 +679,6 @@ var
 iniFile : TIniFile;
 
 begin
-mouseOnLabelNow := false;
 FrontBMP := TBitmap.Create;
 // Blend a foreground image over the top - constant alpha, not per-pixel
 BlendFunc.BlendOp := AC_SRC_OVER;
@@ -1295,7 +1291,7 @@ for j := 0 to spotList.Count-1 do begin
       ((spotLabel.Left+spotLabel.Width >= le) and (spotLabel.Left+spotLabel.Width <= re) and (spotLabel.Top = te)) then begin
           spotLabel.Tag := spotLabel.Tag + 1;
           result := true;
-          DebugOutput('label tag - '+IntToStr(spotLabel.Tag) + ', ' + spotLabel.Caption);
+//          DebugOutput('label tag - '+IntToStr(spotLabel.Tag) + ', ' + spotLabel.Caption);
           exit;
       end;
     end;
@@ -1316,7 +1312,6 @@ spotSelectedBoxHeight, spotSelectedBoxWidth, spotSelectedBoxLeft : integer;
 
 begin
 //Memo1.Lines.Add(IntToStr(textXPos) + ' - ' + FloatToStr(freqValue));
-if mouseOnLabelNow then exit;
 
 if CheckSpotListContainsKey(freqValue) then begin
 //this is a main procedure that draw spots on frequency pane
@@ -1474,7 +1469,7 @@ while not deleted do begin
 
     if not spotArray[nextSpotElement].spotLabel.onHold then begin
       spotArray[nextSpotElement].spotLabel.Destroy;
-      DebugOutput('deleting spot :'+FloatToStr(spotList.Items[nextSpotElement].Key) + ' - ' + spotArray[nextSpotElement].DX + ' time: '+DateTimeToStr(spotArray[nextSpotElement].LocalTime));
+//      DebugOutput('deleting spot :'+FloatToStr(spotList.Items[nextSpotElement].Key) + ' - ' + spotArray[nextSpotElement].DX + ' time: '+DateTimeToStr(spotArray[nextSpotElement].LocalTime));
       spotList.Delete(nextSpotElement);
       deleted := true;
       break;
@@ -1699,7 +1694,7 @@ while Start <= Length(incomeStr) do begin
             end;
         end else begin
           spotList.Add(TPair<variant, TArray<TSpot>>.Create(spot.Freq, TArray<TSpot>.Create(spot)));
-          DebugOutput('spot incoming (add):'+FloatToStr(spot.Freq) + ' - ' + spot.DX + ' time: '+DateTimeToStr(spot.LocalTime));
+//          DebugOutput('spot incoming (add):'+FloatToStr(spot.Freq) + ' - ' + spot.DX + ' time: '+DateTimeToStr(spot.LocalTime));
         end;
     end;
 
@@ -1767,7 +1762,7 @@ while Start <= Length(incomeStr) do begin
           //need to revert all list, because DXCluster shows spots in descending time manner
           //so, we simple insert every spot to begin of the list
           spotList.Insert(0, TPair<variant, TArray<TSpot>>.Create(spot.Freq, TArray<TSpot>.Create(spot)));
-          DebugOutput('spot incoming (sh/dx):'+FloatToStr(spot.Freq) + ' - ' + spot.DX + ' time: '+DateTimeToStr(spot.LocalTime));
+//          DebugOutput('spot incoming (sh/dx):'+FloatToStr(spot.Freq) + ' - ' + spot.DX + ' time: '+DateTimeToStr(spot.LocalTime));
         end;
     end;
 
@@ -1803,7 +1798,7 @@ if (ssRight in Shift) and (not isPanelHoldActive.Checked) then begin
   if Xold > 0 then horz := X - Xold else horz := 0;
   Xold := X;
   sleep(10);
-  DebugOutput('X: '+IntToStr(X));
+//  DebugOutput('X: '+IntToStr(X));
   if horz > 0 then begin
     //mouse move to right
     freqShifter := freqShifter - 1;

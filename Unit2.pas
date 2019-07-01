@@ -110,6 +110,7 @@ type
     procedure cbAdditionalInfoFromCallClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure createPrefixLstParser();
+    procedure cbSetCallsignToAALogClick(Sender: TObject);
   private
     OmniRig: TOmniRigX;
     ActiveRigNumber: Integer;
@@ -438,6 +439,7 @@ Label4.Enabled := cbAALogIntegrationEnabled.Checked;
 cbSpotInLog.Enabled := cbAALogIntegrationEnabled.Checked;
 cbSpotLotwEqsl.Enabled := cbAALogIntegrationEnabled.Checked;
 colBoxSpotInLog.Enabled := cbAALogIntegrationEnabled.Checked;
+cbSetCallsignToAALog.Enabled := cbAALogIntegrationEnabled.Checked;
 FrequencyVisualForm.menuLabelRequestAALogData.Enabled := cbAALogIntegrationEnabled.Checked;
 End;
 
@@ -515,6 +517,12 @@ end;
 procedure TsettingsForm.cbOwnSpotColorizeClick(Sender: TObject);
 begin
 colBoxOwnSpot.Enabled := cbOwnSpotColorize.Checked;
+End;
+
+procedure TsettingsForm.cbSetCallsignToAALogClick(Sender: TObject);
+begin
+cbSetSpotFrequencyToTRX.Checked := false;
+cbSetSpotFrequencyToTRX.Enabled := not cbSetCallsignToAALog.Checked;
 End;
 
 procedure TsettingsForm.cbSpotInLogClick(Sender: TObject);
